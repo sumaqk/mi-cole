@@ -1,0 +1,41 @@
+.codiTree
+{
+	display: inline-block;
+	margin: 0px;
+	padding: 0px;
+	position: relative;
+	text-align: center;
+}
+
+.codiTree ul
+{
+	display: block;
+	margin: 0px;
+	padding: 0px;
+}
+
+.codiTree li
+{
+	display: inline-block;
+	list-style: none;
+	margin: 20px;
+	margin-top: 60px;
+	vertical-align: top;
+}
+
+.codiTree > li
+{
+	margin-top: 20px;
+}
+
+.codiTree li > div
+{
+	background-color: #ffffff;
+	border: 1px solid #999999;
+	display: inline-block;
+	padding: 7px;
+	position: relative;
+	width: 200px;
+	word-wrap: break-word;
+	white-space: initial;
+}

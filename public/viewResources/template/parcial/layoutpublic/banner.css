@@ -1,0 +1,179 @@
+@keyframes initEntryButtonBanner
+{
+	0%
+	{
+		opacity: 0;
+	}
+	100%
+	{
+		opacity: 1;
+	}
+}
+
+@keyframes initEntryTextBanner
+{
+	0%
+	{
+		opacity: 0;
+		transform: translateY(-200px);
+	}
+	100%
+	{
+		opacity: 1;
+		transform: translateY(0px);
+	}
+}
+
+@keyframes initEntryTextFooterBottomBanner
+{
+	0%
+	{
+		opacity: 0;
+		transform: translateY(200px);
+	}
+	100%
+	{
+		opacity: 1;
+		transform: translateY(0px);
+	}
+}
+
+@keyframes initEntryTextFooterLeftBanner
+{
+	0%
+	{
+		opacity: 0;
+		transform: translateX(-200px);
+	}
+	100%
+	{
+		opacity: 1;
+		transform: translateX(0px);
+	}
+}
+
+@keyframes initEntryTextFooterRightBanner
+{
+	0%
+	{
+		opacity: 0;
+		transform: translateX(200px);
+	}
+	100%
+	{
+		opacity: 1;
+		transform: translateX(0px);
+	}
+}
+
+.divPrincipalBanner
+{
+	background-color: #000000;
+	display: none;
+	min-height: 600px;
+	overflow: hidden;
+	padding-bottom: 30px;
+	width: 100%;
+}
+
+.divPrincipalBanner[class~="divPrincipalBannerActive"]
+{
+	display: block;
+}
+
+.divPrincipalBanner > div
+{
+	padding-top: 100px;
+	text-align: center;
+}
+
+.divPrincipalBanner > div > div:nth-child(1)
+{
+	animation: initEntryTextBanner 0.7s forwards;
+	animation-delay: 0.6s;
+	color: #ffffff;
+	font-family: monospace;
+	font-size: 18px;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > div:nth-child(2)
+{
+	animation: initEntryTextBanner 0.7s forwards;
+	animation-delay: 0.3s;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > div:nth-child(3)
+{
+	animation: initEntryTextBanner 0.7s forwards;
+	animation-delay: 0.0s;
+	color: #f5f5f5;
+	font-size: 18px;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > div:nth-child(4)
+{
+	margin-top: 77px;
+}
+
+.divPrincipalBanner > div > div:nth-child(4) > a
+{
+	background-color: #019076;
+	border-radius: 5px;
+	box-shadow: 0px 0px 7px rgba(255, 255, 255, 0.3);
+	color: #ffffff;
+	display: inline-block;
+	font-size: 18px;
+	padding: 10px;
+	padding-left: 25px;
+	padding-right: 25px;
+	max-width: 270px;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerButton
+{
+	animation: initEntryButtonBanner 3s forwards;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerFooterItems
+{
+	margin-top: 40px;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerFooterItems > div
+{
+	display: inline-block;
+	margin: 4px;
+	text-align: center;
+	vertical-align: top;
+	width: 280px;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerFooterItems > div:nth-child(1)
+{
+	animation: initEntryTextFooterLeftBanner 2s forwards;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerFooterItems > div:nth-child(2)
+{
+	animation: initEntryTextFooterBottomBanner 2s forwards;
+	opacity: 0;
+}
+
+.divPrincipalBanner > div > .divPrincipalBannerFooterItems > div:nth-child(3)
+{
+	animation: initEntryTextFooterRightBanner 2s forwards;
+	opacity: 0;
+}
+
+@media screen and (max-width: 1200px)
+{
+	.divPrincipalBanner[class~="divPrincipalBannerActive"]
+	{
+		display: none;
+	}
+}

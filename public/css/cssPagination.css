@@ -1,0 +1,42 @@
+.divPagination
+{
+	border-bottom: 1px solid #f5f5f5;
+	border-top: 1px solid #f5f5f5;
+	font-size: 11px;
+	padding: 3px;
+	text-align: right;
+}
+
+.divPagination .divPaginationPageNumber
+{
+	border: solid 1px #999999;
+	display: inline-block;
+	margin: 2px;
+	padding: 1px;
+	text-align: center;
+	text-decoration: none;
+	width: 44px;
+}
+
+.divPagination .divPaginationPageNumber:hover
+{
+	background-color: #6195ce;
+	color: #ffffff;
+}
+
+.divPagination a
+{
+	cursor: pointer;
+	line-height: 18px;
+}
+
+.divPagination .divPaginationJump
+{
+	color: #B9618B;
+	text-decoration: none;
+}
+
+.divPagination .divPaginationJump:hover
+{
+	text-decoration: underline;
+}

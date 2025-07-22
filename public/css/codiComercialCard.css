@@ -1,0 +1,115 @@
+.codiComercialCard
+{
+	background-color: #ffffff;
+	border-radius: 7px;
+	box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+	display: inline-block;
+	margin-bottom: 12px;
+	margin-left: 12px;
+	margin-top: 12px;
+	vertical-align: top;
+	width: 280px;
+}
+
+.codiComercialCard > .codiComercialCardDescription
+{
+	color: #999999;
+	font-weight: bold;
+	height: 95px;
+	overflow: hidden;
+	padding: 7px;
+	text-align: justify;
+	word-wrap: break-word;
+	width: 100%;
+}
+
+.codiComercialCard > .codiComercialCardFooter > div
+{
+	border-top: 1px solid #cccccc;
+	border-radius: 0px 0px 7px 7px;
+	display: table;
+	width: 100%;
+}
+
+.codiComercialCard > .codiComercialCardFooter > div > div
+{
+	display: table-cell;
+	padding: 7px;
+	text-align: center;
+}
+
+.codiComercialCard > .codiComercialCardFooter > div > div:nth-child(1)
+{
+	border-right: 1px solid #cccccc;
+	border-radius: 0px 0px 0px 7px;
+	font-weight: bold;
+	width: 100px;
+}
+
+.codiComercialCard > .codiComercialCardFooter > div > div:nth-child(2)
+{
+	border-radius: 0px 0px 7px 0px;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage
+{
+	position: relative;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage > img
+{
+	border-radius: 7px 7px 0px 0px;
+	height: 140px;
+	width: 100%;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage > div
+{
+	left: 7px;
+	position: absolute;
+	top: 7px;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage > div > div
+{
+	background-color: #ffffff;
+	border-radius: 50px;
+	box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+	display: inline-block;
+	padding: 7px;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage > div > div > img
+{
+	border-radius: 30px;
+	height: 30px;
+	width: 30px;
+}
+
+.codiComercialCard > .codiComercialCardCoverImage > div > small
+{
+	background-color: #ffffff;
+	border-radius: 0px 5px 5px 0px;
+	box-shadow: 2px 0px 2px rgba(0, 0, 0, 0.7);
+	display: inline-block;
+	margin-left: -8px;
+	padding: 2px;
+	padding-right: 4px;
+	vertical-align: middle;
+}
+
+.codiComercialCard > .codiComercialCardTitle
+{
+	align-items: center;
+	border-bottom: 1px dashed #999999;
+	display: flex;
+	font-size: 18px;
+	height: 77px;
+	justify-content: center;
+	overflow: hidden;
+	padding: 7px;
+	text-align: center;
+	text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.4);
+	word-wrap: break-word;
+	width: 100%;
+}

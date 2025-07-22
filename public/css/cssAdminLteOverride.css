@@ -1,0 +1,108 @@
+.btn-primary
+{
+	background: #222d32;
+}
+
+.btn-primary:hover
+{
+	background-color: black;
+}
+
+.checkBox
+{
+	border: none !important;
+	border-radius: 0px;
+	border-top: 1px #cccccc solid !important;
+	height: 29px;
+	user-select: none;
+	width: 100%;
+}
+
+.checkBox > label
+{
+	cursor: pointer;
+	margin-right: 15px;
+}
+
+.checkBox > label:last-child
+{
+	margin-right: 0px !important;
+}
+
+.checkBox > label > input[type="checkbox"]
+{
+	cursor: pointer;
+	display: inline-block;
+	margin: 3px;
+	margin-top: 10px;
+	vertical-align: top;
+}
+
+.checkBox > label > span
+{
+	display: inline-block;
+	margin-top: 7px;
+	vertical-align: top;
+}
+
+.radioButton
+{
+	border: none !important;
+	border-radius: 0px;
+	border-top: 1px #cccccc solid !important;
+	height: 29px;
+	user-select: none;
+	width: 100%;
+}
+
+.radioButton > label
+{
+	cursor: pointer;
+	margin-right: 15px;
+}
+
+.radioButton > label:last-child
+{
+	margin-right: 0px !important;
+}
+
+.radioButton > label > input[type="radio"]
+{
+	cursor: pointer;
+	display: inline-block;
+	margin: 3px;
+	margin-top: 10px;
+	vertical-align: top;
+}
+
+.radioButton > label > span
+{
+	display: inline-block;
+	margin-top: 7px;
+	vertical-align: top;
+}
+
+.skin-blue .main-header .navbar
+{
+	background-color: #222d32;
+}
+
+.skin-blue .main-header .logo
+{
+	background-color: #1c1c1c;
+}
+
+.skin-blue .main-header .logo:hover
+{
+	background-color: black;
+}
+
+.skin-blue .main-header .navbar .sidebar-toggle:hover
+{
+	background-color: black;
+}
+
+.skin-blue .main-header li.user-header
+{
+	background-color: #222d32;
+}

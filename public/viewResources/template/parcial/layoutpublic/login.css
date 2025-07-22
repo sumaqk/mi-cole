@@ -1,0 +1,34 @@
+#divLogin
+{
+	position: fixed;
+	right: 7px;
+	top: 0px;
+}
+
+.btnLoginAccess
+{
+	color: #ffffff;
+	margin-right: 4px;
+}
+
+.btnLoginAccess, .btnLoginRegister
+{
+	border: 1px solid #999999;
+	box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	font-size: 15px;
+	padding: 8px;
+}
+
+.btnLoginAccess:hover, .btnLoginRegister:hover
+{
+	background-color: #ffffff;
+	color: #000000;
+}
+
+.btnLoginRegister
+{
+	background-color: #f39c12;
+	color: #ffffff;
+	margin-left: 4px;
+}
