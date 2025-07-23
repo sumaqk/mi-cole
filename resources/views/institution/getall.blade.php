@@ -4,10 +4,25 @@
 @section('generalBody')
 <div class="nav-tabs-custom">
 	<div class="tab-content">
+		{{-- <div class="row" style="margin-bottom: 15px;">
+			<div class="col-md-12">
+				<a href="{{url('institution/insert')}}" class="btn btn-success btn-sm">
+					<i class="fa fa-plus"></i> Nueva Institución
+				</a>
+			</div>
+		</div> --}}
 		<div class="row" style="margin-bottom: 15px;">
 			<div class="col-md-12">
 				<a href="{{url('institution/insert')}}" class="btn btn-success btn-sm">
 					<i class="fa fa-plus"></i> Nueva Institución
+				</a>
+				<a href="{{url('institution/export')}}" class="btn btn-primary btn-sm" style="margin-left: 10px;">
+					<i class="fa fa-file-excel-o"></i> Exportar a Excel
+				</a>
+				<a href="{{url('institution/export')}}?searchParameter={{$searchParameter}}" 
+				class="btn btn-info btn-sm" 
+				style="margin-left: 5px;">
+					<i class="fa fa-download"></i> Exportar Filtrado
 				</a>
 			</div>
 		</div>

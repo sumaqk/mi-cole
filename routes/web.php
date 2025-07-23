@@ -12,6 +12,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 
+
 Route::get('/', function () {
     return redirect()->route('home.index');
 })->name('home');
@@ -90,7 +91,7 @@ Route::post('institution/getdistricts', [InstitutionController::class, 'actionGe
 Route::post('institution/getugels', [InstitutionController::class, 'getugels'])->middleware('GenericMiddleware:institution/getugels');
 Route::post('institution/usermanagement', [InstitutionController::class, 'actionUserManagement'])->middleware('GenericMiddleware:institution/usermanagement');
 Route::post('institution/chgtoinsertwater', [InstitutionController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:institution/chgtoinsertwater');
-
+Route::get('institution/export', [InstitutionController::class, 'actionExport'])->middleware('GenericMiddleware:institution/export');
 
 Route::get('ugel/getall/{currentPage}', [UgelController::class, 'actionGetAll'])->middleware('GenericMiddleware:ugel/getall');
 Route::get('ugel/insert', [UgelController::class, 'actionInsert'])->middleware('GenericMiddleware:ugel/insert');
@@ -110,5 +111,8 @@ Route::get('district/edit/{idDistrict}', [DistrictController::class, 'actionEdit
 Route::post('district/update/{idDistrict}', [DistrictController::class, 'actionUpdate'])->middleware('GenericMiddleware:district/update');
 Route::post('district/delete/{idDistrict}', [DistrictController::class, 'actionDelete'])->middleware('GenericMiddleware:district/delete');
 Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:district/chgtoinsertwater');
+
+
+
 
 ?>

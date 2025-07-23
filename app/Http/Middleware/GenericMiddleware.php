@@ -124,6 +124,7 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'institution/update', 'mInstitutionModule', null],
 			['Súper usuario,Administrador', 'institution/delete', 'mInstitutionModule', null],
 			['Súper usuario,Administrador', 'institution/toggle-status', 'mInstitutionModule', null],
+			['Súper usuario,Administrador', 'institution/export', 'mInstitutionModule', null],
 			['Súper usuario,Administrador', 'institution/getdistricts', null, null],
 			['Súper usuario,Administrador', 'institution/getugels', null, null],
 			['Súper usuario,Administrador', 'institution/usermanagement', 'mInstitutionModule', null],
