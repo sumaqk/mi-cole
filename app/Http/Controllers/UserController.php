@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\TUser;
 use App\Models\TProvince;
 use App\Models\TDistrict;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Export\UserDataExport;
+use App\Models\TInstitutionTUser;
 
 class UserController extends Controller
 {
@@ -616,5 +619,59 @@ class UserController extends Controller
 		}
 
 		return response()->json($result);
+	}
+
+
+	public function actionExport(Request $request)
+	{
+		try {
+			$searchParameter = $request->has('searchParameter') ? $request->input('searchParameter') : '';
+			$query = TUser::with(['tInstitutionTUser.tInstitution'])
+				->whereRaw('compareFind(concat(firstName, surName, email, registerType), ?, 77)=1', [$searchParameter])
+				->orderByRaw('idUser desc');
+
+			$listTUser = $query->get();
+			$data = [];
+
+			$data[] = [
+				'ID',
+				'EMAIL',
+				'NOMBRE COMPLETO',
+				'ROL',
+				'ESTADO',
+				'INSTITUCIÓN',
+				'ÚLTIMO ACCESO',
+				'FECHA REGISTRO'
+			];
+
+			foreach ($listTUser as $value) {
+				$instituciones = [];
+				if ($value->tInstitutionTUser && count($value->tInstitutionTUser) > 0) {
+					foreach ($value->tInstitutionTUser as $instUser) {
+						if ($instUser->tInstitution) {
+							$instituciones[] = $instUser->tInstitution->name;
+						}
+					}
+				}
+				
+				$institucionesStr = !empty($instituciones) ? implode(', ', $instituciones) : 'Sin institución asignada';
+
+				$data[] = [
+					$value->idUser,
+					$value->email,
+					$value->firstName . ' ' . $value->surName,
+					$value->role ?? 'Sin rol',
+					$value->status,
+					$institucionesStr,
+					$value->lastAccess != '1991-01-01' ? date('d/m/Y', strtotime($value->lastAccess)) : 'Nunca',
+					$value->created_at ? $value->created_at->format('d/m/Y H:i') : '-'
+				];
+			}
+
+			return Excel::download(new UserDataExport($data), 'usuarios_' . date('d-m-Y') . '.xlsx');
+			
+		} catch (\Exception $e) {
+			return PlatformHelper::redirectError('Error al exportar: ' . $e->getMessage(), 'user/getall/1');
+		}
 	}
 }

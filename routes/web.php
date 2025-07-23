@@ -61,6 +61,7 @@ Route::post('user/changepassword', [UserController::class, 'actionChangePassword
 Route::get('user/getall/{currentPage}', [UserController::class, 'actionGetAll'])->middleware('GenericMiddleware:user/getall');
 Route::get('user/deleteinactive', [UserController::class, 'actionDeleteInactive'])->middleware('GenericMiddleware:user/deleteinactive');
 Route::post('user/filterbyfirstnamesurnameemail', [UserController::class, 'actionFilterByFirstNameSurNameEmail'])->middleware('GenericMiddleware:user/filterbyfirstnamesurnameemail');
+Route::get('user/export', [UserController::class, 'actionExport'])->middleware('GenericMiddleware:user/export');
 
 Route::get('usernotification/read/{idUserNotification}', [UserNotificationController::class, 'actionRead'])->middleware('GenericMiddleware:usernotification/read');
 Route::post('usernotification/readall', [UserNotificationController::class, 'actionReadAll'])->middleware('GenericMiddleware:usernotification/readall');

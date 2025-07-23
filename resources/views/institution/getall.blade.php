@@ -19,11 +19,11 @@
 				<a href="{{url('institution/export')}}" class="btn btn-primary btn-sm" style="margin-left: 10px;">
 					<i class="fa fa-file-excel-o"></i> Exportar a Excel
 				</a>
-				<a href="{{url('institution/export')}}?searchParameter={{$searchParameter}}" 
+				{{-- <a href="{{url('institution/export')}}?searchParameter={{$searchParameter}}" 
 				class="btn btn-info btn-sm" 
 				style="margin-left: 5px;">
 					<i class="fa fa-download"></i> Exportar Filtrado
-				</a>
+				</a> --}}
 			</div>
 		</div>
 		<div id="divSearch" class="row">

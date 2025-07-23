@@ -98,6 +98,7 @@ class GenericMiddleware
 			['Súper usuario', 'configuration/management', 'mControlPanel', 'miConfigurationManagement'],
 			['Súper usuario,Administrador', 'exception/getall', 'mControlPanel', 'miExceptionGetAll'],
 			['Súper usuario,Administrador', 'exception/changestatus', null, null],
+			['Súper usuario,Administrador', 'user/export', 'mUserModule', null],
 
 			['Normal', 'water/insert', 'mWater', null],
 			['Súper usuario,Administrador,Supervisor', 'water/getall', 'mWaterModule', 'miWaterModuleGetAll'],
@@ -129,6 +130,7 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'institution/getugels', null, null],
 			['Súper usuario,Administrador', 'institution/usermanagement', 'mInstitutionModule', null],
 			['Normal', 'institution/chgtoinsertwater', null, null],
+			
 
 			// RUTAS DE UGEL - AGREGADAS
 			['Súper usuario,Administrador', 'ugel/getall', 'mUgelModule', 'miUgelModuleGetAll'],

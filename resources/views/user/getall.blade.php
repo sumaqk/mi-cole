@@ -12,9 +12,18 @@
 					<input type="text" id="txtSearch" name="txtSearch" class="form-control pull-right" placeholder="Información para búsqueda (Enter)" autofocus onkeyup="searchUser(this.value, '{{url('user/getall/1')}}', event);" value="{{$searchParameter}}">
 				</div>
 			</div>
+			<div class="col-md-3">
+				<a href="{{url('user/export')}}" class="btn btn-success btn-sm" style="margin-right: 5px;" title="Exportar todos los usuarios">
+					<i class="fa fa-file-excel-o"></i> Exportar Excel
+				</a>
+				{{-- <a href="{{url('user/export')}}?searchParameter={{$searchParameter}}" class="btn btn-info btn-sm" title="Exportar usuarios filtrados">
+					<i class="fa fa-download"></i> Filtrado
+				</a> --}}
+			</div>
 			<div class="col-md-5">
 				{!!ViewHelper::renderPagination('user/getall', $quantityPage, $currentPage, $searchParameter)!!}
 			</div>
+			
 			<div class="col-md-1 text-center">
 				<span class="btn btn-default btn-sm glyphicon glyphicon-trash verticalAlignMiddle" data-toggle="tooltip" data-placement="bottom" title="Eliminar usuarios no confirmados" onclick="_globalFunction.clickLink('{{url('user/deleteinactive')}}')" style="width: 100%;"></span>
 			</div>

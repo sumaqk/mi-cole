@@ -33,5 +33,6 @@ class TUser extends Model
 	{
 		return $this->belongsTo(TDistrict::class, 'idDistrict');
 	}
+
 }
 ?>
