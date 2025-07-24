@@ -77,7 +77,7 @@ Route::match(['get', 'post'], 'water/insert', [WaterController::class, 'actionIn
 Route::get('water/getall', [WaterController::class, 'actionGetAll'])->middleware('GenericMiddleware:water/getall');
 Route::get('water/export', [WaterController::class, 'actionExport'])->middleware('GenericMiddleware:water/export');
 Route::get('/twater/detail/{id}', [WaterController::class, 'getWaterDetail'])->middleware('GenericMiddleware:water/detail')->name('water.detail');
-
+Route::get('water/export-detailed', [WaterController::class, 'actionExportDetailed'])->middleware('GenericMiddleware:water/export-detailed');
 Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:district/chgtoinsertwater');
 
 // RUTAS DE INSTITUTION - CON MIDDLEWARE CORREGIDO

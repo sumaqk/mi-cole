@@ -13,19 +13,21 @@
     #tableCollege tbody tr td {
         border: 1px solid #cccccc; 
     }
-
-
     #tableCollege tbody tr:nth-child(even) {
         background-color: #f2f2f2; 
     }
-
     #tableCollege tbody tr:nth-child(odd) {
         background-color: #ffffff; 
     }
-
-   
     #tableCollege tbody tr:hover {
         background-color: #e9ecef; 
+    }
+    .export-form {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        margin-bottom: 15px;
     }
 </style>
 @endsection
@@ -34,8 +36,43 @@
 <div class="nav-tabs-custom">
 	<div class="tab-content">
 		<div id="divSearch" class="row">
-			<div class="col-md-2">
-				<button type="button" class="btn btn-success btn-block" onclick="window.location.href ='{{url('water/export')}}'">Exportar en Excel</button>
+			<div class="col-md-6">
+				{{-- Botón exportación simple --}}
+				<button type="button" class="btn btn-success" onclick="window.location.href ='{{url('water/export')}}'">
+					<i class="fa fa-file-excel-o"></i> Exportar Excel Simple
+				</button>
+			</div>
+			<div class="col-md-6">
+				{{-- Formulario para exportación detallada --}}
+				<div class="export-form">
+					<h5 style="margin-top: 0; color: #495057;">
+						<i class="fa fa-chart-bar"></i> Exportar Reporte Detallado por Trimestre
+					</h5>
+					<form action="{{url('water/export-detailed')}}" method="GET" style="display: flex; align-items: end; gap: 10px;">
+						<div>
+							<label for="trimestre" style="font-size: 12px; margin-bottom: 2px;">Trimestre:</label>
+							<select name="trimestre" id="trimestre" class="form-control form-control-sm" style="width: 120px;">
+								<option value="1">I Trimestre</option>
+								<option value="2">II Trimestre</option>
+								<option value="3">III Trimestre</option>
+								<option value="4">IV Trimestre</option>
+							</select>
+						</div>
+						<div>
+							<label for="year" style="font-size: 12px; margin-bottom: 2px;">Año:</label>
+							<select name="year" id="year" class="form-control form-control-sm" style="width: 100px;">
+								@for($i = date('Y'); $i >= 2020; $i--)
+									<option value="{{$i}}" {{$i == date('Y') ? 'selected' : ''}}>{{$i}}</option>
+								@endfor
+							</select>
+						</div>
+						<div>
+							<button type="submit" class="btn btn-primary btn-sm">
+								<i class="fa fa-download"></i> Generar Reporte
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 		<hr>
@@ -88,7 +125,6 @@
 			</table>
 		</div>   
 	</div>
-	</div>
 </div>
 @endsection
 
@@ -100,7 +136,6 @@
             searching: true,
             ordering: true,
             responsive: true,
-
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.5/i18n/es-ES.json" 
             }

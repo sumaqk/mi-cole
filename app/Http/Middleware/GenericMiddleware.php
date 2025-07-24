@@ -88,6 +88,7 @@ class GenericMiddleware
 			['Normal', 'user/changepassword', null, null],
 			['Súper usuario,Administrador', 'user/getall', 'mUserModule', 'miUserGetAll'],
 			['Súper usuario,Administrador', 'user/deleteinactive', null, null],
+			
 			['Normal', 'user/filterbyfirstnamesurnameemail', null, null],
 
 			['Normal', 'usernotification/read', null, null],
@@ -99,11 +100,12 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'exception/getall', 'mControlPanel', 'miExceptionGetAll'],
 			['Súper usuario,Administrador', 'exception/changestatus', null, null],
 			['Súper usuario,Administrador', 'user/export', 'mUserModule', null],
-
+			
 			['Normal', 'water/insert', 'mWater', null],
 			['Súper usuario,Administrador,Supervisor', 'water/getall', 'mWaterModule', 'miWaterModuleGetAll'],
 			['Súper usuario,Administrador,Supervisor', 'water/detail', 'mWaterModule', 'miWaterModuleGetAll'],
 			['Súper usuario,Administrador,Supervisor', 'water/export', null, null],
+			['Súper usuario,Administrador,Supervisor', 'water/export-detailed', null, null],
 
 			['Normal', 'district/chgtoinsertwater', null, null],
 

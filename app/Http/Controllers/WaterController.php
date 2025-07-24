@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Export\DataExport;
 use App\Models\TInstitution;
 use App\Validation\WaterValidation;
+use App\Export\WaterDetailedExport;
 
 use Illuminate\Support\Facades\DB;
 
@@ -551,7 +552,7 @@ class WaterController extends Controller
 			$image->formatted_date = str_replace(date('F', strtotime($image->created_at)), $spanishMonth, $formattedDate);
 			return $image;
 		});
-//dd($formattedImages);
+		//dd($formattedImages);
 		return view('water.detail', compact('chartLabels', 'chartData', 'institution', 'formattedImages'));
 	}
 
@@ -574,5 +575,174 @@ class WaterController extends Controller
 		];
 
 		return $monthTranslations[$month] ?? $month; // Devolver el mes en español
+	}
+
+	public function actionExportDetailed(Request $request)
+	{
+		try {
+			$trimestre = $request->input('trimestre', '1');
+			$year = $request->input('year', date('Y'));
+
+			$trimestresMeses = [
+				'1' => ['Enero', 'Febrero', 'Marzo'],
+				'2' => ['Abril', 'Mayo', 'Junio'],
+				'3' => ['Julio', 'Agosto', 'Setiembre'],
+				'4' => ['Octubre', 'Noviembre', 'Diciembre']
+			];
+
+			$mesesTrimestre = $trimestresMeses[$trimestre];
+			$tUser = TUser::find(Session::get('idUser'));
+			$userRole = $tUser->role;
+			$userLevel = $tUser->level;
+			$userProvince = $tUser->idProvince;
+			$userDistrict = $tUser->idDistrict;
+
+			$queryInstituciones = TInstitution::with(['tdistrict.tprovince', 'tugel']);
+			if ($userRole === 'Supervisor' && $userLevel === 'levelProvince') {
+				$queryInstituciones->whereHas('tdistrict.tprovince', function ($sq) use ($userProvince) {
+					$sq->where('idProvince', $userProvince);
+				});
+			} elseif ($userRole === 'Supervisor' && $userLevel === 'levelDistrit') {
+				$queryInstituciones->whereHas('tdistrict', function ($sq) use ($userDistrict) {
+					$sq->where('idDistrict', $userDistrict);
+				});
+			}
+
+			$todasLasInstituciones = $queryInstituciones->get();
+			$queryWater = TWater::whereIn('month', $mesesTrimestre)
+				->whereYear('created_at', $year);
+			if ($userRole === 'Supervisor' && $userLevel === 'levelProvince') {
+				$queryWater->whereHas('tinstitution.tdistrict.tprovince', function ($sq) use ($userProvince) {
+					$sq->where('idProvince', $userProvince);
+				});
+			} elseif ($userRole === 'Supervisor' && $userLevel === 'levelDistrit') {
+				$queryWater->whereHas('tinstitution.tdistrict', function ($sq) use ($userDistrict) {
+					$sq->where('idDistrict', $userDistrict);
+				});
+			}
+
+			$datosWater = $queryWater->get();
+			$datosWaterPorInstitucion = [];
+			foreach ($datosWater as $water) {
+				$idInst = $water->idInstitution;
+				if (!isset($datosWaterPorInstitucion[$idInst])) {
+					$datosWaterPorInstitucion[$idInst] = [];
+				}
+				$datosWaterPorInstitucion[$idInst][$water->month] = $water;
+			}
+			$institucionesConReportes = [];
+			$institucionesSinReportes = [];
+
+			foreach ($todasLasInstituciones as $institucion) {
+				$idInst = $institucion->idInstitution;
+				$tieneReportes = isset($datosWaterPorInstitucion[$idInst]) && count($datosWaterPorInstitucion[$idInst]) > 0;
+
+				$datosInst = [
+					'institucion' => $institucion,
+					'datos' => $datosWaterPorInstitucion[$idInst] ?? []
+				];
+
+				if ($tieneReportes) {
+					$institucionesConReportes[] = $datosInst;
+				} else {
+					$institucionesSinReportes[] = $datosInst;
+				}
+			}
+
+			$instituciones = array_merge($institucionesConReportes, $institucionesSinReportes);
+
+			$data = [];
+			$headers = ['N°', 'UGEL', 'Institución', 'Prestador', 'Provincia', 'Distrito'];
+			for ($i = 0; $i < 15; $i++) {
+				$headers[] = '';
+			}
+
+			$headers = array_merge($headers, ['Observaciones', 'Situación Final']);
+			$data[] = $headers;
+			$contador = 1;
+			foreach ($instituciones as $instData) {
+				$inst = $instData['institucion'];
+				$datosInst = $instData['datos'];
+
+				$fila = [
+					$contador++,
+					$inst->tugel->name ?? 'Sin UGEL',
+					$inst->name,
+					$inst->lender,
+					$inst->tdistrict->tprovince->name,
+					$inst->tdistrict->name
+				];
+				$totalSemanas = 0;
+				$semanasReportadas = 0;
+				$sumaTotalValores = 0;
+				$totalValores = 0;
+
+				foreach ($mesesTrimestre as $mes) {
+					$water = isset($datosInst[$mes]) ? $datosInst[$mes] : null;
+
+					for ($semana = 1; $semana <= 5; $semana++) {
+						$totalSemanas++;
+						$campo = "resultW$semana";
+
+						if ($water && $water->$campo != -1) {
+							$fila[] = number_format($water->$campo, 1, '.');
+							$semanasReportadas++;
+							$sumaTotalValores += $water->$campo;
+							$totalValores++;
+						} else {
+							$fila[] = '-';
+						}
+					}
+				}
+				$porcentajeReporte = ($semanasReportadas / $totalSemanas) * 100;
+				$promedioValores = $totalValores > 0 ? $sumaTotalValores / $totalValores : 0;
+
+				$observaciones = $this->calcularObservaciones($porcentajeReporte, $semanasReportadas);
+				$situacionFinal = $this->calcularSituacionFinal($promedioValores, $porcentajeReporte);
+
+				$fila[] = $observaciones;
+				$fila[] = $situacionFinal;
+
+				$data[] = $fila;
+			}
+			return Excel::download(
+				new WaterDetailedExport($data, $mesesTrimestre),
+				"reporte_detallado_trimestre_{$trimestre}_{$year}.xlsx"
+			);
+		} catch (\Exception $e) {
+			return PlatformHelper::redirectError('Error al exportar: ' . $e->getMessage(), 'water/getall');
+		}
+	}
+
+	private function calcularObservaciones($porcentajeReporte, $semanasReportadas)
+	{
+		if ($semanasReportadas == 0) {
+			return 'Nunca subió sus reportes';
+		} elseif ($porcentajeReporte < 30) {
+			return 'Muy pocas semanas reportó';
+		} elseif ($porcentajeReporte < 50) {
+			return 'Pocas semanas reportó';
+		} elseif ($porcentajeReporte < 80) {
+			return 'Algunas semanas no reportó';
+		} elseif ($porcentajeReporte < 100) {
+			return 'Varias semanas no reportó';
+		} else {
+			return 'Reportó todas las semanas';
+		}
+	}
+
+	private function calcularSituacionFinal($promedio, $porcentajeReporte)
+	{
+		if ($porcentajeReporte == 0) {
+			return 'No se conoce la calidad del agua - Sin reportes';
+		} elseif ($promedio == 0) {
+			return 'Su reporte de cloro residual quedó en inadecuado';
+		} elseif ($promedio < 0.5) {
+			return 'Su reporte de cloro residual quedó en inadecuado';
+		} elseif ($promedio >= 0.5 && $promedio <= 1.0) {
+			return 'Su reporte muestra avances positivos en cloro residual';
+		} else {
+			return 'Su reporte de cloro residual presenta inconsistencias';
+		}
 	}
 }
