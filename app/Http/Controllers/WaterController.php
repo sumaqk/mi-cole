@@ -29,6 +29,8 @@ class WaterController extends Controller
 		$currentMonth = $listMonth[intval(date('m')) - 1];
 		$currentWeek = date('W', strtotime(date('Y-m-d'))) - date('W', strtotime(date('Y-m-01', strtotime(date('Y-m-d'))))) + 1;
 		$currentDate = date('d-m-Y');
+		error_log("Fecha: " . date('Y-m-d') . " - Día: " . date('d') . " - Semana calculada: " . $currentWeek);
+		$currentDate = date('d-m-Y');
 
 		if ($_POST) {
 			try {
