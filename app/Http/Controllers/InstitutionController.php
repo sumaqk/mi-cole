@@ -320,4 +320,102 @@ class InstitutionController extends Controller
 		}
 		return Excel::download(new InstitutionDataExport($data), 'instituciones_' . date('d-m-Y') . '.xlsx');
 	}
+
+
+	public function actionGetInstitutionsByUgel(Request $request)
+	{
+		try {
+			$groupBy = $request->get('group_by', 'ugel');
+			
+			if ($groupBy === 'district') {
+				$districts = TDistrict::with([
+					'tInstitution' => function($query) {
+						$query->where('status', 'Activo')
+							->with(['tUgel']);
+					},
+					'tProvince'
+				])
+				->whereHas('tInstitution', function($query) {
+					$query->where('status', 'Activo');
+				})
+				->orderBy('name', 'asc')
+				->get();
+
+				$institutionsSinDistrito = collect([]);
+				
+				return view('home/institution', [
+					'groupBy' => 'district',
+					'districts' => $districts,
+					'ugels' => collect([]),
+					'provinces' => collect([]),
+					'institutionsSinUgel' => $institutionsSinDistrito,
+					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'tConfigurationFmMdl' => TConfiguration::first()
+				]);
+				
+			} elseif ($groupBy === 'province') {
+				$provinces = TProvince::with([
+					'tDistrict.tInstitution' => function($query) {
+						$query->where('status', 'Activo')
+						->with(['tUgel']);
+					}
+				])
+				->whereHas('tDistrict.tInstitution', function($query) {
+					$query->where('status', 'Activo');
+				})
+				->orderBy('name', 'asc')
+				->get();
+
+				return view('home/institution', [
+					'groupBy' => 'province',
+					'provinces' => $provinces,
+					'ugels' => collect([]),
+					'districts' => collect([]),
+					'institutionsSinUgel' => collect([]),
+					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'tConfigurationFmMdl' => TConfiguration::first()
+				]);
+				
+			} else {
+				$ugels = TUgel::with([
+					'tInstitution' => function($query) {
+						$query->where('status', 'Activo')
+						->with(['tDistrict.tProvince']);
+					},
+					'tProvince', 
+					'tDistrict'
+				])
+				->where('is_active', true)
+				->orderBy('name', 'asc')
+				->get();
+
+				$institutionsSinUgel = TInstitution::with(['tDistrict.tProvince'])
+					->where('status', 'Activo')
+					->whereNull('idUgel')
+					->orderBy('name', 'asc')
+					->get();
+
+				return view('home/institution', [
+					'groupBy' => 'ugel',
+					'ugels' => $ugels,
+					'districts' => collect([]),
+					'provinces' => collect([]),
+					'institutionsSinUgel' => $institutionsSinUgel,
+					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'tConfigurationFmMdl' => TConfiguration::first()
+				]);
+			}
+
+		} catch (\Exception $e) {
+			return view('home/institution', [
+				'groupBy' => 'ugel',
+				'ugels' => collect([]),
+				'districts' => collect([]),
+				'provinces' => collect([]),
+				'institutionsSinUgel' => collect([]),
+				'totalInstitutions' => 0,
+				'tConfigurationFmMdl' => null
+			]);
+		}
+	}
 }

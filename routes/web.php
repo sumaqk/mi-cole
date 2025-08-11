@@ -29,8 +29,7 @@ Route::get('index/home/content_detail/{id}', [IndexController::class, 'actioncon
 
 Route::get('index/home/gallery', [IndexController::class, 'actionGallery'])->name('home.gallery');
 
-Route::get('index/home/institution', [IndexController::class, 'actionInstitution'])->name('home.institution');
-
+Route::get('index/home/institution', [InstitutionController::class, 'actionGetInstitutionsByUgel'])->name('home.institution');
 Route::get('/get-districts', [UserController::class, 'getDistrictsByProvince'])->name('getDistricts');
 
 Route::get('water/insert', [WaterController::class, 'actionInsert'])->middleware('GenericMiddleware:water/insert');
@@ -80,7 +79,6 @@ Route::get('/twater/detail/{id}', [WaterController::class, 'getWaterDetail'])->m
 Route::get('water/export-detailed', [WaterController::class, 'actionExportDetailed'])->middleware('GenericMiddleware:water/export-detailed');
 Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:district/chgtoinsertwater');
 
-// RUTAS DE INSTITUTION - CON MIDDLEWARE CORREGIDO
 Route::get('institution/getall/{currentPage}', [InstitutionController::class, 'actionGetAll'])->middleware('GenericMiddleware:institution/getall');
 Route::get('institution/insert', [InstitutionController::class, 'actionInsert'])->middleware('GenericMiddleware:institution/insert');
 Route::post('institution/insert', [InstitutionController::class, 'actionInsert'])->middleware('GenericMiddleware:institution/insert');
