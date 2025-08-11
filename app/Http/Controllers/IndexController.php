@@ -11,11 +11,12 @@ use App\Models\TProvince;
 use Illuminate\Support\Carbon;
 use App\Models\ModalSetting;
 use Illuminate\Support\Facades\Cache;
+use App\Models\TImage;
 
 class IndexController extends Controller
 {
 	public function actionIndex()
-	{	
+	{
 
 		$modal = Cache::remember('active_modal', 60, function () {
 			return ModalSetting::where('is_active', true)
@@ -30,12 +31,20 @@ class IndexController extends Controller
 
 	public function actionGallery()
 	{
+		$imagesByInstitution = TImage::with([
+			'tWater.tInstitution.tDistrict.tProvince',
+			'tWater.tInstitution.tUgel'
+		])
+			->whereNotNull('urlImage1')
+			->orderBy('created_at', 'desc')
+			->get()
+			->groupBy('tWater.tInstitution.name');
+
 		$videos = TVideo::all();
-		$images = TGallery::orderBy('id', 'desc')->take(12)->get();
 
 		return view('home/gallery', [
-			'videos' => $videos,
-			'images' => $images
+			'imagesByInstitution' => $imagesByInstitution,
+			'videos' => $videos
 		]);
 	}
 
@@ -54,16 +63,16 @@ class IndexController extends Controller
 
 	public function actionInstitution()
 	{
-		$provinces = TProvince::with(['tDistrict.tInstitution'])->get();	
-		
+		$provinces = TProvince::with(['tDistrict.tInstitution'])->get();
+
 		$totalInstitutions = $provinces->sum(function ($province) {
 			return $province->tDistrict->sum(function ($district) {
 				return $district->tInstitution->count();
 			});
 		});
-	
+
 		return view('home.institution', compact('provinces', 'totalInstitutions'));
-	}	
+	}
 
 	public function actionIndexAdmin()
 	{
