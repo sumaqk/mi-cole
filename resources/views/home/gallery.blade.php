@@ -423,7 +423,7 @@
     }
 
     .video-section {
-        padding: 50px;
+        padding: 55px;
     }
 
     .video-container {
