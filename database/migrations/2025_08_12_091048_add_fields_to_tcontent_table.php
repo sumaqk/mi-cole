@@ -1,51 +1,70 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldsToTcontentTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
         Schema::table('tcontent', function (Blueprint $table) {
-            // Campos básicos del contenido
-            $table->string('title')->after('id');
-            $table->text('excerpt')->nullable()->after('title'); // resumen corto
-            $table->longText('content')->after('excerpt'); // contenido completo
-            $table->string('featured_image')->nullable()->after('content'); // imagen principal
-            $table->string('slug')->unique()->after('featured_image'); // URL amigable
-            
-            // Campos de organización
-            $table->string('category', 50)->nullable()->after('slug');
-            $table->string('subcategory', 50)->nullable()->after('category');
-            $table->string('tags')->nullable()->after('subcategory');
-            $table->boolean('is_featured')->default(false)->after('tags');
-            $table->boolean('status')->default(true)->after('is_featured');
-            
-            // SEO y metadata
-            $table->string('meta_title')->nullable()->after('status');
-            $table->text('meta_description')->nullable()->after('meta_title');
-            $table->string('meta_keywords')->nullable()->after('meta_description');
-            
-            // Campos de orden y publicación
-            $table->integer('sort_order')->default(0)->after('meta_keywords');
-            $table->integer('views_count')->default(0)->after('sort_order');
-            $table->timestamp('published_at')->nullable()->after('views_count');
-            
-            // Usuario que lo creó
-            $table->integer('created_by')->nullable()->after('published_at');
+            if (!Schema::hasColumn('tcontent', 'excerpt')) {
+                $table->text('excerpt')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'content')) {
+                $table->longText('content')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'featured_image')) {
+                $table->string('featured_image')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'slug')) {
+                $table->string('slug')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'category')) {
+                $table->string('category', 100)->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'subcategory')) {
+                $table->string('subcategory', 100)->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'tags')) {
+                $table->text('tags')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'status')) {
+                $table->boolean('status')->default(true);
+            }
+            if (!Schema::hasColumn('tcontent', 'is_featured')) {
+                $table->boolean('is_featured')->default(false);
+            }
+            if (!Schema::hasColumn('tcontent', 'views_count')) {
+                $table->integer('views_count')->default(0);
+            }
+            if (!Schema::hasColumn('tcontent', 'sort_order')) {
+                $table->integer('sort_order')->default(0);
+            }
+            if (!Schema::hasColumn('tcontent', 'published_at')) {
+                $table->timestamp('published_at')->nullable();
+            }
+            if (!Schema::hasColumn('tcontent', 'created_by')) {
+                $table->integer('created_by')->nullable();
+            }
         });
     }
 
     public function down()
     {
         Schema::table('tcontent', function (Blueprint $table) {
-            $table->dropColumn([
-                'title', 'excerpt', 'content', 'featured_image', 'slug',
-                'category', 'subcategory', 'tags', 'is_featured', 'status',
-                'meta_title', 'meta_description', 'meta_keywords',
-                'sort_order', 'views_count', 'published_at', 'created_by'
-            ]);
+            $columnsToCheck = [
+                'excerpt', 'content', 'featured_image', 'slug', 'category',
+                'subcategory', 'tags', 'status', 'is_featured', 'views_count',
+                'sort_order', 'published_at', 'created_by'
+            ];
+            
+            foreach ($columnsToCheck as $column) {
+                if (Schema::hasColumn('tcontent', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
-}
+};

@@ -1,137 +1,127 @@
-@extends('layout.layout')
+@extends('template.layout')
 
-@section('content')
-<div class="content-wrapper">
-    <section class="content-header">
-        <h1>Editar Contenido</h1>
-    </section>
+@section('title', 'Editar Contenido')
 
-    <section class="content">
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title">Editar: {{$content->title}}</h3>
+@section('generalBody')
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Editar Contenido</h1>
             </div>
-
-            <form method="POST" action="{{url('home/material_agua/contenido_admin/update/' . $content->id)}}" enctype="multipart/form-data">
-                @csrf
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label>Título *</label>
-                                <input type="text" name="title" class="form-control" required value="{{old('title', $content->title)}}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Resumen/Extracto</label>
-                                <textarea name="excerpt" class="form-control" rows="3">{{old('excerpt', $content->excerpt)}}</textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Contenido *</label>
-                                <textarea name="content" id="content-editor" class="form-control" rows="15" required>{{old('content', $content->content)}}</textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tags (separados por comas)</label>
-                                <input type="text" name="tags" class="form-control" value="{{old('tags', $content->tags)}}">
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Imagen Destacada Actual</label>
-                                @if($content->featured_image)
-                                    <div style="margin-bottom: 10px;">
-                                        <img src="{{$content->featured_image_url}}" class="img-thumbnail" style="max-width: 100%; max-height: 200px;">
-                                    </div>
-                                @endif
-                                <input type="file" name="featured_image" class="form-control" accept="image/*">
-                                <small class="text-muted">Dejar vacío para mantener la imagen actual</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Categoría</label>
-                                <select name="category" class="form-control">
-                                    <option value="">Seleccionar categoría</option>
-                                    @foreach(['Educación', 'Noticias', 'Tecnología', 'Salud', 'Medio Ambiente', 'Proyectos', 'Investigación'] as $cat)
-                                        <option value="{{$cat}}" {{old('category', $content->category) == $cat ? 'selected' : ''}}>{{$cat}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Subcategoría</label>
-                                <input type="text" name="subcategory" class="form-control" value="{{old('subcategory', $content->subcategory)}}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Fecha de Publicación</label>
-                                <input type="datetime-local" name="published_at" class="form-control" value="{{old('published_at', $content->published_at ? $content->published_at->format('Y-m-d\TH:i') : '')}}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Orden</label>
-                                <input type="number" name="sort_order" class="form-control" value="{{old('sort_order', $content->sort_order)}}">
-                            </div>
-
-                            <div class="form-group">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="status" {{old('status', $content->status) ? 'checked' : ''}}> Publicado
-                                    </label>
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="is_featured" {{old('is_featured', $content->is_featured) ? 'checked' : ''}}> Contenido Destacado
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Estadísticas</label>
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-aqua"><i class="fa fa-eye"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Vistas</span>
-                                        <span class="info-box-number">{{$content->views_count}}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-save"></i> Actualizar Contenido
-                    </button>
-                    <a href="{{url('home/material_agua/contenido_admin')}}" class="btn btn-default">
-                        <i class="fa fa-arrow-left"></i> Cancelar
-                    </a>
-                    <a href="{{$content->url}}" class="btn btn-info" target="_blank">
-                        <i class="fa fa-eye"></i> Ver en sitio
-                    </a>
-                </div>
-            </form>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{url('index/indexadmin')}}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{{url('contenidoweb/contenido')}}">Contenido</a></li>
+                    <li class="breadcrumb-item active">Editar</li>
+                </ol>
+            </div>
         </div>
-    </section>
+    </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
-<script>
-tinymce.init({
-    selector: '#content-editor',
-    height: 400,
-    menubar: false,
-    plugins: [
-        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-        'insertdatetime', 'media', 'table', 'help', 'wordcount'
-    ],
-    toolbar: 'undo redo | blocks | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-    language: 'es'
-});
-</script>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fa fa-edit"></i> Editar: {{$content->title}}
+                        </h3>
+                    </div>
+
+                    <form method="POST" action="{{url('contenidoweb/contenido/update/' . $content->id)}}" enctype="multipart/form-data">
+                        @csrf
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Título *</label>
+                                        <input type="text" name="title" class="form-control" required value="{{$content->title}}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Resumen/Extracto</label>
+                                        <textarea name="excerpt" class="form-control" rows="3">{{$content->excerpt}}</textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Contenido *</label>
+                                        <textarea name="content" class="form-control" rows="10" required>{{$content->content}}</textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Tags (separados por comas)</label>
+                                        <input type="text" name="tags" class="form-control" value="{{$content->tags}}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Nueva Imagen Destacada</label>
+                                        <input type="file" name="featured_image" class="form-control" accept="image/*">
+                                        @if($content->featured_image)
+                                            <small class="text-muted">Actual: {{$content->featured_image}}</small>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Categoría</label>
+                                        <select name="category" class="form-control">
+                                            <option value="">Seleccionar</option>
+                                            <option value="Educación" {{$content->category == 'Educación' ? 'selected' : ''}}>Educación</option>
+                                            <option value="Noticias" {{$content->category == 'Noticias' ? 'selected' : ''}}>Noticias</option>
+                                            <option value="Tecnología" {{$content->category == 'Tecnología' ? 'selected' : ''}}>Tecnología</option>
+                                            <option value="Salud" {{$content->category == 'Salud' ? 'selected' : ''}}>Salud</option>
+                                            <option value="Medio Ambiente" {{$content->category == 'Medio Ambiente' ? 'selected' : ''}}>Medio Ambiente</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Subcategoría</label>
+                                        <input type="text" name="subcategory" class="form-control" value="{{$content->subcategory}}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Fecha de Publicación</label>
+                                        <input type="datetime-local" name="published_at" class="form-control" value="{{$content->published_at}}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="number" name="sort_order" class="form-control" value="{{$content->sort_order}}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" name="status" class="custom-control-input" id="status" {{$content->status ? 'checked' : ''}}>
+                                            <label class="custom-control-label" for="status">Publicado</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" name="is_featured" class="custom-control-input" id="featured" {{$content->is_featured ? 'checked' : ''}}>
+                                            <label class="custom-control-label" for="featured">Contenido Destacado</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Actualizar Contenido
+                            </button>
+                            <a href="{{url('contenidoweb/contenido')}}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

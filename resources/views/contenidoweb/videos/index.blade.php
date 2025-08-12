@@ -1,18 +1,18 @@
 @extends('template.layout')
 
-@section('title', 'Gestión de Contenido')
+@section('title', 'Gestión de Videos')
 
 @section('generalBody')
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Gestión de Contenido</h1>
+                <h1 class="m-0">Gestión de Videos</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{url('index/indexadmin')}}">Inicio</a></li>
-                    <li class="breadcrumb-item active">Contenido</li>
+                    <li class="breadcrumb-item active">Videos</li>
                 </ol>
             </div>
         </div>
@@ -26,17 +26,17 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fa fa-file-text"></i> Lista de Contenido
+                            <i class="fa fa-video-camera"></i> Lista de Videos
                         </h3>
                         <div class="card-tools">
-                            <a href="{{url('contenidoweb/contenido/insert')}}" class="btn btn-primary btn-sm">
-                                <i class="fa fa-plus"></i> Nuevo Contenido
+                            <a href="{{url('contenidoweb/videos/insert')}}" class="btn btn-primary btn-sm">
+                                <i class="fa fa-plus"></i> Nuevo Video
                             </a>
                         </div>
                     </div>
 
                     <div class="card-body">
-                        @if(count($contents) > 0)
+                        @if(count($videos) > 0)
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped">
                                     <thead>
@@ -45,36 +45,28 @@
                                             <th>Título</th>
                                             <th>Categoría</th>
                                             <th>Estado</th>
-                                            <th>Destacado</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($contents as $content)
+                                        @foreach($videos as $video)
                                             <tr>
-                                                <td>{{$content->id}}</td>
-                                                <td>{{$content->title ?: 'Sin título'}}</td>
-                                                <td>{{$content->category ?: 'Sin categoría'}}</td>
+                                                <td>{{$video->id}}</td>
+                                                <td>{{$video->title ?: 'Sin título'}}</td>
+                                                <td>{{$video->category ?: 'Sin categoría'}}</td>
                                                 <td>
-                                                    @if($content->status)
-                                                        <span class="badge badge-success">Publicado</span>
+                                                    @if($video->status)
+                                                        <span class="badge badge-success">Activo</span>
                                                     @else
-                                                        <span class="badge badge-warning">Borrador</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($content->is_featured)
-                                                        <i class="fa fa-star text-warning"></i>
-                                                    @else
-                                                        <i class="fa fa-star-o text-muted"></i>
+                                                        <span class="badge badge-danger">Inactivo</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{url('contenidoweb/contenido/edit/' . $content->id)}}" class="btn btn-info btn-sm">
+                                                        <a href="{{url('contenidoweb/videos/edit/' . $video->id)}}" class="btn btn-info btn-sm">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteContent({{$content->id}})">
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteVideo({{$video->id}})">
                                                             <i class="fa fa-trash"></i>
                                                         </button>
                                                     </div>
@@ -86,11 +78,11 @@
                             </div>
                         @else
                             <div class="text-center py-4">
-                                <i class="fa fa-file-text fa-3x text-muted mb-3"></i>
-                                <h4 class="text-muted">No hay contenido registrado</h4>
-                                <p class="text-muted">Comience creando nuevo contenido</p>
-                                <a href="{{url('contenidoweb/contenido/insert')}}" class="btn btn-primary">
-                                    <i class="fa fa-plus"></i> Crear Primer Contenido
+                                <i class="fa fa-video-camera fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No hay videos registrados</h4>
+                                <p class="text-muted">Comience creando un nuevo video</p>
+                                <a href="{{url('contenidoweb/videos/insert')}}" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Crear Primer Video
                                 </a>
                             </div>
                         @endif
@@ -104,9 +96,9 @@
 
 @section('jsSection')
 <script>
-function deleteContent(id) {
-    if (confirm('¿Eliminar contenido?')) {
-        fetch(`/contenidoweb/contenido/delete/${id}`, {
+function deleteVideo(id) {
+    if (confirm('¿Eliminar video?')) {
+        fetch(`/contenidoweb/videos/delete/${id}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
