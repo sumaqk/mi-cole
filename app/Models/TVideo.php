@@ -35,7 +35,7 @@ class TVideo extends Model
     public function getThumbnailUrlAttribute()
     {
         if ($this->thumbnail) {
-            return asset('material_agua/videos/thumbnails/' . $this->thumbnail);
+            return asset('storage/videos/thumbnails/' . $this->thumbnail);
         }
         return asset('images/default-video.jpg');
     }

@@ -54,7 +54,7 @@ class TContent extends Model
     public function getFeaturedImageUrlAttribute()
     {
         if ($this->featured_image) {
-            return asset('material_agua/contenido/images/' . $this->featured_image);
+            return asset('storage/contenido/images/' . $this->featured_image);
         }
         return asset('images/default-content.jpg');
     }

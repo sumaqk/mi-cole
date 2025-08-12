@@ -47,14 +47,14 @@ class ContenidoWebController extends Controller
             if ($request->hasFile('video_file')) {
                 $file = $request->file('video_file');
                 $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('material_agua/videos'), $filename);
-                $data['video_path'] = 'material_agua/videos/' . $filename;
+                $file->storeAs('videos', $filename, 'public');
+                $data['video_path'] = 'storage/videos/' . $filename;
             }
 
             if ($request->hasFile('thumbnail')) {
                 $thumb = $request->file('thumbnail');
                 $thumbName = time() . '_thumb.' . $thumb->getClientOriginalExtension();
-                $thumb->move(public_path('material_agua/videos/thumbnails'), $thumbName);
+                $thumb->storeAs('videos/thumbnails', $thumbName, 'public');
                 $data['thumbnail'] = $thumbName;
             }
 
@@ -181,7 +181,7 @@ class ContenidoWebController extends Controller
             if ($request->hasFile('featured_image')) {
                 $file = $request->file('featured_image');
                 $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('material_agua/contenido/images'), $filename);
+                $file->storeAs('contenido/images', $filename, 'public');
                 $data['featured_image'] = $filename;
             }
 
