@@ -11,6 +11,7 @@ use App\Http\Controllers\WaterController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
+use App\Http\Controllers\ContenidoWebController;
 
 
 Route::get('/', function () {
@@ -111,6 +112,23 @@ Route::post('district/update/{idDistrict}', [DistrictController::class, 'actionU
 Route::post('district/delete/{idDistrict}', [DistrictController::class, 'actionDelete'])->middleware('GenericMiddleware:district/delete');
 Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:district/chgtoinsertwater');
 
+
+//Para contenido
+Route::get('home/material_agua/videos_admin', [ContenidoWebController::class, 'actionVideosIndex'])->middleware('GenericMiddleware:home/material_agua/videos_admin')->name('videos.index');
+Route::get('home/material_agua/videos_admin/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:home/material_agua/videos_admin/insert');
+Route::post('home/material_agua/videos_admin/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:home/material_agua/videos_admin/insert');
+Route::get('home/material_agua/videos_admin/edit/{id}', [ContenidoWebController::class, 'actionVideosEdit'])->middleware('GenericMiddleware:home/material_agua/videos_admin/edit');
+Route::post('home/material_agua/videos_admin/update/{id}', [ContenidoWebController::class, 'actionVideosUpdate'])->middleware('GenericMiddleware:home/material_agua/videos_admin/update');
+Route::delete('home/material_agua/videos_admin/delete/{id}', [ContenidoWebController::class, 'actionVideosDelete'])->middleware('GenericMiddleware:home/material_agua/videos_admin/delete');
+
+Route::get('home/material_agua/contenido_admin', [ContenidoWebController::class, 'actionContenidoIndex'])->middleware('GenericMiddleware:home/material_agua/contenido_admin')->name('contenido.index');
+Route::get('home/material_agua/contenido_admin/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/insert');
+Route::post('home/material_agua/contenido_admin/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/insert');
+Route::get('home/material_agua/contenido_admin/edit/{id}', [ContenidoWebController::class, 'actionContenidoEdit'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/edit');
+Route::post('home/material_agua/contenido_admin/update/{id}', [ContenidoWebController::class, 'actionContenidoUpdate'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/update');
+Route::delete('home/material_agua/contenido_admin/delete/{id}', [ContenidoWebController::class, 'actionContenidoDelete'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/delete');
+Route::post('home/material_agua/contenido_admin/toggle-status/{id}', [ContenidoWebController::class, 'actionContenidoToggleStatus'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/toggle-status');
+Route::post('home/material_agua/contenido_admin/toggle-featured/{id}', [ContenidoWebController::class, 'actionContenidoToggleFeatured'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/toggle-featured');
 
 
 
