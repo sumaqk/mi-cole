@@ -90,4 +90,18 @@
 			</ul>
 		</li>
 	@endif
+	@if(ViewHelper::hasMainRole('Súper usuario') || ViewHelper::hasMainRole('Administrador'))
+		<li id="mContenidoWebModule" class="treeview">
+			<a href="#">
+				<i class="fa fa-edit"></i> <span>Contenido Web</span>
+				<span class="pull-right-container">
+					<i class="fa fa-angle-left pull-right"></i>
+				</span>
+			</a>
+			<ul class="treeview-menu">
+				<li id="miContenidoWebVideos"><a href="{{url('home/material_agua/videos_admin')}}"><i class="fa fa-circle-o"></i> Gestión de videos</a></li>
+				<li id="miContenidoWebContenido"><a href="{{url('home/material_agua/contenido_admin')}}"><i class="fa fa-circle-o"></i> Gestión de contenido</a></li>
+			</ul>
+		</li>
+	@endif
 </ul>
