@@ -150,6 +150,21 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'district/update', 'mDistrictModule', null],
 			['Súper usuario,Administrador', 'district/delete', 'mDistrictModule', null],
 			['Normal', 'district/chgtoinsertwater', null, null],
+
+			// Para contenido
+			['Súper usuario,Administrador', 'home/material_agua/videos_admin', 'mContenidoWebModule', 'miContenidoWebVideos'],
+			['Súper usuario,Administrador', 'home/material_agua/videos_admin/insert', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/videos_admin/edit', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/videos_admin/update', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/videos_admin/delete', 'mContenidoWebModule', null],
+
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin', 'mContenidoWebModule', 'miContenidoWebContenido'],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/insert', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/edit', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/update', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/delete', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/toggle-status', 'mContenidoWebModule', null],
+			['Súper usuario,Administrador', 'home/material_agua/contenido_admin/toggle-featured', 'mContenidoWebModule', null],
 		];
 
 		$myMainRole=Session::get('mainRole', '');
