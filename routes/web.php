@@ -114,22 +114,20 @@ Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgT
 
 
 //Para contenido
-Route::get('home/material_agua/videos_admin', [ContenidoWebController::class, 'actionVideosIndex'])->middleware('GenericMiddleware:home/material_agua/videos_admin')->name('videos.index');
-Route::get('home/material_agua/videos_admin/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:home/material_agua/videos_admin/insert');
-Route::post('home/material_agua/videos_admin/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:home/material_agua/videos_admin/insert');
-Route::get('home/material_agua/videos_admin/edit/{id}', [ContenidoWebController::class, 'actionVideosEdit'])->middleware('GenericMiddleware:home/material_agua/videos_admin/edit');
-Route::post('home/material_agua/videos_admin/update/{id}', [ContenidoWebController::class, 'actionVideosUpdate'])->middleware('GenericMiddleware:home/material_agua/videos_admin/update');
-Route::delete('home/material_agua/videos_admin/delete/{id}', [ContenidoWebController::class, 'actionVideosDelete'])->middleware('GenericMiddleware:home/material_agua/videos_admin/delete');
+Route::get('contenidoweb/videos', [ContenidoWebController::class, 'actionVideosIndex'])->middleware('GenericMiddleware:contenidoweb/videos')->name('videos.index');
+Route::get('contenidoweb/videos/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:contenidoweb/videos/insert');
+Route::post('contenidoweb/videos/insert', [ContenidoWebController::class, 'actionVideosInsert'])->middleware('GenericMiddleware:contenidoweb/videos/insert');
+Route::get('contenidoweb/videos/edit/{id}', [ContenidoWebController::class, 'actionVideosEdit'])->middleware('GenericMiddleware:contenidoweb/videos/edit');
+Route::post('contenidoweb/videos/update/{id}', [ContenidoWebController::class, 'actionVideosUpdate'])->middleware('GenericMiddleware:contenidoweb/videos/update');
+Route::delete('contenidoweb/videos/delete/{id}', [ContenidoWebController::class, 'actionVideosDelete'])->middleware('GenericMiddleware:contenidoweb/videos/delete');
 
-Route::get('home/material_agua/contenido_admin', [ContenidoWebController::class, 'actionContenidoIndex'])->middleware('GenericMiddleware:home/material_agua/contenido_admin')->name('contenido.index');
-Route::get('home/material_agua/contenido_admin/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/insert');
-Route::post('home/material_agua/contenido_admin/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/insert');
-Route::get('home/material_agua/contenido_admin/edit/{id}', [ContenidoWebController::class, 'actionContenidoEdit'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/edit');
-Route::post('home/material_agua/contenido_admin/update/{id}', [ContenidoWebController::class, 'actionContenidoUpdate'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/update');
-Route::delete('home/material_agua/contenido_admin/delete/{id}', [ContenidoWebController::class, 'actionContenidoDelete'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/delete');
-Route::post('home/material_agua/contenido_admin/toggle-status/{id}', [ContenidoWebController::class, 'actionContenidoToggleStatus'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/toggle-status');
-Route::post('home/material_agua/contenido_admin/toggle-featured/{id}', [ContenidoWebController::class, 'actionContenidoToggleFeatured'])->middleware('GenericMiddleware:home/material_agua/contenido_admin/toggle-featured');
-
-
+Route::get('contenidoweb/contenido', [ContenidoWebController::class, 'actionContenidoIndex'])->middleware('GenericMiddleware:contenidoweb/contenido')->name('contenido.index');
+Route::get('contenidoweb/contenido/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:contenidoweb/contenido/insert');
+Route::post('contenidoweb/contenido/insert', [ContenidoWebController::class, 'actionContenidoInsert'])->middleware('GenericMiddleware:contenidoweb/contenido/insert');
+Route::get('contenidoweb/contenido/edit/{id}', [ContenidoWebController::class, 'actionContenidoEdit'])->middleware('GenericMiddleware:contenidoweb/contenido/edit');
+Route::post('contenidoweb/contenido/update/{id}', [ContenidoWebController::class, 'actionContenidoUpdate'])->middleware('GenericMiddleware:contenidoweb/contenido/update');
+Route::delete('contenidoweb/contenido/delete/{id}', [ContenidoWebController::class, 'actionContenidoDelete'])->middleware('GenericMiddleware:contenidoweb/contenido/delete');
+Route::post('contenidoweb/contenido/toggle-status/{id}', [ContenidoWebController::class, 'actionContenidoToggleStatus'])->middleware('GenericMiddleware:contenidoweb/contenido/toggle-status');
+Route::post('contenidoweb/contenido/toggle-featured/{id}', [ContenidoWebController::class, 'actionContenidoToggleFeatured'])->middleware('GenericMiddleware:contenidoweb/contenido/toggle-featured');
 
 ?>
