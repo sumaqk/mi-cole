@@ -1,159 +1,713 @@
 @include('home/layout/header')
-<!-- Header Start -->
-<div class="container-fluid bg-primary mb-5">
-    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
-        <h3 class="display-3 font-weight-bold text-white">Contenido</h3>
-        <div class="d-inline-flex text-white">
-            <p class="m-0"><a class="text-white" href="">Home</a></p>
-            <p class="m-0 px-2">/</p>
-            <p class="m-0">Contenido</p>
+
+<style>
+    body {
+        background: #ffffff;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .content-container {
+        padding: 40px 20px;
+        min-height: 100vh;
+        background: #ffffff;
+    }
+
+    .page-title {
+        text-align: center;
+        color: #333;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 50px;
+    }
+
+    .category-section {
+        margin-bottom: 40px;
+        /* Reducido para eliminar espacios */
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-left: 20px;
+    }
+
+    .category-icon {
+        margin-right: 15px;
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        font-size: 2rem;
+    }
+
+    .category-title {
+        color: #333;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .content-type-header {
+        color: #666;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        padding-left: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .content-type-icon {
+        margin-right: 10px;
+        font-size: 1.4rem;
+    }
+
+    .carousel-container {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        /* Reducido */
+    }
+
+    .carousel {
+        display: flex;
+        gap: 20px;
+        padding: 0 20px;
+        scroll-behavior: smooth;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .carousel::-webkit-scrollbar {
+        display: none;
+    }
+
+    .content-card {
+        min-width: 320px;
+        height: 280px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-image {
+        width: 100%;
+        height: 160px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border-bottom: 1px solid #dee2e6;
+        overflow: hidden;
+    }
+
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .content-card:hover .card-image img {
+        transform: scale(1.1);
+    }
+
+    .card-image i {
+        font-size: 3.5rem;
+        color: #6c757d;
+        opacity: 0.8;
+    }
+
+    .card-content {
+        padding: 15px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.6em;
+    }
+
+    .card-description {
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 10px;
+        flex-grow: 1;
+        min-height: 2.8em;
+    }
+
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 8px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .card-type {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .card-views {
+        color: #666;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(45deg, #feca57, #ff9ff3);
+        color: white;
+        padding: 5px 8px;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        z-index: 5;
+    }
+
+    .scroll-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .scroll-btn:hover {
+        background: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .scroll-btn.left {
+        left: 10px;
+    }
+
+    .scroll-btn.right {
+        right: 10px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-video {
+        width: 900px;
+        height: 600px;
+    }
+
+    .modal-content-doc {
+        width: 900px;
+        height: 700px;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .modal-close:hover {
+        color: black;
+    }
+
+    .file-header {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        margin: -20px -20px 0 -20px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .content-info {
+        padding: 20px;
+        background: #fff;
+        border-bottom: 1px solid #dee2e6;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .content-info h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .content-info p {
+        margin: 0;
+        color: #666;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+
+    .file-viewer {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .file-embed {
+        flex: 1;
+        width: 100%;
+        border: none;
+        min-height: 400px;
+    }
+
+    iframe,
+    video,
+    audio,
+    embed {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .card-content.no-description {
+        justify-content: center;
+    }
+
+    .card-content.no-description .card-title {
+        margin-bottom: auto;
+    }
+
+    @media (max-width: 768px) {
+
+        .modal-video,
+        .modal-content-doc {
+            width: 95%;
+            height: 70vh;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .content-card {
+            min-width: 280px;
+            height: 260px;
+        }
+
+        .card-image {
+            height: 140px;
+        }
+
+        .card-content {
+            height: 100px;
+        }
+    }
+
+    .card-type.pdf {
+        background: linear-gradient(45deg, #dc3545, #e74c3c);
+    }
+
+    .card-type.audio {
+        background: linear-gradient(45deg, #28a745, #2ecc71);
+    }
+
+    .card-type.video {
+        background: linear-gradient(45deg, #007bff, #3498db);
+    }
+
+    .card-type.youtube {
+        background: linear-gradient(45deg, #ff0000, #ff4757);
+    }
+</style>
+
+<div class="content-container">
+    <h1 class="page-title">📚 Biblioteca de Contenido Educativo</h1>
+
+    @foreach ($categoriesWithContent as $categoryName => $categoryData)
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon">{!! $categoryData['icon'] !!}</div>
+                <h2 class="category-title">{{ $categoryName }}</h2>
+            </div>
+
+            @if (!empty($categoryData['contents']))
+                <div class="content-type-header">
+                    <i class="content-type-icon">📄</i>
+                    Artículos y Contenido
+                </div>
+                <div class="carousel-container">
+                    <button class="scroll-btn left" onclick="scrollCarousel('content-{{ $loop->index }}', 'left')">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="carousel" id="content-{{ $loop->index }}">
+                        @foreach ($categoryData['contents'] as $content)
+                            <div class="content-card"
+                                onclick="openContentModal('{{ $content->id }}', '{{ addslashes($content->title) }}', '{{ $content->content_file }}', '{{ $content->file_type }}', '{{ addslashes($content->content) }}')">
+
+                                <div class="card-image">
+                                    @if (!empty($content->thumbnail))
+                                        <img src="{{ asset('storage/contenido/images/' . $content->thumbnail) }}"
+                                            alt="{{ $content->title }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                        <div
+                                            style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                            @if ($content->file_type == 'pdf')
+                                                <i class="fas fa-file-pdf"
+                                                    style="color: #dc3545; font-size: 3.5rem;"></i>
+                                            @elseif(in_array($content->file_type, ['mp3', 'wav']))
+                                                <i class="fas fa-music" style="color: #28a745; font-size: 3.5rem;"></i>
+                                            @else
+                                                <i class="fas fa-file-text" style="font-size: 3.5rem;"></i>
+                                            @endif
+                                        </div>
+                                    @else
+                                        @if ($content->file_type == 'pdf')
+                                            <i class="fas fa-file-pdf" style="color: #dc3545; font-size: 3.5rem;"></i>
+                                        @elseif(in_array($content->file_type, ['mp3', 'wav']))
+                                            <i class="fas fa-music" style="color: #28a745; font-size: 3.5rem;"></i>
+                                        @else
+                                            <i class="fas fa-file-text" style="font-size: 3.5rem;"></i>
+                                        @endif
+                                    @endif
+
+                                    @if ($content->is_featured)
+                                        <div class="featured-badge">⭐ Destacado</div>
+                                    @endif
+                                </div>
+
+                                <div class="card-content {{ empty($content->excerpt) ? 'no-description' : '' }}">
+                                    <h3 class="card-title">{{ $content->title }}</h3>
+
+                                    @if (!empty($content->excerpt))
+                                        <div class="card-description">{{ $content->excerpt }}</div>
+                                    @endif
+
+                                    <div class="card-meta">
+                                        <span
+                                            class="card-type {{ $content->file_type == 'pdf' ? 'pdf' : (in_array($content->file_type, ['mp3', 'wav']) ? 'audio' : '') }}">
+                                            @if ($content->file_type == 'pdf')
+                                                📄 PDF
+                                            @elseif(in_array($content->file_type, ['mp3', 'wav']))
+                                                🎵 Audio
+                                            @else
+                                                📝 Artículo
+                                            @endif
+                                        </span>
+                                        <span class="card-views">
+                                            <i class="fas fa-eye"></i>
+                                            {{ $content->views_count ?? 0 }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button class="scroll-btn right" onclick="scrollCarousel('content-{{ $loop->index }}', 'right')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            @endif
+
+            @if (!empty($categoryData['videos']))
+                <div class="content-type-header">
+                    <i class="content-type-icon">🎬</i>
+                    Videos Educativos
+                </div>
+                <div class="carousel-container">
+                    <button class="scroll-btn left" onclick="scrollCarousel('video-{{ $loop->index }}', 'left')">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="carousel" id="video-{{ $loop->index }}">
+                        @foreach ($categoryData['videos'] as $video)
+                            <div class="content-card"
+                                onclick="openVideoModal('{{ $video->id }}', '{{ addslashes($video->title) }}', '{{ $video->video_file ?? '' }}', '{{ $video->youtube_url ?? '' }}')">
+
+                                <div class="card-image">
+                                    @if (!empty($video->thumbnail))
+                                        <img src="{{ asset('storage/videos/thumbnails/' . $video->thumbnail) }}"
+                                            alt="{{ $video->title }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                        <div
+                                            style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                            @if ($video->youtube_url)
+                                                <i class="fab fa-youtube"
+                                                    style="color: #ff0000; font-size: 3.5rem;"></i>
+                                            @else
+                                                <i class="fas fa-play-circle"
+                                                    style="color: #007bff; font-size: 3.5rem;"></i>
+                                            @endif
+                                        </div>
+                                    @else
+                                        @if ($video->youtube_url)
+                                            <i class="fab fa-youtube" style="color: #ff0000; font-size: 3.5rem;"></i>
+                                        @else
+                                            <i class="fas fa-play-circle"
+                                                style="color: #007bff; font-size: 3.5rem;"></i>
+                                        @endif
+                                    @endif
+                                </div>
+
+                                <div class="card-content {{ empty($video->description) ? 'no-description' : '' }}">
+                                    <h3 class="card-title">{{ $video->title }}</h3>
+
+                                    @if (!empty($video->description))
+                                        <div class="card-description">{{ $video->description }}</div>
+                                    @endif
+
+                                    <div class="card-meta">
+                                        <span class="card-type {{ $video->youtube_url ? 'youtube' : 'video' }}">
+                                            @if ($video->youtube_url)
+                                                📺 YouTube
+                                            @else
+                                                🎬 Video
+                                            @endif
+                                        </span>
+                                        <span class="card-views">
+                                            <i class="fas fa-play"></i>
+                                            Ver
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button class="scroll-btn right" onclick="scrollCarousel('video-{{ $loop->index }}', 'right')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            @endif
         </div>
+    @endforeach
+</div>
+
+<!-- Modal para contenido -->
+<div id="contentModal" class="modal">
+    <div class="modal-content modal-content-doc">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="file-header">
+            <h3 id="modalTitle" style="margin: 0;"></h3>
+        </div>
+        <div id="modalBody" class="file-viewer"></div>
     </div>
 </div>
-<!-- Header End -->
 
-
-<!-- Class Start -->
-<div class="container-fluid pt-5">
-    <div class="container">
-        <div class="text-center pb-2">
-            <p class="section-title px-5"><span class="px-2">Nuestro Contenido</span></p>
-            <h1 class="mb-4">Importancia del Agua</h1>
+<!-- Modal para videos -->
+<div id="videoModal" class="modal">
+    <div class="modal-content modal-video">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="file-header">
+            <h3 id="videoModalTitle" style="margin: 0;"></h3>
         </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 1)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="text-center pb-2">
-            <h1 class="mb-4">El Agua para Consumo Humano</h1>
-        </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 2)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="text-center pb-2">
-            <h1 class="mb-4">Otros Usos del Agua</h1>
-        </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 3)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="text-center pb-2">
-            <h1 class="mb-4">Garantizando la Calidad del Agua</h1>
-        </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 4)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="text-center pb-2">
-            <h1 class="mb-4">Tensiones en Torno al Agua</h1>
-        </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 5)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-
-    <div class="container">
-        <div class="text-center pb-2">
-            <h1 class="mb-4">El Uso Responsable del Agua</h1>
-        </div>
-        <div class="row">
-            @foreach ($contents as $content)
-                @if ($content->item == 6)
-                    <div class="col-lg-4 mb-5">
-                        <div class="card border-0 bg-light shadow-sm pb-2">
-                            <img class="card-img-top mb-2" src="{{ asset('home/img/about-5.jpg') }}" alt="">
-                            <div class="card-body text-center">
-                                <h4 class="card-title">{{ $content->title }}</h4>
-                                <p class="card-text">{{ $content->description }}</p>
-                            </div>
-                            <a href="{{ route('home.content_detail', $content->id ) }}" class="btn btn-primary px-4 mx-auto mb-4"
-                               >Ver Más</a>
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        </div>
+        <div id="videoModalBody" class="file-viewer"></div>
     </div>
 </div>
-<!-- Class End -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+<script>
+    function openContentModal(id, title, fileName, fileType, content) {
+        document.getElementById('modalTitle').innerHTML = title;
+
+        let modalBodyContent = '';
+
+        // Descripción arriba
+        if (content && content.trim() !== '') {
+            modalBodyContent += '<div class="content-info"><h4>Descripción:</h4><p>' + content + '</p></div>';
+        }
+
+        // Archivo abajo
+        if (fileName && fileType) {
+            if (fileType === 'pdf') {
+                modalBodyContent += '<embed src="/storage/contenido/files/' + fileName +
+                    '" type="application/pdf" class="file-embed">';
+            } else if (fileType === 'mp3' || fileType === 'wav') {
+                modalBodyContent +=
+                    '<div style="padding: 20px; text-align: center;"><audio controls style="width: 100%; max-width: 500px;"><source src="/storage/contenido/files/' +
+                    fileName + '" type="audio/' + fileType + '">Tu navegador no soporta audio HTML5.</audio></div>';
+            } else {
+                modalBodyContent = content || 'No hay contenido disponible';
+            }
+        } else {
+            modalBodyContent = content || 'No hay contenido disponible';
+        }
+
+        document.getElementById('modalBody').innerHTML = modalBodyContent;
+        document.getElementById('contentModal').style.display = 'block';
+    }
+
+    function openVideoModal(id, title, videoFile, youtubeUrl) {
+        document.getElementById('videoModalTitle').innerHTML = title;
+
+        if (youtubeUrl) {
+            const videoId = extractYouTubeId(youtubeUrl);
+            document.getElementById('videoModalBody').innerHTML = '<iframe src="https://www.youtube.com/embed/' +
+                videoId + '" allowfullscreen></iframe>';
+        } else if (videoFile) {
+            document.getElementById('videoModalBody').innerHTML =
+                '<video controls style="width: 100%; height: 100%;"><source src="/storage/videos/' + videoFile +
+                '" type="video/mp4">Tu navegador no soporta videos HTML5.</video>';
+        }
+
+        document.getElementById('videoModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('contentModal').style.display = 'none';
+        document.getElementById('videoModal').style.display = 'none';
+        document.getElementById('videoModalBody').innerHTML = '';
+        document.getElementById('modalBody').innerHTML = '';
+    }
+
+    function extractYouTubeId(url) {
+        const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/;
+        const match = url.match(regex);
+        return match ? match[1] : '';
+    }
+
+    function scrollCarousel(carouselId, direction) {
+        const carousel = document.getElementById(carouselId);
+        const scrollAmount = 340;
+
+        if (direction === 'left') {
+            carousel.scrollLeft -= scrollAmount;
+        } else {
+            carousel.scrollLeft += scrollAmount;
+        }
+    }
+
+    function initAutoScroll() {
+        const carousels = document.querySelectorAll('.carousel');
+
+        carousels.forEach(carousel => {
+            const container = carousel.parentElement;
+            const cards = carousel.children.length;
+
+            if (cards > 3) {
+                let scrollInterval;
+
+                container.addEventListener('mousemove', (e) => {
+                    const rect = container.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const containerWidth = rect.width;
+                    const mousePercent = mouseX / containerWidth;
+
+                    clearInterval(scrollInterval);
+
+                    // Si el mouse está en el lado izquierdo, scroll a la izquierda
+                    if (mousePercent < 0.3) {
+                        scrollInterval = setInterval(() => {
+                            carousel.scrollLeft -= 2;
+                        }, 50);
+                    }
+                    // Si el mouse está en el lado derecho, scroll a la derecha  
+                    else if (mousePercent > 0.7) {
+                        scrollInterval = setInterval(() => {
+                            carousel.scrollLeft += 2;
+                        }, 50);
+                    }
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    clearInterval(scrollInterval);
+                });
+            }
+        });
+    }
+
+    window.onclick = function(event) {
+        const contentModal = document.getElementById('contentModal');
+        const videoModal = document.getElementById('videoModal');
+
+        if (event.target === contentModal || event.target === videoModal) {
+            closeModal();
+        }
+    }
+
+    function checkImageExists(img) {
+        img.onerror = function() {
+            this.style.display = 'none';
+            const fallback = this.nextElementSibling;
+            if (fallback) {
+                fallback.style.display = 'flex';
+            }
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.card-image img');
+        images.forEach(checkImageExists);
+        initAutoScroll();
+    });
+</script>
 
 @include('home/layout/footer')
