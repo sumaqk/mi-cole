@@ -23,6 +23,9 @@
 	<link rel="stylesheet" href="{{asset('plugin/adminlte/plugins/iCheck/all.css')}}">
 	<link rel="stylesheet" href="{{asset('plugin/adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css')}}">
 	<link rel="stylesheet" href="{{asset('plugin/adminlte/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+	
+
 
 	<!--[if lt IE 9]>
 	<script src="{{asset('js/html5shiv.min.js')}}"></script>
@@ -192,7 +195,7 @@
 	<script src="{{asset('js/codiTabs.js?x='.config('var.CACHE_LAST_UPDATE'))}}"></script>
 	<script src="{{asset('viewResources/template/layoutpublic.js?x='.config('var.CACHE_LAST_UPDATE'))}}"></script>
 	<script src="{{asset('viewResources/template/parcial/layoutpublic/login.js?x='.config('var.CACHE_LAST_UPDATE'))}}"></script>
-
+	<script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/index.js"></script>
 	@yield('jsSection')
 </body>
 </html>

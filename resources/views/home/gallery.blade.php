@@ -808,9 +808,8 @@
         </div>
     @endif
 
-    <div class="section-container">
+    {{-- <div class="section-container">
         <h2 class="titulo">Videos Educativos</h2>
-            {{-- <h2 class="titulo">Videos Educativos</h2> --}}
             <div class="video-section">
                 @if (isset($videos) && $videos->count() > 0)
                     <div class="video-container">
@@ -875,7 +874,7 @@
                     </div>
                 @endif
             </div>
-    </div>
+    </div> --}}
 </div>
 
 <div id="imageModal" class="modal">
