@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirigir todo a la carpeta public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+    
+    # Si la URL ya incluye public, quitar la duplicación
+    RewriteCond %{REQUEST_URI} ^/public/(.*)$
+    RewriteRule ^.*$ %1 [L]
+</IfModule>
