@@ -524,7 +524,7 @@
 
                             <div class="card-image">
                                 @if (!empty($content->thumbnail))
-                                    <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
+                                    <img src="{{ url('/mi-cole/public/archivos/contenido/images/' . $content->thumbnail) }}"
                                         alt="{{ $content->title }}"
                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
@@ -562,7 +562,7 @@
                                     <div class="audio-player-card">
                                         <audio controls style="width: 100%; height: 35px;">
                                             <source
-                                                src="{{ asset('archivos/contenido/files/' . $content->content_file) }}"
+                                                src="url('/mi-cole/public/archivos/contenido/files/' . $content->content_file) }}"
                                                 type="audio/{{ $content->file_type }}">
                                             Tu navegador no soporta audio HTML5.
                                         </audio>
@@ -602,7 +602,7 @@
 
                     <div class="card-image video-card-image">
                         @if (!empty($video->thumbnail))
-                            <img src="{{ asset('archivos/videos/thumbnails/' . $video->thumbnail) }}"
+                            <img src="{{ url('/mi-cole/public/archivos/videos/thumbnails/' . $video->thumbnail) }}"
                                 alt="{{ $video->title }}"
                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
@@ -702,11 +702,11 @@
         // Archivo abajo
         if (fileName && fileType) {
             if (fileType === 'pdf') {
-                modalBodyContent += '<embed src="/archivos/contenido/files/' + fileName +
+                modalBodyContent += '<embed src="/mi-cole/public/archivos/contenido/files/' + fileName +
                     '" type="application/pdf" class="file-embed">';
             } else if (fileType === 'mp3' || fileType === 'wav') {
                 modalBodyContent +=
-                    '<div style="padding: 20px; text-align: center;"><audio controls style="width: 100%; max-width: 500px;"><source src="/archivos/contenido/files/' +
+                    '<div style="padding: 20px; text-align: center;"><audio controls style="width: 100%; max-width: 500px;">'<source src="/mi-cole/public/archivos/contenido/files/' +
                     fileName + '" type="audio/' + fileType + '">Tu navegador no soporta audio HTML5.</audio></div>';
             } else {
                 modalBodyContent = content || 'No hay contenido disponible';
@@ -728,7 +728,7 @@
                 videoId + '" allowfullscreen></iframe>';
         } else if (videoFile) {
             document.getElementById('videoModalBody').innerHTML =
-                '<video controls style="width: 100%; height: 100%;"><source src="/archivos/videos/' + videoFile +
+                '<video controls style="width: 100%; height: 100%;">'<source src="/mi-cole/public/archivos/videos/' + videoFile +
                 '" type="video/mp4">Tu navegador no soporta videos HTML5.</video>';
         }
 
