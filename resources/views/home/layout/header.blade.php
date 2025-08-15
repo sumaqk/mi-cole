@@ -236,9 +236,13 @@
         }
 
         .brand-icon-modern i {
-            font-size: 2.2rem;
+            font-size: 3rem;
             color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: scale(0.73);
+            transform-origin: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            filter: contrast(1.2);
         }
 
         .brand-text-container {
@@ -256,18 +260,54 @@
         .brand-title {
             font-size: 2.8rem;
             font-weight: 800;
+            margin: 0;
+            line-height: 1;
             background: #4facfe;
             background: -webkit-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             background: -moz-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+            /* Para Chrome/Safari */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+
+            /* Para Firefox */
             background-clip: text;
-            margin: 0;
-            line-height: 1;
-            text-shadow: none;
+            color: transparent;
+
+            /* Fallback para Edge/IE */
             color: #4facfe;
-            /* Fallback para navegadores antiguos */
+        }
+
+        /* SOPORTE ESPECÍFICO PARA FIREFOX */
+        @-moz-document url-prefix() {
+            .brand-title {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                background-clip: text;
+                color: transparent;
+            }
+        }
+
+        /* FALLBACK PARA NAVEGADORES QUE NO SOPORTAN GRADIENTE EN TEXTO */
+        @supports not (-webkit-background-clip: text) {
+            .brand-title {
+                color: #4facfe !important;
+                background: none !important;
+                -webkit-text-fill-color: #4facfe !important;
+            }
+        }
+
+        /* RESPONSIVE FIXES */
+        @media (max-width: 991px) {
+            .brand-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .brand-title {
+                font-size: 1.9rem;
+            }
         }
 
         .brand-subtitle {
@@ -373,7 +413,8 @@
         .btn-login-modern:hover::before {
             left: 0;
         }
-/* 
+
+        /*
         .nav-link-modern:hover {
             background: #4facfe;
             background: -webkit-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -402,6 +443,26 @@
             box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
             border: 1px solid rgba(79, 172, 254, 0.3);
         } */
+
+        .nav-link-modern.active {
+    background: #4facfe !important;
+    background: -webkit-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    background: -moz-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    color: white !important;
+    -webkit-box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    -moz-box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    border: 1px solid rgba(79, 172, 254, 0.3);
+    -webkit-transform: translateY(-2px);
+    -moz-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    transform: translateY(-2px);
+}
+
+.nav-link-modern.active::before {
+    left: 0; /* Para que se mantenga el gradiente activo */
+}
 
         .btn-login-modern {
             background: #4facfe;
@@ -624,7 +685,10 @@
             <!-- Brand -->
             <a href="{{ route('home.index') }}" class="brand-container">
                 <div class="brand-icon-modern">
-                    <i class="fas fa-water"></i>
+                    <svg width="35" height="35" viewBox="0 0 576 512" fill="white">
+                        <path
+                            d="M269.5 69.9c11.1-7.9 25.9-7.9 37 0C329 85.4 356.5 96 384 96c26.9 0 55.4-10.8 77.4-26.1c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 149.7 417.7 160 384 160c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7C252.6 150.1 223.9 160 192 160c-33.7 0-65.5-10.3-94.5-25.9c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4C42.9 92.6 61 83.5 75.4 71.6c11.1-9.5 27.3-10.1 39.2-1.7C136.6 85.2 165.1 96 192 96c27.5 0 55-10.6 77.5-26.1zm37 288C329 373.4 356.5 384 384 384c26.9 0 55.4-10.8 77.4-26.1c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 437.7 417.7 448 384 448c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7C252.6 438.1 223.9 448 192 448c-33.7 0-65.5-10.3-94.5-25.9c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.5 27.3-10.1 39.2-1.7C136.6 373.2 165.1 384 192 384c27.5 0 55-10.6 77.5-26.1zm0-144C329 229.4 356.5 240 384 240c26.9 0 55.4-10.8 77.4-26.1c11.9-8.5 28.1-7.8 39.2 1.7c14.4 11.9 32.5 21 50.6 25.2c17.2 4 27.9 21.2 23.9 38.4s-21.2 27.9-38.4 23.9c-24.5-5.7-44.9-16.5-58.2-25C449.5 293.7 417.7 304 384 304c-31.9 0-60.6-9.9-80.4-18.9c-5.8-2.7-11.1-5.3-15.6-7.7c-4.5 2.4-9.7 5.1-15.6 7.7C252.6 294.1 223.9 304 192 304c-33.7 0-65.5-10.3-94.5-25.9c-13.4 8.4-33.7 19.3-58.2 25c-17.2 4-34.4-6.7-38.4-23.9s6.7-34.4 23.9-38.4c18.1-4.2 36.2-13.3 50.6-25.2c11.1-9.5 27.3-10.1 39.2-1.7C136.6 229.2 165.1 240 192 240c27.5 0 55-10.6 77.5-26.1z" />
+                    </svg>
                 </div>
                 <div class="brand-text-container">
                     <div class="brand-title">Mi Cole</div>
