@@ -44,6 +44,14 @@ return [
             'throw' => false,
         ],
 
+        'archivos' => [
+            'driver' => 'local',
+            'root' => public_path('archivos'),
+            'url' => env('APP_URL').'/archivos',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

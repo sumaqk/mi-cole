@@ -13,9 +13,9 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 use App\Http\Controllers\ContenidoWebController;
 
-// RUTA ESPECÍFICA PARA STORAGE PÚBLICO (CONTENIDO EDUCATIVO)
-Route::get('storage/{path}', function ($path) {
-    $file = public_path('storage/' . $path);
+// RUTA ESPECÍFICA PARA ARCHIVOS PÚBLICOS (CONTENIDO EDUCATIVO)
+Route::get('archivos/{path}', function ($path) {
+    $file = public_path('archivos/' . $path);
     
     if (!file_exists($file)) {
         abort(404);
@@ -26,7 +26,7 @@ Route::get('storage/{path}', function ($path) {
         'Content-Type' => $mimeType,
         'Cache-Control' => 'public, max-age=3600'
     ]);
-})->where('path', '.*')->name('storage.public');
+})->where('path', '.*')->name('archivos.public');
 
 Route::get('/', function () {
     return redirect()->route('home.index');

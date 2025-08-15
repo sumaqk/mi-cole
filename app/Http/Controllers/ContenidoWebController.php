@@ -129,9 +129,9 @@ class ContenidoWebController extends Controller
                 $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
 
                 // Crear directorio si no existe
-                Storage::disk('public')->makeDirectory('videos');
+                Storage::disk('archivos')->makeDirectory('videos');
 
-                $file->storeAs('videos', $filename, 'public');
+                $file->storeAs('videos', $filename, 'archivos');
                 $data['video_file'] = $filename;
                 $data['file_type']  = $file->getClientOriginalExtension();
                 $data['mime_type']  = $file->getMimeType();
@@ -144,9 +144,9 @@ class ContenidoWebController extends Controller
                 $thumbName = time() . '_thumb_' . Str::random(5) . '.' . $thumb->getClientOriginalExtension();
 
                 // Crear directorio si no existe
-                Storage::disk('public')->makeDirectory('videos/thumbnails');
+                Storage::disk('archivos')->makeDirectory('videos/thumbnails');
 
-                $thumb->storeAs('videos/thumbnails', $thumbName, 'public');
+                $thumb->storeAs('videos/thumbnails', $thumbName, 'archivos');
                 $data['thumbnail'] = $thumbName;
             }
 
@@ -197,11 +197,11 @@ class ContenidoWebController extends Controller
                 $file = $request->file('content_file');
                 $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
 
-                if (!Storage::disk('public')->exists('contenido/files')) {
-                    Storage::disk('public')->makeDirectory('contenido/files');
+                if (!Storage::disk('archivos')->exists('contenido/files')) {
+                    Storage::disk('archivos')->makeDirectory('contenido/files');
                 }
 
-                $file->storeAs('contenido/files', $filename, 'public');
+                $file->storeAs('contenido/files', $filename, 'archivos');
                 $data['content_file'] = $filename;
                 $data['file_type'] = $file->getClientOriginalExtension();
                 $data['mime_type'] = $file->getMimeType();
@@ -213,11 +213,11 @@ class ContenidoWebController extends Controller
                 $thumb = $request->file('thumbnail');
                 $thumbName = time() . '_thumb_' . Str::random(5) . '.' . $thumb->getClientOriginalExtension();
 
-                if (!Storage::disk('public')->exists('contenido/images')) {
-                    Storage::disk('public')->makeDirectory('contenido/images');
+                if (!Storage::disk('archivos')->exists('contenido/images')) {
+                    Storage::disk('archivos')->makeDirectory('contenido/images');
                 }
 
-                $thumb->storeAs('contenido/images', $thumbName, 'public');
+                $thumb->storeAs('contenido/images', $thumbName, 'archivos');
                 $data['thumbnail'] = $thumbName;
             }
 
@@ -261,12 +261,12 @@ class ContenidoWebController extends Controller
         ];
 
         if ($request->hasFile('video_file')) {
-            if ($video->video_file && Storage::disk('public')->exists('videos/' . $video->video_file)) {
-                Storage::disk('public')->delete('videos/' . $video->video_file);
+            if ($video->video_file && Storage::disk('archivos')->exists('videos/' . $video->video_file)) {
+                Storage::disk('archivos')->delete('videos/' . $video->video_file);
             }
             $file = $request->file('video_file');
             $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('videos', $filename, 'public');
+            $file->storeAs('videos', $filename, 'archivos');
             $data['video_file'] = $filename;
             $data['file_type'] = $file->getClientOriginalExtension();
             $data['mime_type'] = $file->getMimeType();
@@ -274,12 +274,12 @@ class ContenidoWebController extends Controller
         }
 
         if ($request->hasFile('thumbnail')) {
-            if ($video->thumbnail && Storage::disk('public')->exists('videos/thumbnails/' . $video->thumbnail)) {
-                Storage::disk('public')->delete('videos/thumbnails/' . $video->thumbnail);
+            if ($video->thumbnail && Storage::disk('archivos')->exists('videos/thumbnails/' . $video->thumbnail)) {
+                Storage::disk('archivos')->delete('videos/thumbnails/' . $video->thumbnail);
             }
             $thumb = $request->file('thumbnail');
             $thumbName = time() . '_thumb_' . Str::random(5) . '.' . $thumb->getClientOriginalExtension();
-            $thumb->storeAs('videos/thumbnails', $thumbName, 'public');
+            $thumb->storeAs('videos/thumbnails', $thumbName, 'archivos');
             $data['thumbnail'] = $thumbName;
         }
 
@@ -294,12 +294,12 @@ class ContenidoWebController extends Controller
             return response()->json(['success' => false, 'message' => 'Video no encontrado']);
         }
 
-        if ($video->video_file && Storage::disk('public')->exists('videos/' . $video->video_file)) {
-            Storage::disk('public')->delete('videos/' . $video->video_file);
+        if ($video->video_file && Storage::disk('archivos')->exists('videos/' . $video->video_file)) {
+            Storage::disk('archivos')->delete('videos/' . $video->video_file);
         }
 
-        if ($video->thumbnail && Storage::disk('public')->exists('videos/thumbnails/' . $video->thumbnail)) {
-            Storage::disk('public')->delete('videos/thumbnails/' . $video->thumbnail);
+        if ($video->thumbnail && Storage::disk('archivos')->exists('videos/thumbnails/' . $video->thumbnail)) {
+            Storage::disk('archivos')->delete('videos/thumbnails/' . $video->thumbnail);
         }
 
         DB::table('tvideo')->where('id', $id)->delete();
@@ -370,12 +370,12 @@ class ContenidoWebController extends Controller
         }
 
         if ($request->hasFile('content_file')) {
-            if ($content->content_file && Storage::disk('public')->exists('contenido/files/' . $content->content_file)) {
-                Storage::disk('public')->delete('contenido/files/' . $content->content_file);
+            if ($content->content_file && Storage::disk('archivos')->exists('contenido/files/' . $content->content_file)) {
+                Storage::disk('archivos')->delete('contenido/files/' . $content->content_file);
             }
             $file = $request->file('content_file');
             $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('contenido/files', $filename, 'public');
+            $file->storeAs('contenido/files', $filename, 'archivos');
             $data['content_file'] = $filename;
             $data['file_type'] = $file->getClientOriginalExtension();
             $data['mime_type'] = $file->getMimeType();
@@ -383,12 +383,12 @@ class ContenidoWebController extends Controller
         }
 
         if ($request->hasFile('thumbnail')) {
-            if ($content->thumbnail && Storage::disk('public')->exists('contenido/images/' . $content->thumbnail)) {
-                Storage::disk('public')->delete('contenido/images/' . $content->thumbnail);
+            if ($content->thumbnail && Storage::disk('archivos')->exists('contenido/images/' . $content->thumbnail)) {
+                Storage::disk('archivos')->delete('contenido/images/' . $content->thumbnail);
             }
             $thumb = $request->file('thumbnail');
             $thumbName = time() . '_thumb_' . Str::random(5) . '.' . $thumb->getClientOriginalExtension();
-            $thumb->storeAs('contenido/images', $thumbName, 'public');
+            $thumb->storeAs('contenido/images', $thumbName, 'archivos');
             $data['thumbnail'] = $thumbName;
         }
 
@@ -403,12 +403,12 @@ class ContenidoWebController extends Controller
             return response()->json(['success' => false, 'message' => 'Contenido no encontrado']);
         }
 
-        if ($content->content_file && Storage::disk('public')->exists('contenido/files/' . $content->content_file)) {
-            Storage::disk('public')->delete('contenido/files/' . $content->content_file);
+        if ($content->content_file && Storage::disk('archivos')->exists('contenido/files/' . $content->content_file)) {
+            Storage::disk('archivos')->delete('contenido/files/' . $content->content_file);
         }
 
-        if ($content->thumbnail && Storage::disk('public')->exists('contenido/images/' . $content->thumbnail)) {
-            Storage::disk('public')->delete('contenido/images/' . $content->thumbnail);
+        if ($content->thumbnail && Storage::disk('archivos')->exists('contenido/images/' . $content->thumbnail)) {
+            Storage::disk('archivos')->delete('contenido/images/' . $content->thumbnail);
         }
 
         DB::table('tcontent')->where('id', $id)->delete();

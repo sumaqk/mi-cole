@@ -13,7 +13,7 @@ class GenericMiddleware
 	public function handle($request, Closure $next, ...$params)
 	{
 		// PERMITIR ACCESO PÚBLICO A ARCHIVOS ESTÁTICOS
-		$publicPaths = ['css/', 'js/', 'images/', 'assets/', 'uploads/'];
+		$publicPaths = ['css/', 'js/', 'images/', 'assets/', 'uploads/', 'archivos/'];
 		
 		foreach ($publicPaths as $path) {
 			if (str_starts_with($request->path(), $path)) {
