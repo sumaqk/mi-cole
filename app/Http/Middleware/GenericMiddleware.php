@@ -12,6 +12,15 @@ class GenericMiddleware
 {
 	public function handle($request, Closure $next, ...$params)
 	{
+		// PERMITIR ACCESO PÚBLICO A STORAGE Y CONTENIDO EDUCATIVO
+		$publicPaths = ['storage/', 'uploads/', 'assets/', 'css/', 'js/', 'images/'];
+		
+		foreach ($publicPaths as $path) {
+			if (str_starts_with($request->path(), $path)) {
+				return $next($request);
+			}
+		}
+
 		if(Session::has('idUser'))
 		{
 			$tUser=TUser::find(Session::get('idUser'));
@@ -109,17 +118,6 @@ class GenericMiddleware
 
 			['Normal', 'district/chgtoinsertwater', null, null],
 
-			// // RUTAS DE INSTITUTION - CORREGIDAS Y COMPLETAS
-			// ['Súper usuario,Administrador', 'institution/getall', 'mInstitutionModule', 'miInstitutionModuleGetAll'],
-			// ['Súper usuario,Administrador', 'institution/insert', 'mInstitutionModule', null],
-			// ['Súper usuario,Administrador', 'institution/edit', 'mInstitutionModule', null],
-			// ['Súper usuario,Administrador', 'institution/update', 'mInstitutionModule', null],
-			// ['Súper usuario,Administrador', 'institution/delete', 'mInstitutionModule', null],
-			// ['Súper usuario,Administrador', 'institution/toggle-status', 'mInstitutionModule', null],
-			// ['Súper usuario,Administrador', 'institution/getdistricts', null, null],
-			// ['Súper usuario,Administrador', 'institution/getugels', null, null],
-			// ['Súper usuario,Administrador', 'institution/usermanagement', 'mInstitutionModule', null],
-			// ['Normal', 'institution/chgtoinsertwater', null, null],
 			// RUTAS DE INSTITUTION - CORREGIDAS Y COMPLETAS
 			['Súper usuario,Administrador', 'institution/getall', 'mInstitutionModule', 'miInstitutionModuleGetAll'],
 			['Súper usuario,Administrador', 'institution/insert', 'mInstitutionModule', null],

@@ -13,6 +13,19 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 use App\Http\Controllers\ContenidoWebController;
 
+Route::get('storage/{path}', function ($path) {
+    $file = storage_path('app/public/' . $path);
+    
+    if (!file_exists($file)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($file);
+    return response()->file($file, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=3600'
+    ]);
+})->where('path', '.*')->name('storage.public');
 
 Route::get('/', function () {
     return redirect()->route('home.index');
@@ -102,8 +115,6 @@ Route::post('ugel/getdistricts', [UgelController::class, 'actionGetDistricts'])-
 Route::post('ugel/delete/{idUgel}', [UgelController::class, 'actionDelete'])->middleware('GenericMiddleware:ugel/delete');
 Route::post('ugel/toggle-status/{idUgel}', [UgelController::class, 'actionToggleStatus'])->middleware('GenericMiddleware:ugel/toggle-status');
 
-
-
 Route::get('district/getall/{currentPage}', [DistrictController::class, 'actionGetAll'])->middleware('GenericMiddleware:district/getall');
 Route::get('district/insert', [DistrictController::class, 'actionInsert'])->middleware('GenericMiddleware:district/insert');
 Route::post('district/insert', [DistrictController::class, 'actionInsert'])->middleware('GenericMiddleware:district/insert');
@@ -111,7 +122,6 @@ Route::get('district/edit/{idDistrict}', [DistrictController::class, 'actionEdit
 Route::post('district/update/{idDistrict}', [DistrictController::class, 'actionUpdate'])->middleware('GenericMiddleware:district/update');
 Route::post('district/delete/{idDistrict}', [DistrictController::class, 'actionDelete'])->middleware('GenericMiddleware:district/delete');
 Route::post('district/chgtoinsertwater', [DistrictController::class, 'actionChgToInsertWater'])->middleware('GenericMiddleware:district/chgtoinsertwater');
-
 
 //Para contenido
 Route::get('contenidoweb/videos', [ContenidoWebController::class, 'actionVideosIndex'])->middleware('GenericMiddleware:contenidoweb/videos')->name('videos.index');
