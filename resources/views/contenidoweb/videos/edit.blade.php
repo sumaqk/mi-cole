@@ -73,66 +73,26 @@
                                         <label>Categoría</label>
                                         <select name="category" class="form-control">
                                             <option value="">Seleccionar</option>
-                                                <option value="Canciones"
-                                                    {{ $content->category == 'Canciones' ? 'selected' : '' }}>Canciones
-                                                </option>
-                                                <option value="Cuentos y Relatos"
-                                                    {{ $content->category == 'Cuentos y Relatos' ? 'selected' : '' }}>
-                                                    Cuentos y Relatos</option>
-                                                <option value="Artículos Educativos"
-                                                    {{ $content->category == 'Artículos Educativos' ? 'selected' : '' }}>
-                                                    Artículos Educativos</option>
-                                                <option value="Guías y Manuales"
-                                                    {{ $content->category == 'Guías y Manuales' ? 'selected' : '' }}>Guías
-                                                    y Manuales</option>
-                                                <option value="Infografías y Carteles"
-                                                    {{ $content->category == 'Infografías y Carteles' ? 'selected' : '' }}>
-                                                    Infografías y Carteles</option>
-                                                <option value="Juegos y Actividades"
-                                                    {{ $content->category == 'Juegos y Actividades' ? 'selected' : '' }}>
-                                                    Juegos y Actividades</option>
-                                                <option value="Experimentos Caseros"
-                                                    {{ $content->category == 'Experimentos Caseros' ? 'selected' : '' }}>
-                                                    Experimentos Caseros</option>
-                                                <option value="Noticias"
-                                                    {{ $content->category == 'Noticias' ? 'selected' : '' }}>Noticias
-                                                </option>
-                                                <option value="Importancia del Agua"
-                                                    {{ $content->category == 'Importancia del Agua' ? 'selected' : '' }}>
-                                                    Importancia del Agua</option>
-                                                <option value="El Agua para Consumo Humano"
-                                                    {{ $content->category == 'El Agua para Consumo Humano' ? 'selected' : '' }}>
-                                                    El Agua para Consumo Humano</option>
-                                                <option value="Otros Usos del Agua"
-                                                    {{ $content->category == 'Otros Usos del Agua' ? 'selected' : '' }}>
-                                                    Otros Usos del Agua</option>
-                                                <option value="Garantizando la Calidad del Agua"
-                                                    {{ $content->category == 'Garantizando la Calidad del Agua' ? 'selected' : '' }}>
-                                                    Garantizando la Calidad del Agua</option>
-                                                <option value="Tensiones en Torno al Agua"
-                                                    {{ $content->category == 'Tensiones en Torno al Agua' ? 'selected' : '' }}>
-                                                    Tensiones en Torno al Agua</option>
-                                                <option value="El Uso Responsable del Agua"
-                                                    {{ $content->category == 'El Uso Responsable del Agua' ? 'selected' : '' }}>
-                                                    El Uso Responsable del Agua</option>
-                                                <option value="Fascículos 1"
-                                                    {{ $content->category == 'Fascículos 1' ? 'selected' : '' }}>Fascículos
-                                                    1</option>
-                                                <option value="Fascículos 2"
-                                                    {{ $content->category == 'Fascículos 2' ? 'selected' : '' }}>Fascículos
-                                                    2</option>
-                                                <option value="Fascículos 3"
-                                                    {{ $content->category == 'Fascículos 3' ? 'selected' : '' }}>Fascículos
-                                                    3</option>
-                                                <option value="Fascículos 4"
-                                                    {{ $content->category == 'Fascículos 4' ? 'selected' : '' }}>Fascículos
-                                                    4</option>
-                                                <option value="Fascículos 5"
-                                                    {{ $content->category == 'Fascículos 5' ? 'selected' : '' }}>Fascículos
-                                                    5</option>
-                                                <option value="Fascículos 6"
-                                                    {{ $content->category == 'Fascículos 6' ? 'selected' : '' }}>Fascículos
-                                                    6</option>
+                                            <option value="Canciones" {{ $video->category == 'Canciones' ? 'selected' : '' }}>Canciones</option>
+                                            <option value="Cuentos y Relatos" {{ $video->category == 'Cuentos y Relatos' ? 'selected' : '' }}>Cuentos y Relatos</option>
+                                            <option value="Artículos Educativos" {{ $video->category == 'Artículos Educativos' ? 'selected' : '' }}>Artículos Educativos</option>
+                                            <option value="Guías y Manuales" {{ $video->category == 'Guías y Manuales' ? 'selected' : '' }}>Guías y Manuales</option>
+                                            <option value="Infografías y Carteles" {{ $video->category == 'Infografías y Carteles' ? 'selected' : '' }}>Infografías y Carteles</option>
+                                            <option value="Juegos y Actividades" {{ $video->category == 'Juegos y Actividades' ? 'selected' : '' }}>Juegos y Actividades</option>
+                                            <option value="Experimentos Caseros" {{ $video->category == 'Experimentos Caseros' ? 'selected' : '' }}>Experimentos Caseros</option>
+                                            <option value="Noticias" {{ $video->category == 'Noticias' ? 'selected' : '' }}>Noticias</option>
+                                            <option value="Importancia del Agua" {{ $video->category == 'Importancia del Agua' ? 'selected' : '' }}>Importancia del Agua</option>
+                                            <option value="El Agua para Consumo Humano" {{ $video->category == 'El Agua para Consumo Humano' ? 'selected' : '' }}>El Agua para Consumo Humano</option>
+                                            <option value="Otros Usos del Agua" {{ $video->category == 'Otros Usos del Agua' ? 'selected' : '' }}>Otros Usos del Agua</option>
+                                            <option value="Garantizando la Calidad del Agua" {{ $video->category == 'Garantizando la Calidad del Agua' ? 'selected' : '' }}>Garantizando la Calidad del Agua</option>
+                                            <option value="Tensiones en Torno al Agua" {{ $video->category == 'Tensiones en Torno al Agua' ? 'selected' : '' }}>Tensiones en Torno al Agua</option>
+                                            <option value="El Uso Responsable del Agua" {{ $video->category == 'El Uso Responsable del Agua' ? 'selected' : '' }}>El Uso Responsable del Agua</option>
+                                            <option value="Fascículos 1" {{ $video->category == 'Fascículos 1' ? 'selected' : '' }}>Fascículos 1</option>
+                                            <option value="Fascículos 2" {{ $video->category == 'Fascículos 2' ? 'selected' : '' }}>Fascículos 2</option>
+                                            <option value="Fascículos 3" {{ $video->category == 'Fascículos 3' ? 'selected' : '' }}>Fascículos 3</option>
+                                            <option value="Fascículos 4" {{ $video->category == 'Fascículos 4' ? 'selected' : '' }}>Fascículos 4</option>
+                                            <option value="Fascículos 5" {{ $video->category == 'Fascículos 5' ? 'selected' : '' }}>Fascículos 5</option>
+                                            <option value="Fascículos 6" {{ $video->category == 'Fascículos 6' ? 'selected' : '' }}>Fascículos 6</option>
                                         </select>
                                     </div>
 
