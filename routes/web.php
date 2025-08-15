@@ -13,8 +13,9 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 use App\Http\Controllers\ContenidoWebController;
 
+// RUTA ESPECÍFICA PARA STORAGE PÚBLICO (CONTENIDO EDUCATIVO)
 Route::get('storage/{path}', function ($path) {
-    $file = storage_path('app/public/' . $path);
+    $file = public_path('storage/' . $path);
     
     if (!file_exists($file)) {
         abort(404);

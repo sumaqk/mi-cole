@@ -12,8 +12,8 @@ class GenericMiddleware
 {
 	public function handle($request, Closure $next, ...$params)
 	{
-		// PERMITIR ACCESO PÚBLICO A STORAGE Y CONTENIDO EDUCATIVO
-		$publicPaths = ['storage/', 'uploads/', 'assets/', 'css/', 'js/', 'images/'];
+		// PERMITIR ACCESO PÚBLICO A ARCHIVOS ESTÁTICOS
+		$publicPaths = ['css/', 'js/', 'images/', 'assets/', 'uploads/'];
 		
 		foreach ($publicPaths as $path) {
 			if (str_starts_with($request->path(), $path)) {
