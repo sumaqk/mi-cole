@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 
 class ContenidoWebController extends Controller
@@ -303,7 +304,7 @@ class ContenidoWebController extends Controller
         }
 
         DB::table('tvideo')->where('id', $id)->delete();
-        return response()->json(['success' => true, 'message' => 'Video eliminado correctamente']);
+        return redirect()->route('videos.index')->with('success', 'Video eliminado correctamente');
     }
 
     public function actionContenidoIndex(Request $request)
@@ -399,10 +400,12 @@ class ContenidoWebController extends Controller
     public function actionContenidoDelete($id)
     {
         $content = DB::table('tcontent')->where('id', $id)->first();
+
         if (!$content) {
-            return response()->json(['success' => false, 'message' => 'Contenido no encontrado']);
+            return response()->json(['success' => false, 'message' => 'Contenido no encontrado'], 404);
         }
 
+        // Eliminar archivos si existen
         if ($content->content_file && Storage::disk('archivos')->exists('contenido/files/' . $content->content_file)) {
             Storage::disk('archivos')->delete('contenido/files/' . $content->content_file);
         }
@@ -411,7 +414,9 @@ class ContenidoWebController extends Controller
             Storage::disk('archivos')->delete('contenido/images/' . $content->thumbnail);
         }
 
+        // Eliminar de la base de datos
         DB::table('tcontent')->where('id', $id)->delete();
-        return response()->json(['success' => true, 'message' => 'Contenido eliminado correctamente']);
+
+        return redirect()->route('contenido.index')->with('success', 'Contenido eliminado correctamente');
     }
 }

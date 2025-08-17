@@ -74,9 +74,16 @@
                                                         <a href="{{url('contenidoweb/contenido/edit/' . $content->id)}}" class="btn btn-info btn-sm">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteContent({{$content->id}})">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
+                                                        
+                                                        <!-- FORMULARIO PARA ELIMINAR - ESTO ES LO NUEVO -->
+                                                        <form action="{{url('contenidoweb/contenido/delete/' . $content->id)}}" method="POST" style="display: inline;" onsubmit="return confirm('¿Eliminar contenido?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                        
                                                     </div>
                                                 </td>
                                             </tr>
@@ -100,20 +107,4 @@
         </div>
     </div>
 </section>
-@endsection
-
-@section('jsSection')
-<script>
-function deleteContent(id) {
-    if (confirm('¿Eliminar contenido?')) {
-        fetch(`/contenidoweb/contenido/delete/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(() => location.reload());
-    }
-}
-</script>
 @endsection
