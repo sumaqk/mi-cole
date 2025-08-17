@@ -619,6 +619,7 @@ class ComposerStaticInit1a7f49d174433d2534923cf073628974
         'App\\Helper\\PlatformHelper' => __DIR__ . '/../..' . '/app/Helper/PlatformHelper.php',
         'App\\Helper\\ViewHelper' => __DIR__ . '/../..' . '/app/Helper/ViewHelper.php',
         'App\\Http\\Controllers\\ConfigurationController' => __DIR__ . '/../..' . '/app/Http/Controllers/ConfigurationController.php',
+        'App\\Http\\Controllers\\ContenidoWebController' => __DIR__ . '/../..' . '/app/Http/Controllers/ContenidoWebController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\DistrictController' => __DIR__ . '/../..' . '/app/Http/Controllers/DistrictController.php',
         'App\\Http\\Controllers\\ExceptionController' => __DIR__ . '/../..' . '/app/Http/Controllers/ExceptionController.php',

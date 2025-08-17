@@ -15,6 +15,7 @@ return array(
     'App\\Helper\\PlatformHelper' => $baseDir . '/app/Helper/PlatformHelper.php',
     'App\\Helper\\ViewHelper' => $baseDir . '/app/Helper/ViewHelper.php',
     'App\\Http\\Controllers\\ConfigurationController' => $baseDir . '/app/Http/Controllers/ConfigurationController.php',
+    'App\\Http\\Controllers\\ContenidoWebController' => $baseDir . '/app/Http/Controllers/ContenidoWebController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\DistrictController' => $baseDir . '/app/Http/Controllers/DistrictController.php',
     'App\\Http\\Controllers\\ExceptionController' => $baseDir . '/app/Http/Controllers/ExceptionController.php',
