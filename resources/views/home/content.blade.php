@@ -602,7 +602,7 @@
 
                     <div class="card-image video-card-image">
                         @if (!empty($video->thumbnail))
-                            <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
+                            <img src="{{ url('/archivos/videos/thumbnails/' . $video->thumbnail) }}"
                                 alt="{{ $video->title }}"
                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
