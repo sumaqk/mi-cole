@@ -524,7 +524,7 @@
 
                             <div class="card-image">
                                 @if (!empty($content->thumbnail))
-                                    <img src="{{ url('/mi-cole/public/archivos/contenido/images/' . $content->thumbnail) }}"
+                                    <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}">
                                         alt="{{ $content->title }}"
                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
@@ -602,7 +602,7 @@
 
                     <div class="card-image video-card-image">
                         @if (!empty($video->thumbnail))
-                            <img src="{{ url('/mi-cole/public/archivos/videos/thumbnails/' . $video->thumbnail) }}"
+                            <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
                                 alt="{{ $video->title }}"
                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
