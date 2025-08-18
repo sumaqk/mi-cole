@@ -13,7 +13,6 @@ use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 use App\Http\Controllers\ContenidoWebController;
 
-// RUTA ESPECÍFICA PARA ARCHIVOS PÚBLICOS (CONTENIDO EDUCATIVO)
 Route::get('archivos/{path}', function ($path) {
     $file = public_path('archivos/' . $path);
     
@@ -48,7 +47,11 @@ Route::get('index/home/institution', [InstitutionController::class, 'actionGetIn
 Route::get('/get-districts', [UserController::class, 'getDistrictsByProvince'])->name('getDistricts');
 
 Route::get('water/insert', [WaterController::class, 'actionInsert'])->middleware('GenericMiddleware:water/insert');
-
+Route::get(
+    'water/export-nonreporting',
+    [IndexController::class, 'actionExportNonReporting']
+)->middleware('GenericMiddleware:water/export-nonreporting')
+ ->name('water.exportNonReporting');
 Route::get('index/indexadmin/{year?}/{month?}', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
 Route::post('index/indexadmin', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
 

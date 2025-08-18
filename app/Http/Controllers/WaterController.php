@@ -268,7 +268,7 @@ class WaterController extends Controller
 			'tinstitution.idInstitution as id',
 			'tinstitution.name as nombre',
 			'tinstitution.lender as prestador',
-			'tugel.name as ugel',  // AGREGAR ESTA LÍNEA
+			'tugel.name as ugel',
 			'tdistrict.name as distrito',
 			'tprovince.name as provincia',
 			'twater.month as mes',
@@ -296,7 +296,7 @@ class WaterController extends Controller
 				'tinstitution.idInstitution as id',
 				'tinstitution.name as nombre',
 				'tinstitution.lender as prestador',
-				'tugel.name as ugel',  // AGREGAR ESTA LÍNEA
+				'tugel.name as ugel',
 				'tdistrict.name as distrito',
 				'tprovince.name as provincia',
 				'twater.month as mes',
@@ -411,7 +411,7 @@ class WaterController extends Controller
 		// Preparar los datos para la exportación - MODIFICAR ESTA SECCIÓN
 		$data = [];
 		$data[] = [
-			'UGEL',              // NUEVA COLUMNA PRIMERA
+			'UGEL',
 			'Institución',
 			'Prestador',
 			'Provincia',
@@ -429,7 +429,7 @@ class WaterController extends Controller
 
 		foreach ($listTWater as $value) {
 			$data[] = [
-				$value->tinstitution->tugel->name ?? 'Sin UGEL',  // NUEVA COLUMNA CON DATOS
+				$value->tinstitution->tugel->name ?? 'Sin UGEL',
 				$value->tinstitution->name,
 				$value->tinstitution->lender,
 				$value->tinstitution->tdistrict->tprovince->name,
