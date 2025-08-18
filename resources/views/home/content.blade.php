@@ -524,7 +524,7 @@
 
                             <div class="card-image">
                                 @if (!empty($content->thumbnail))
-                                    <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}">
+                                    <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
                                         alt="{{ $content->title }}"
                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
@@ -582,19 +582,19 @@
 </div>
 @endif
 
-    @if (!empty($categoryData['videos']))
+@if (!empty($categoryData['videos']))
     <div class="content-type-header subtitulos">
         <i class="fas fa-file-video" style="color: #fff"></i>
         Videos Relacionados
     </div>
-    
+
     {{-- AGREGA ESTE DIV CONTENEDOR --}}
     <div class="carousel-container">
         {{-- BOTÓN IZQUIERDO --}}
         <button class="scroll-btn left" onclick="scrollCarousel('video-{{ $loop->index }}', 'left')">
             <i class="fas fa-chevron-left"></i>
         </button>
-        
+
         <div class="carousel" id="video-{{ $loop->index }}">
             @foreach ($categoryData['videos'] as $video)
                 <div class="content-card"
@@ -606,7 +606,8 @@
                                 alt="{{ $video->title }}"
                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
-                            <div style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                            <div
+                                style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
                                 @if ($video->youtube_url)
                                     <i class="fab fa-youtube" style="color: #ff0000; font-size: 3.5rem;"></i>
                                 @else
@@ -653,7 +654,7 @@
                 </div>
             @endforeach
         </div>
-        
+
         {{-- BOTÓN DERECHO --}}
         <button class="scroll-btn right" onclick="scrollCarousel('video-{{ $loop->index }}', 'right')">
             <i class="fas fa-chevron-right"></i>
@@ -728,7 +729,8 @@
                 videoId + '" allowfullscreen></iframe>';
         } else if (videoFile) {
             document.getElementById('videoModalBody').innerHTML =
-                '<video controls style="width: 100%; height: 100%;"><source src="/mi-cole/public/archivos/videos/' + videoFile +
+                '<video controls style="width: 100%; height: 100%;"><source src="/mi-cole/public/archivos/videos/' +
+                videoFile +
                 '" type="video/mp4">Tu navegador no soporta videos HTML5.</video>';
         }
 
