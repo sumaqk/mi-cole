@@ -56,7 +56,9 @@
         background: linear-gradient(45deg,
                 rgba(8, 141, 182, 0.1) 0%,
                 rgba(9, 64, 122, 0.2) 50%,
-                rgba(8, 141, 182, 0.1) 100% mix-blend-mode: overlay;
+                rgba(8, 141, 182, 0.1) 100%
+                );
+                mix-blend-mode: overlay;
         }
 
         .water-particles {
@@ -513,11 +515,11 @@
             <div class="water-overlay"></div>
         </div>
         <div class="slide">
-            <img src="{{ asset('home/img/galeria/5.jpg') }}" alt="Imagen 2">
+            <img src="{{ asset('home/img/galeria/10.jpg') }}" alt="Imagen 2">
             <div class="water-overlay"></div>
         </div>
         <div class="slide">
-            <img src="{{ asset('home/img/galeria/12.jpg') }}" alt="Imagen 3">
+            <img src="{{ asset('home/img/galeria/18.jpg') }}" alt="Imagen 3">
             <div class="water-overlay"></div>
         </div>
         <div class="slide">
@@ -552,7 +554,7 @@
             <h3 class="text-white mb-4 mt-3 mt-lg-0 fade-in-up" style="animation-delay: 0.2s; text-center">Estrategia
                 Regional</h3>
         </div>
-        <div class="col-lg-7 text-left">
+        <div class="col-lg-8 text-left">
             <h1 class="display-4 font-weight-bold text-white fade-in-up" style="animation-delay: 0.4s;">Mi Cole con Agua
                 Segura</h1>
             <p class="text-white mb-4 d-none d-md-block fade-in-up" style="animation-delay: 0.6s;">Este es un espacio
@@ -561,7 +563,7 @@
                 podrás hacer tus propias verificaciones y descubrir información divertida y útil sobre el agua.
                 ¡Conviértete en un experto y cuida de tu entorno mientras te diviertes!</p>
             <a href="{{ route('home.about') }}" class="btn btn-secondary mt-1 py-3 px-5 fade-in-up btn-hover-effect"
-                style="background: linear-gradient(45deg, #088db6, #0a4b8a) !important;border: none;border-radius: 30px;1px;padding: 15px 40px;font-weight: 600;box-shadow: 0 8px 25px rgba(8, 141, 182, 0.4);transition: all 0.3s ease;animation-delay: 0.8s;">Conocer
+                style="background: linear-gradient(45deg, #088db6, #0a4b8a) !important; border: none; border-radius: 30px; padding: 15px 40px; font-weight: 600; box-shadow: 0 8px 25px rgba(8, 141, 182, 0.4); transition: all 0.3s ease; animation-delay: 0.8s; text-transform: uppercase; letter-spacing: 1px;">Conocer
                 más</a>
         </div>
     </div>
@@ -994,6 +996,16 @@
                     <img class="member-logo img-fluid mx-auto mb-3" src="{{ asset('home/img/emusap2.jpg') }}"
                         style="height: 120px; width: auto;" alt="Image">
                     <h5 style="color: #0a4b8a; font-weight: bold;">EMUSAP Abancay</h5>
+                </div>
+            </a>
+
+            <a href="#" class="col-md-6 col-lg-4 mb-4 fade-in-up"
+                style="--delay: 7; text-decoration: none;">
+                <div
+                    class="member-card bg-light shadow-sm rounded p-3 d-flex flex-column justify-content-center h-100">
+                    <img class="member-logo img-fluid mx-auto mb-3" src="{{ asset('home/img/galeria/andinas.jpg') }}"
+                        style="height: 120px; width: auto;" alt="Image">
+                    <h5 style="color: #0a4b8a; font-weight: bold;">Agua Para Ciudades Andinas</h5>
                 </div>
             </a>
         </div>
