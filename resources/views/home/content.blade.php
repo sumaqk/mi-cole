@@ -562,7 +562,7 @@
                                     <div class="audio-player-card">
                                         <audio controls style="width: 100%; height: 35px;">
                                             <source
-                                                src="{{ url('/mi-cole/public/archivos/contenido/files/' . $content->content_file) }}"
+                                                src="{{ url('archivos/contenido/files/' . $content->content_file) }}"
                                                 type="audio/{{ $content->file_type }}">
                                             Tu navegador no soporta audio HTML5.
                                         </audio>
@@ -707,7 +707,7 @@
                     '" type="application/pdf" class="file-embed">';
             } else if (fileType === 'mp3' || fileType === 'wav') {
                 modalBodyContent +=
-                    '<div style="padding: 20px; text-align: center;"><audio controls style="width: 100%; max-width: 500px;"><source src="/mi-cole/public/archivos/contenido/files/' +
+                    '<div style="padding: 20px; text-align: center;"><audio controls style="width: 100%; max-width: 500px;"><source src="/archivos/contenido/files/' +
                     fileName + '" type="audio/' + fileType + '">Tu navegador no soporta audio HTML5.</audio></div>';
             } else {
                 modalBodyContent = content || 'No hay contenido disponible';
