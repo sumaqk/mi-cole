@@ -519,7 +519,7 @@
                                 <div class="content-card">
                                 @else
                                     <div class="content-card"
-                                        onclick="openContentModal('{{ $content->id }}', '{{ addslashes($content->title) }}', '{{ $content->content_file }}', '{{ $content->file_type }}', '{{ addslashes($content->content) }}')">
+                                        onclick="openContentModal('{{ $content->id }}', @json($content->title), '{{ $content->content_file }}', '{{ $content->file_type }}', @json($content->content ?? ''))"
                             @endif
 
                             <div class="card-image">
