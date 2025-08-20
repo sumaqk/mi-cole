@@ -515,21 +515,27 @@
                     </button>
                     <div class="carousel" id="content-{{ $loop->index }}">
                         @foreach ($categoryData['contents'] as $content)
-                            @if (in_array($content->file_type, ['mp3', 'wav']))
-                                <div class="content-card">
-                                @else
-                                    <div class="content-card"
-                                        onclick="openContentModal('{{ $content->id }}', @json($content->title), '{{ $content->content_file }}', '{{ $content->file_type }}', @json($content->content ?? ''))"
-                            @endif
+                            <div class="content-card"
+                                @if (!in_array($content->file_type, ['mp3', 'wav'])) onclick="openContentModal('{{ $content->id }}', @json($content->title), '{{ $content->content_file }}', '{{ $content->file_type }}', @json($content->content ?? ''))" @endif>
 
-                            <div class="card-image">
-                                @if (!empty($content->thumbnail))
-                                    <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
-                                        alt="{{ $content->title }}"
-                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="card-image">
+                                    @if (!empty($content->thumbnail))
+                                        <img src="{{ asset('archivos/contenido/images/' . $content->thumbnail) }}"
+                                            alt="{{ $content->title }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
-                                    <div
-                                        style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                        <div
+                                            style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                            @if ($content->file_type == 'pdf')
+                                                <i class="fas fa-file-pdf"
+                                                    style="color: #dc3545; font-size: 3.5rem;"></i>
+                                            @elseif(in_array($content->file_type, ['mp3', 'wav']))
+                                                <i class="fas fa-music" style="color: #28a745; font-size: 3.5rem;"></i>
+                                            @else
+                                                <i class="fas fa-file-text" style="font-size: 3.5rem;"></i>
+                                            @endif
+                                        </div>
+                                    @else
                                         @if ($content->file_type == 'pdf')
                                             <i class="fas fa-file-pdf" style="color: #dc3545; font-size: 3.5rem;"></i>
                                         @elseif(in_array($content->file_type, ['mp3', 'wav']))
@@ -537,107 +543,101 @@
                                         @else
                                             <i class="fas fa-file-text" style="font-size: 3.5rem;"></i>
                                         @endif
-                                    </div>
-                                @else
-                                    @if ($content->file_type == 'pdf')
-                                        <i class="fas fa-file-pdf" style="color: #dc3545; font-size: 3.5rem;"></i>
-                                    @elseif(in_array($content->file_type, ['mp3', 'wav']))
-                                        <i class="fas fa-music" style="color: #28a745; font-size: 3.5rem;"></i>
+                                    @endif
+
+                                    @if ($content->is_featured)
+                                        <div class="featured-badge">⭐ Destacado</div>
+                                    @endif
+                                </div>
+
+                                <div class="card-meta"></div>
+
+                                <div class="card-content {{ empty($content->excerpt) ? 'no-description' : '' }}">
+                                    <h3 class="card-title">{{ $content->title }}</h3>
+
+                                    @if (in_array($content->file_type, ['mp3', 'wav']))
+                                        <div class="audio-player-card">
+                                            <audio controls style="width: 100%; height: 35px;">
+                                                <source
+                                                    src="{{ asset('archivos/contenido/files/' . $content->content_file) }}"
+                                                    type="audio/{{ $content->file_type }}">
+                                                Tu navegador no soporta audio HTML5.
+                                            </audio>
+                                        </div>
                                     @else
-                                        <i class="fas fa-file-text" style="font-size: 3.5rem;"></i>
+                                        @if (!empty($content->excerpt))
+                                            <div class="card-description">{{ $content->excerpt }}</div>
+                                        @endif
                                     @endif
-                                @endif
-
-                                @if ($content->is_featured)
-                                    <div class="featured-badge">⭐ Destacado</div>
-                                @endif
+                                </div>
                             </div>
-                            <div class="card-meta">
-                            </div>
+                        @endforeach
+                    </div>
+                    <button class="scroll-btn right" onclick="scrollCarousel('content-{{ $loop->index }}', 'right')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            @endif
 
-                            <div class="card-content {{ empty($content->excerpt) ? 'no-description' : '' }}">
-                                <h3 class="card-title">{{ $content->title }}</h3>
+            @if (!empty($categoryData['videos']))
+                <div class="content-type-header subtitulos">
+                    <i class="fas fa-file-video" style="color: #fff"></i>
+                    Videos Relacionados
+                </div>
 
-                                @if (in_array($content->file_type, ['mp3', 'wav']))
-                                    <div class="audio-player-card">
-                                        <audio controls style="width: 100%; height: 35px;">
-                                            <source
-                                                src="{{ url('archivos/contenido/files/' . $content->content_file) }}"
-                                                type="audio/{{ $content->file_type }}">
-                                            Tu navegador no soporta audio HTML5.
-                                        </audio>
+                {{-- AGREGA ESTE DIV CONTENEDOR --}}
+                <div class="carousel-container">
+                    {{-- BOTÓN IZQUIERDO --}}
+                    <button class="scroll-btn left" onclick="scrollCarousel('video-{{ $loop->index }}', 'left')">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+
+                    <div class="carousel" id="video-{{ $loop->index }}">
+                        @foreach ($categoryData['videos'] as $video)
+                            <div class="content-card"
+                                onclick="openVideoModal('{{ $video->id }}', '{{ addslashes($video->title) }}', '{{ $video->video_file ?? '' }}', '{{ $video->youtube_url ?? '' }}')">
+
+                                <div class="card-image video-card-image">
+                                    @if (!empty($video->thumbnail))
+                                        <img src="{{ url('/archivos/videos/thumbnails/' . $video->thumbnail) }}"
+                                            alt="{{ $video->title }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                        <div
+                                            style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                            @if ($video->youtube_url)
+                                                <i class="fab fa-youtube"
+                                                    style="color: #ff0000; font-size: 3.5rem;"></i>
+                                            @else
+                                                <i class="fas fa-play-circle"
+                                                    style="color: #007bff; font-size: 3.5rem;"></i>
+                                            @endif
+                                        </div>
+                                    @else
+                                        @if ($video->youtube_url)
+                                            <i class="fab fa-youtube" style="color: #ff0000; font-size: 3.5rem;"></i>
+                                        @else
+                                            <i class="fas fa-play-circle"
+                                                style="color: #007bff; font-size: 3.5rem;"></i>
+                                        @endif
+                                    @endif
+
+                                    <div class="video-play-overlay">
+                                        @if ($video->youtube_url)
+                                            <i class="fab fa-youtube"></i>
+                                        @else
+                                            <i class="fas fa-play"></i>
+                                        @endif
                                     </div>
-                                @else
-                                    @if (!empty($content->excerpt))
-                                        <div class="card-description">{{ $content->excerpt }}</div>
+                                </div>
+
+                                <div class="card-content {{ empty($video->description) ? 'no-description' : '' }}">
+                                    <h3 class="card-title">{{ $video->title }}</h3>
+
+                                    @if (!empty($video->description))
+                                        <div class="card-description">{{ $video->description }}</div>
                                     @endif
-                                @endif
-                            </div>
-                    </div>
-            @endforeach
-        </div>
-        <button class="scroll-btn right" onclick="scrollCarousel('content-{{ $loop->index }}', 'right')">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-</div>
-@endif
-
-@if (!empty($categoryData['videos']))
-    <div class="content-type-header subtitulos">
-        <i class="fas fa-file-video" style="color: #fff"></i>
-        Videos Relacionados
-    </div>
-
-    {{-- AGREGA ESTE DIV CONTENEDOR --}}
-    <div class="carousel-container">
-        {{-- BOTÓN IZQUIERDO --}}
-        <button class="scroll-btn left" onclick="scrollCarousel('video-{{ $loop->index }}', 'left')">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="carousel" id="video-{{ $loop->index }}">
-            @foreach ($categoryData['videos'] as $video)
-                <div class="content-card"
-                    onclick="openVideoModal('{{ $video->id }}', '{{ addslashes($video->title) }}', '{{ $video->video_file ?? '' }}', '{{ $video->youtube_url ?? '' }}')">
-
-                    <div class="card-image video-card-image">
-                        @if (!empty($video->thumbnail))
-                            <img src="{{ url('/archivos/videos/thumbnails/' . $video->thumbnail) }}"
-                                alt="{{ $video->title }}"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-
-                            <div
-                                style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
-                                @if ($video->youtube_url)
-                                    <i class="fab fa-youtube" style="color: #ff0000; font-size: 3.5rem;"></i>
-                                @else
-                                    <i class="fas fa-play-circle" style="color: #007bff; font-size: 3.5rem;"></i>
-                                @endif
-                            </div>
-                        @else
-                            @if ($video->youtube_url)
-                                <i class="fab fa-youtube" style="color: #ff0000; font-size: 3.5rem;"></i>
-                            @else
-                                <i class="fas fa-play-circle" style="color: #007bff; font-size: 3.5rem;"></i>
-                            @endif
-                        @endif
-
-                        <div class="video-play-overlay">
-                            @if ($video->youtube_url)
-                                <i class="fab fa-youtube"></i>
-                            @else
-                                <i class="fas fa-play"></i>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="card-content {{ empty($video->description) ? 'no-description' : '' }}">
-                        <h3 class="card-title">{{ $video->title }}</h3>
-
-                        @if (!empty($video->description))
-                            <div class="card-description">{{ $video->description }}</div>
-                        @endif
-                        {{-- <div class="card-meta">
+                                    {{-- <div class="card-meta">
                             <span class="card-type {{ $video->youtube_url ? 'youtube' : 'video' }}">
                                 @if ($video->youtube_url)
                                     📺 YouTube
@@ -650,20 +650,20 @@
                                 Ver
                             </span>
                         </div> --}}
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
+
+                    {{-- BOTÓN DERECHO --}}
+                    <button class="scroll-btn right" onclick="scrollCarousel('video-{{ $loop->index }}', 'right')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
-            @endforeach
+            @endif
+
         </div>
-
-        {{-- BOTÓN DERECHO --}}
-        <button class="scroll-btn right" onclick="scrollCarousel('video-{{ $loop->index }}', 'right')">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-@endif
-
-</div>
-@endforeach
+    @endforeach
 </div>
 
 <!-- Modal para contenido -->
