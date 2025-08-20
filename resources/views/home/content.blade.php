@@ -516,7 +516,7 @@
                     <div class="carousel" id="content-{{ $loop->index }}">
                         @foreach ($categoryData['contents'] as $content)
                             <div class="content-card"
-                                @if (!in_array($content->file_type, ['mp3', 'wav'])) onclick="openContentModal('{{ $content->id }}', @json($content->title), '{{ $content->content_file }}', '{{ $content->file_type }}', @json($content->content ?? ''))" @endif>
+                                @if (!in_array($content->file_type, ['mp3', 'wav'])) onclick="openContentModal('{{ $content->id }}', '{{ str_replace(["\r", "\n", "'"], ["", "", "\'"], $content->title) }}', '{{ $content->content_file }}', '{{ $content->file_type }}', '{{ str_replace(["\r", "\n", "'"], ["", "", "\'"], $content->content ?? '') }}')" @endif>
 
                                 <div class="card-image">
                                     @if (!empty($content->thumbnail))
