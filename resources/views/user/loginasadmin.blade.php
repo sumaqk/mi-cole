@@ -24,34 +24,11 @@
 	<style>
 		body
 		{
-			margin: 0;
-			padding: 0;
-			min-height: 100vh;
-			font-family: 'Arial', sans-serif;
-		}
-
-		.login-container
-		{
-			display: flex;
-			min-height: 100vh;
 			background-image: url("{{asset('img/loginBanner/bannerAgua.jpg')}}");
 			background-size: cover;
-			background-position: center;
+			background-position: 33% center;
 			background-repeat: no-repeat;
-		}
-
-		.login-image-section
-		{
-			flex: 1;
-		}
-
-		.login-form-section
-		{
-			flex: 1;
-			display: flex;
-			align-items: center;
-			justify-content: flex-end;
-			padding: 20px 60px 20px 20px;
+			background-attachment: fixed;
 		}
 
 		.login100-form-bgbtn
@@ -71,26 +48,39 @@
 
 		.wrap-login100
 		{
-			background-color: rgba(255, 255, 255, 0.95);
-			max-width: 400px;
-			width: 100%;
-			padding: 40px;
-			border-radius: 10px;
-			box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
-			backdrop-filter: blur(10px);
+			background-color: #ffffff;
 		}
 
+		/* Responsivo para móviles */
 		@media (max-width: 768px) {
-			.login-container {
-				flex-direction: column;
+			.wrap-login100 {
+				margin: 20px;
+				margin-left: 20px !important;
+				margin-right: 20px !important;
+				max-width: none !important;
+				width: calc(100% - 40px) !important;
 			}
 			
-			.login-image-section {
-				min-height: 200px;
+			.container-login100 {
+				padding: 15px;
 			}
 			
-			.login-form-section {
-				min-height: calc(100vh - 200px);
+			body {
+				background-position: 10% center;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.wrap-login100 {
+				margin: 10px;
+				margin-left: 10px !important;
+				margin-right: 10px !important;
+				width: calc(100% - 20px) !important;
+				padding: 30px 20px !important;
+			}
+			
+			body {
+				background-position: 5% center;
 			}
 		}
 	</style>
@@ -122,20 +112,15 @@
 			});
 		</script>
 	@endif
-	<div class="login-container">
-		<!-- Sección de imagen (izquierda) -->
-		<div class="login-image-section">
-		</div>
-		
-		<!-- Sección de formulario (derecha) -->
-		<div class="login-form-section">
-			<div class="wrap-login100">
+	<div class="limiter">
+		<div class="container-login100" style="background-color: transparent;">
+			<div class="wrap-login100" style="box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.7); margin-left: auto; margin-right: 80px; max-width: 450px;">
 				<form class="login100-form validate-form" action="{{url('user/loginasadmin')}}" method="post">
-					<span class="login100-form-title p-b-26" style="color: #6a6a6a;">
-						{{($tConfigurationFmMdl!=null ? $tConfigurationFmMdl->platformName : 'System')}}
+					<span class="login100-form-title p-b-26" style="color: #333; font-size: 24px; font-weight: bold; text-align: center;">
+						Sistema Regional de Registro de Cloro
 					</span>
 					<span class="login100-form-title p-b-48">
-						<img src="{{asset('img/general/logo.png')}}" alt="Logo" style="background-color: #ffffff;border-radius: 5px;box-shadow: 0px 0px 5px #ffffff;padding: 5px;padding-left: 10px;padding-right: 10px;width: 100%;">
+						<img src="{{asset('img/loginBanner/logohector.png')}}" alt="Logo Héctor" style="width: 100%; max-width: 200px; height: auto;">
 					</span>
 					<div class="wrap-input100">
 						<input type="text" id="txtEmail" name="txtEmail" class="input100" style="color: #000000;">
