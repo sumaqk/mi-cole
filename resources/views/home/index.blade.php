@@ -161,7 +161,8 @@
             transform: translateX(-50%);
             display: flex;
             gap: 15px;
-            z-index: 1000;
+            z-index: 9999 !important;
+            pointer-events: auto !important;
         }
 
         .control-dot {
@@ -172,6 +173,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid rgba(8, 141, 182, 0.8);
+            pointer-events: auto !important;
+            z-index: 10000 !important;
+            position: relative;
         }
 
         .control-dot.active {
@@ -193,10 +197,11 @@
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1000;
+            z-index: 9999 !important;
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: auto !important;
         }
 
         .nav-arrow:hover {
@@ -546,8 +551,8 @@
 <!-- Contenedor del contenido superpuesto -->
 <div class="position-relative text-center px-0 px-md-5 mb-5"
     style="background: linear-gradient(to right, rgba(9, 64, 122, 0.6), rgba(255, 255, 255, 0)); padding-top: 320px; height: 80vh; display: flex; align-items: center;
- z-index: 5;">
-    <div class="row align-items-center px-3">
+ z-index: 5; pointer-events: none;">
+    <div class="row align-items-center px-3" style="pointer-events: auto;">
         <div class="col-lg-2 text-center">
             <img class="img-fluid fade-in-up" style="width: 10rem;" src="{{ asset('home/img/logo_gore2.png') }}"
                 alt="Logo">
@@ -1029,6 +1034,14 @@
         }
 
         init() {
+            console.log('Inicializando componentes del slider...');
+            console.log('Elementos encontrados:', {
+                slides: this.slides.length,
+                dots: this.dots.length,
+                prevBtn: !!this.prevBtn,
+                nextBtn: !!this.nextBtn
+            });
+            
             this.createWaterParticles();
             this.addEventListeners();
             this.startAutoPlay();
@@ -1055,25 +1068,38 @@
         }
 
         addEventListeners() {
+            console.log('Configurando event listeners...');
+            
             this.dots.forEach((dot, index) => {
                 dot.addEventListener('click', () => {
+                    console.log('Click en dot:', index);
                     if (!this.isTransitioning) {
                         this.goToSlide(index);
                     }
                 });
             });
 
-            this.prevBtn.addEventListener('click', () => {
-                if (!this.isTransitioning) {
-                    this.prevSlide();
-                }
-            });
+            if (this.prevBtn) {
+                this.prevBtn.addEventListener('click', () => {
+                    console.log('Click en botón anterior');
+                    if (!this.isTransitioning) {
+                        this.prevSlide();
+                    }
+                });
+            } else {
+                console.error('Botón previo no encontrado');
+            }
 
-            this.nextBtn.addEventListener('click', () => {
-                if (!this.isTransitioning) {
-                    this.nextSlide();
-                }
-            });
+            if (this.nextBtn) {
+                this.nextBtn.addEventListener('click', () => {
+                    console.log('Click en botón siguiente');
+                    if (!this.isTransitioning) {
+                        this.nextSlide();
+                    }
+                });
+            } else {
+                console.error('Botón siguiente no encontrado');
+            }
 
             const slider = document.getElementById('waterFlowSlider');
             slider.addEventListener('mouseenter', () => {
@@ -1159,8 +1185,18 @@
     }
 
     // Inicializar cuando se carga la página
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Inicializando slider...');
         new WaterFlowSlider();
+    });
+
+    // Fallback para asegurar que se ejecute
+    window.addEventListener('load', function() {
+        if (!document.querySelector('.slider-initialized')) {
+            console.log('Inicializando slider (fallback)...');
+            new WaterFlowSlider();
+            document.body.classList.add('slider-initialized');
+        }
     });
 </script>
 
