@@ -12,7 +12,7 @@
     #waterFlowSlider {
         position: absolute;
         width: 100%;
-        height: 80vh;
+        height: 95vh;
         z-index: -1;
         overflow: hidden;
         background: linear-gradient(135deg, #0a4b8a, #1e90ff);
@@ -561,7 +561,7 @@
 
 <!-- Contenedor del contenido superpuesto -->
 <div class="position-relative text-center px-0 px-md-0 mb-0"
-    style="background: linear-gradient(to right, rgba(9, 64, 122, 0.6), rgba(255, 255, 255, 0)); padding-top: 320px; height: 80vh; display: flex; align-items: center;
+    style="background: linear-gradient(to right, rgba(9, 64, 122, 0.6), rgba(255, 255, 255, 0)); padding-top: 280px; height: 95vh; display: flex; align-items: center;
  z-index: 5; pointer-events: none;">
     <div class="row align-items-center px-3" style="pointer-events: auto;">
         <div class="col-lg-2 text-center">
@@ -585,7 +585,7 @@
     </div>
 </div>
 <!-- Sección Principal - Rediseñada -->
-<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-0 pt-0">
+<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-3 pt-3">
     <div class="container pb-3">
         <div class="text-center pb-4">
             <h2 class="animated-title mb-4" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>
@@ -822,7 +822,7 @@
 </div>
 
 <!-- Materiales - Rediseñados -->
-<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-0 pt-0" id="materiales">
+<div class="container-fluid pt-5 section-modern elegant-container mb-3 mt-3 pb-3 pt-3" id="materiales">
     <div class="container">
         <div class="text-center pb-4">
             <p class="section-title px-5" style="color: #088db6; font-size: 1.2rem; font-weight: 600;"><span

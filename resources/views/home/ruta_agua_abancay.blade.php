@@ -14,7 +14,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 40px;
+        margin-bottom: 0px;
     }
 
     .ruta-header::before {
@@ -29,9 +29,25 @@
         z-index: 1;
     }
 
+    .elegant-container {
+        width: 100%;
+        margin: 20px auto;
+        background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
     @keyframes wave {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
     }
 
     .header-content {
@@ -62,8 +78,15 @@
     }
 
     @keyframes droplet {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-5px) scale(1.02); }
+
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-5px) scale(1.02);
+        }
     }
 
     .slider-container {
@@ -82,6 +105,7 @@
             transform: translateY(50px);
             opacity: 0;
         }
+
         to {
             transform: translateY(0);
             opacity: 1;
@@ -89,7 +113,7 @@
     }
 
     .slider-header {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
         color: white;
         padding: 25px 30px;
         text-align: center;
@@ -101,7 +125,7 @@
         font-size: 1.8rem;
         font-weight: bold;
         margin: 0;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         letter-spacing: 1px;
     }
 
@@ -126,7 +150,7 @@
         height: 500px;
         overflow: hidden;
         border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         background: #f8f9fa;
     }
 
@@ -159,7 +183,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
         color: white;
         padding: 30px 25px 20px;
         transform: translateY(100%);
@@ -186,7 +210,7 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
         border: none;
         width: 50px;
@@ -204,9 +228,9 @@
     }
 
     .slider-controls:hover {
-        background: rgba(255,255,255,0.4);
+        background: rgba(255, 255, 255, 0.4);
         transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     .prev-btn {
@@ -284,137 +308,175 @@
     }
 </style>
 
-<div class="ruta-header">
+<div class="ruta-header mt-0 mb-0 pt-0 pb-0">
     <div class="header-content">
         <div class="water-icon"></div>
         <h1 class="text-white font-weight-bold mb-3" style="font-size: 2.5rem;">
-            Ruta del Agua Abancay
+            Ruta del Agua en Abancay
         </h1>
         <p class="text-white h4 mb-0">
             Conoce el recorrido del agua en nuestra ciudad
         </p>
     </div>
 </div>
+<div class="elegant-container mt-0 mb-0 pt-0 pb-0">
+    <!-- Slider para Alumnos -->
+    <div class="slider-container">
+        <div class="slider-header">
+            <h2>Ruta del Agua - Alumnos</h2>
+        </div>
+        <div class="slider-content">
+            <div class="image-slider" id="slider-alumnos">
+                <div class="slider-wrapper" id="slider-wrapper-alumnos">
+                    @php
+                        $alumnosImages = [];
+                        $imageNumbers = [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                        ];
 
-<!-- Slider para Alumnos -->
-<div class="slider-container">
-    <div class="slider-header">
-        <h2>🎓 Ruta del Agua - Alumnos</h2>
-    </div>
-    <div class="slider-content">
-        <div class="image-slider" id="slider-alumnos">
-            <div class="slider-wrapper" id="slider-wrapper-alumnos">
-                @php
-                    $alumnosImages = [];
-                    $imageNumbers = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25];
-                    
-                    foreach($imageNumbers as $num) {
-                        $imagePath = "img/rutas/abancay/rutaaguaalumnos/{$num}.jpg";
-                        if(file_exists(public_path($imagePath))) {
-                            $alumnosImages[] = $imagePath;
+                        foreach ($imageNumbers as $num) {
+                            $imagePath = "img/rutas/abancay/rutaaguaalumnos/{$num}.jpg";
+                            if (file_exists(public_path($imagePath))) {
+                                $alumnosImages[] = $imagePath;
+                            }
                         }
-                    }
-                @endphp
-                
-                @foreach($alumnosImages as $index => $image)
-                <div class="slide">
-                    <img src="{{ asset($image) }}" alt="Ruta del Agua Alumnos {{ $index + 1 }}" loading="lazy">
-                    <div class="slide-overlay">
-                        <div class="slide-title">Etapa {{ $index + 1 }} - Estudiantes</div>
-                        <div class="slide-description">Los estudiantes aprenden sobre el ciclo del agua y su importancia en nuestra comunidad.</div>
-                    </div>
+                    @endphp
+
+                    @foreach ($alumnosImages as $index => $image)
+                        <div class="slide">
+                            <img src="{{ asset($image) }}" alt="Ruta del Agua Alumnos {{ $index + 1 }}"
+                                loading="lazy">
+                            <div class="slide-overlay">
+                                <div class="slide-title">Etapa {{ $index + 1 }} - Estudiantes</div>
+                                <div class="slide-description">Los estudiantes aprenden sobre el ciclo del agua y su
+                                    importancia en nuestra comunidad.</div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endforeach
+
+                @if (count($alumnosImages) > 1)
+                    <button class="slider-controls prev-btn" onclick="moveSlider('alumnos', -1)">‹</button>
+                    <button class="slider-controls next-btn" onclick="moveSlider('alumnos', 1)">›</button>
+                @endif
             </div>
-            
-            @if(count($alumnosImages) > 1)
-            <button class="slider-controls prev-btn" onclick="moveSlider('alumnos', -1)">‹</button>
-            <button class="slider-controls next-btn" onclick="moveSlider('alumnos', 1)">›</button>
+
+            @if (count($alumnosImages) > 1)
+                <div class="slider-dots" id="dots-alumnos">
+                    @for ($i = 0; $i < count($alumnosImages); $i++)
+                        <span class="dot {{ $i === 0 ? 'active' : '' }}"
+                            onclick="goToSlide('alumnos', {{ $i }})"></span>
+                    @endfor
+                </div>
             @endif
-        </div>
-        
-        @if(count($alumnosImages) > 1)
-        <div class="slider-dots" id="dots-alumnos">
-            @for($i = 0; $i < count($alumnosImages); $i++)
-            <span class="dot {{ $i === 0 ? 'active' : '' }}" onclick="goToSlide('alumnos', {{ $i }})"></span>
-            @endfor
-        </div>
-        @endif
-        
-        <div class="slider-info">
-            <strong>{{ count($alumnosImages) }}</strong> imágenes disponibles del recorrido con estudiantes
+{{-- 
+            <div class="slider-info">
+                <strong>{{ count($alumnosImages) }}</strong> imágenes disponibles del recorrido con estudiantes
+            </div> --}}
         </div>
     </div>
+
+    <!-- Slider para Docentes -->
+    <div class="slider-container">
+        <div class="slider-header">
+            <h2>Ruta del Agua - Docentes</h2>
+        </div>
+        <div class="slider-content">
+            <div class="image-slider" id="slider-docentes">
+                <div class="slider-wrapper" id="slider-wrapper-docentes">
+                    @php
+                        $docentesImages = [];
+                        for ($i = 1; $i <= 23; $i++) {
+                            $imagePath = "img/rutas/abancay/rutaaguadocentes/d{$i}.jpg";
+                            if (file_exists(public_path($imagePath))) {
+                                $docentesImages[] = $imagePath;
+                            }
+                        }
+                    @endphp
+
+                    @foreach ($docentesImages as $index => $image)
+                        <div class="slide">
+                            <img src="{{ asset($image) }}" alt="Ruta del Agua Docentes {{ $index + 1 }}"
+                                loading="lazy">
+                            <div class="slide-overlay">
+                                <div class="slide-title">Etapa {{ $index + 1 }} - Docentes</div>
+                                <div class="slide-description">Capacitación docente sobre gestión del agua y
+                                    metodologías de enseñanza ambiental.</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if (count($docentesImages) > 1)
+                    <button class="slider-controls prev-btn" onclick="moveSlider('docentes', -1)">‹</button>
+                    <button class="slider-controls next-btn" onclick="moveSlider('docentes', 1)">›</button>
+                @endif
+            </div>
+
+            @if (count($docentesImages) > 1)
+                <div class="slider-dots" id="dots-docentes">
+                    @for ($i = 0; $i < count($docentesImages); $i++)
+                        <span class="dot {{ $i === 0 ? 'active' : '' }}"
+                            onclick="goToSlide('docentes', {{ $i }})"></span>
+                    @endfor
+                </div>
+            @endif
+
+            {{-- <div class="slider-info">
+                <strong>{{ count($docentesImages) }}</strong> imágenes disponibles del recorrido con docentes
+            </div> --}}
+        </div>
+    </div>
+
 </div>
 
-<!-- Slider para Docentes -->
-<div class="slider-container">
-    <div class="slider-header">
-        <h2>👨‍🏫 Ruta del Agua - Docentes</h2>
-    </div>
-    <div class="slider-content">
-        <div class="image-slider" id="slider-docentes">
-            <div class="slider-wrapper" id="slider-wrapper-docentes">
-                @php
-                    $docentesImages = [];
-                    for($i = 1; $i <= 23; $i++) {
-                        $imagePath = "img/rutas/abancay/rutaaguadocentes/d{$i}.jpg";
-                        if(file_exists(public_path($imagePath))) {
-                            $docentesImages[] = $imagePath;
-                        }
-                    }
-                @endphp
-                
-                @foreach($docentesImages as $index => $image)
-                <div class="slide">
-                    <img src="{{ asset($image) }}" alt="Ruta del Agua Docentes {{ $index + 1 }}" loading="lazy">
-                    <div class="slide-overlay">
-                        <div class="slide-title">Etapa {{ $index + 1 }} - Docentes</div>
-                        <div class="slide-description">Capacitación docente sobre gestión del agua y metodologías de enseñanza ambiental.</div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            
-            @if(count($docentesImages) > 1)
-            <button class="slider-controls prev-btn" onclick="moveSlider('docentes', -1)">‹</button>
-            <button class="slider-controls next-btn" onclick="moveSlider('docentes', 1)">›</button>
-            @endif
-        </div>
-        
-        @if(count($docentesImages) > 1)
-        <div class="slider-dots" id="dots-docentes">
-            @for($i = 0; $i < count($docentesImages); $i++)
-            <span class="dot {{ $i === 0 ? 'active' : '' }}" onclick="goToSlide('docentes', {{ $i }})"></span>
-            @endfor
-        </div>
-        @endif
-        
-        <div class="slider-info">
-            <strong>{{ count($docentesImages) }}</strong> imágenes disponibles del recorrido con docentes
-        </div>
-    </div>
-</div>
 
 <script>
     // Estado de los sliders
     const sliders = {
-        alumnos: { currentSlide: 0, totalSlides: {{ count($alumnosImages) }} },
-        docentes: { currentSlide: 0, totalSlides: {{ count($docentesImages) }} }
+        alumnos: {
+            currentSlide: 0,
+            totalSlides: {{ count($alumnosImages) }}
+        },
+        docentes: {
+            currentSlide: 0,
+            totalSlides: {{ count($docentesImages) }}
+        }
     };
 
     function moveSlider(sliderName, direction) {
         const slider = sliders[sliderName];
         const wrapper = document.getElementById(`slider-wrapper-${sliderName}`);
-        
+
         slider.currentSlide += direction;
-        
+
         if (slider.currentSlide >= slider.totalSlides) {
             slider.currentSlide = 0;
         } else if (slider.currentSlide < 0) {
             slider.currentSlide = slider.totalSlides - 1;
         }
-        
+
         updateSlider(sliderName);
     }
 
@@ -427,11 +489,11 @@
         const slider = sliders[sliderName];
         const wrapper = document.getElementById(`slider-wrapper-${sliderName}`);
         const dots = document.querySelectorAll(`#dots-${sliderName} .dot`);
-        
+
         // Mover slider
         const translateX = -slider.currentSlide * 100;
         wrapper.style.transform = `translateX(${translateX}%)`;
-        
+
         // Actualizar dots
         dots.forEach((dot, index) => {
             dot.classList.toggle('active', index === slider.currentSlide);
@@ -465,7 +527,7 @@
 
     ['alumnos', 'docentes'].forEach(sliderName => {
         const slider = document.getElementById(`slider-${sliderName}`);
-        
+
         slider.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         });
@@ -479,7 +541,7 @@
     function handleSwipe(sliderName) {
         const swipeThreshold = 50;
         const diff = touchStartX - touchEndX;
-        
+
         if (Math.abs(diff) > swipeThreshold) {
             if (diff > 0) {
                 moveSlider(sliderName, 1); // Swipe left
