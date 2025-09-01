@@ -2,7 +2,7 @@
 
 <style>
     body {
-        background: linear-gradient(135deg, #0077be 0%, #00a8cc 100%);
+        /* background: linear-gradient(135deg, #0077be 0%, #00a8cc 100%); */
         min-height: 100vh;
         overflow-x: hidden;
     }
@@ -13,9 +13,10 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(0, 119, 190, 0.1) 0%, rgba(0, 168, 204, 0.1) 100%);
+        background: transparent;
         overflow: hidden;
-        z-index: -1;
+        z-index: -5;
+        pointer-events: none;
     }
 
     .water-wave::before {

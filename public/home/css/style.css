@@ -62,7 +62,7 @@ body {
   color: #222222;
   text-align: left;
   background-color: #ffffff;
-  background-image: url('https://3diphonewallpaper.com/wp-content/uploads/2017/10/Dark-Blue-Wallpaper-iPhone-5.jpg');
+  /* background-image: url('https://3diphonewallpaper.com/wp-content/uploads/2017/10/Dark-Blue-Wallpaper-iPhone-5.jpg'); */
   background-size: cover;
   background-position: center;
   position: relative;
@@ -76,8 +76,8 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(196, 226, 255, 0.733); /* Opacidad blanca del 25% */
-  z-index: -1; /* Coloca la capa debajo del contenido */
+  background-color: transparent; /* Removido para que se vea el video */
+  z-index: -15; /* Movido detrás del video */
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {

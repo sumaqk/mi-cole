@@ -41,14 +41,14 @@
             width: 100%;
             height: 100%;
             z-index: -10;
-            overflow: hidden;
+            /* overflow: hidden; */
         }
 
         .video-background-global video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.4;
+            /* opacity: 0.9; */
         }
 
         .video-overlay-global {
@@ -57,7 +57,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(0, 119, 190, 0.7) 0%, rgba(0, 168, 204, 0.7) 100%);
+            background: linear-gradient(135deg, rgba(0, 119, 190, 0.3) 0%, rgba(0, 168, 204, 0.3) 100%);
             z-index: -9;
         }
 
@@ -480,35 +480,6 @@
             left: 0;
         }
 
-        /*
-        .nav-link-modern:hover {
-            background: #4facfe;
-            background: -webkit-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            background: -moz-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white !important;
-            -webkit-transform: translateY(-2px);
-            -moz-transform: translateY(-2px);
-            -ms-transform: translateY(-2px);
-            transform: translateY(-2px);
-            -webkit-box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
-            -moz-box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
-            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
-            text-decoration: none;
-            border: 1px solid rgba(79, 172, 254, 0.3);
-        }
-
-        .nav-link-modern.active {
-            background: #4facfe !important;
-            background: -webkit-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-            background: -moz-linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-            color: white !important;
-            -webkit-box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-            -moz-box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-            border: 1px solid rgba(79, 172, 254, 0.3);
-        } */
 
         .nav-link-modern.active {
     background: #4facfe !important;
