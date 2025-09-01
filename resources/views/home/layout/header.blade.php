@@ -33,6 +33,42 @@
     <link href="{{ asset('home/css/style.css') }}" rel="stylesheet">
 
     <style>
+        /* VIDEO DE FONDO GLOBAL */
+        .video-background-global {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            overflow: hidden;
+        }
+
+        .video-background-global video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+        }
+
+        .video-overlay-global {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 119, 190, 0.7) 0%, rgba(0, 168, 204, 0.7) 100%);
+            z-index: -9;
+        }
+
+        /* Asegurar que el contenido esté encima */
+        .container-fluid,
+        .container,
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
         /* Header Moderno - Compatible con todos los navegadores */
         .header-modern {
             background: #f8f9fa;
@@ -44,8 +80,12 @@
             -moz-box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border-bottom: 1px solid rgba(79, 172, 254, 0.2);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            overflow: visible;
+            z-index: 99999 !important;
         }
 
         .header-modern::before {
@@ -116,6 +156,7 @@
             -webkit-flex-wrap: nowrap;
             -ms-flex-wrap: nowrap;
             flex-wrap: nowrap;
+            overflow: visible;
         }
 
         .brand-container {
@@ -329,32 +370,57 @@
             -webkit-justify-content: center;
             -ms-flex-pack: center;
             justify-content: center;
-            gap: 8px;
+            gap: 4px;
+            overflow: visible;
         }
 
         .nav-item-modern {
-            margin: 0 3px;
+            margin: 0 2px;
+            position: relative;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .nav-item-modern.dropdown {
+            position: static;
+            overflow: visible !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .dropdown {
+            position: static !important;
+        }
+
+        .dropdown .dropdown-menu {
+            position: fixed !important;
+            z-index: 9999999 !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            bottom: auto !important;
         }
 
         .nav-link-modern {
             color: #495057 !important;
             font-weight: 600;
-            padding: 12px 18px !important;
-            -webkit-border-radius: 25px;
-            -moz-border-radius: 25px;
-            border-radius: 25px;
+            padding: 10px 14px !important;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
             -webkit-transition: all 0.3s ease;
             -moz-transition: all 0.3s ease;
             -o-transition: all 0.3s ease;
             transition: all 0.3s ease;
             position: relative;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(79, 172, 254, 0.1);
             display: inline-block;
             overflow: hidden;
             z-index: 1;
+            white-space: nowrap;
         }
 
         .nav-link-modern::before {
@@ -530,65 +596,13 @@
         /* Responsive */
         @media (max-width: 991px) {
             .brand-title {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
 
             .brand-subtitle {
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
 
-            .brand-container {
-                min-width: 250px;
-            }
-
-            .brand-icon-modern {
-                width: 55px;
-                height: 55px;
-                margin-right: 15px;
-            }
-
-            .brand-icon-modern i {
-                font-size: 1.8rem;
-            }
-
-            .navbar-modern {
-                -webkit-flex-wrap: wrap;
-                -ms-flex-wrap: wrap;
-                flex-wrap: wrap;
-            }
-
-            .navbar-nav-modern {
-                background: rgba(255, 255, 255, 0.95) !important;
-                -webkit-border-radius: 15px;
-                -moz-border-radius: 15px;
-                border-radius: 15px;
-                margin-top: 1rem;
-                padding: 15px;
-                -webkit-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                -moz-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                border: 1px solid rgba(79, 172, 254, 0.2);
-                width: 100%;
-                -webkit-flex-direction: column;
-                -ms-flex-direction: column;
-                flex-direction: column;
-            }
-
-            .nav-item-modern {
-                margin: 3px 0;
-                width: 100%;
-            }
-
-            .nav-link-modern {
-                text-align: center;
-                margin: 2px 0;
-                display: block;
-                width: 100%;
-                background: rgba(79, 172, 254, 0.05);
-            }
-        }
-
-        @media (max-width: 576px) {
             .brand-container {
                 min-width: 220px;
             }
@@ -600,15 +614,83 @@
             }
 
             .brand-icon-modern i {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
+            }
+
+            .navbar-modern {
+                -webkit-flex-wrap: wrap;
+                -ms-flex-wrap: wrap;
+                flex-wrap: wrap;
+                padding: 0.5rem 0;
+            }
+
+            .navbar-nav-modern {
+                background: rgba(255, 255, 255, 0.95) !important;
+                -webkit-border-radius: 15px;
+                -moz-border-radius: 15px;
+                border-radius: 15px;
+                margin-top: 1rem;
+                padding: 10px;
+                -webkit-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                -moz-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(79, 172, 254, 0.2);
+                width: 100%;
+                -webkit-flex-direction: column;
+                -ms-flex-direction: column;
+                flex-direction: column;
+            }
+
+            .nav-item-modern {
+                margin: 2px 0;
+                width: 100%;
+            }
+
+            .nav-link-modern {
+                text-align: center;
+                margin: 2px 0;
+                display: block;
+                width: 100%;
+                background: rgba(79, 172, 254, 0.05);
+                font-size: 0.9rem;
+                padding: 8px 12px !important;
+            }
+
+            body {
+                padding-top: 120px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .brand-container {
+                min-width: 200px;
+            }
+
+            .brand-icon-modern {
+                width: 45px;
+                height: 45px;
+                margin-right: 10px;
+            }
+
+            .brand-icon-modern i {
+                font-size: 1.4rem;
             }
 
             .brand-title {
-                font-size: 1.9rem;
+                font-size: 1.7rem;
             }
 
             .brand-subtitle {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
+            }
+
+            .nav-link-modern {
+                font-size: 0.8rem !important;
+                padding: 6px 10px !important;
+            }
+
+            body {
+                padding-top: 140px;
             }
         }
 
@@ -617,6 +699,11 @@
             -webkit-animation: headerFadeIn 1s ease-out;
             -moz-animation: headerFadeIn 1s ease-out;
             animation: headerFadeIn 1s ease-out;
+        }
+
+        /* Espaciado para header fijo */
+        body {
+            padding-top: 100px;
         }
 
         @-webkit-keyframes headerFadeIn {
@@ -663,6 +750,95 @@
             }
         }
 
+        /* DROPDOWN SIMPLE QUE FUNCIONA */
+        .dropdown-simple {
+            position: relative;
+        }
+
+        .dropdown-simple-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            border-radius: 15px;
+            padding: 8px;
+            min-width: 220px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 9999999;
+            display: none;
+        }
+
+        .dropdown-simple-menu.show {
+            display: block;
+        }
+
+        .dropdown-simple-item {
+            display: block;
+            padding: 8px 12px;
+            margin: 2px 0;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-simple-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .dropdown-simple-item:hover {
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .dropdown-simple-item:hover::before {
+            left: 0;
+        }
+
+        .dropdown-simple-item i {
+            color: #4facfe;
+            transition: color 0.3s ease;
+        }
+
+        .dropdown-simple-item:hover i {
+            color: white;
+        }
+
+        /* Responsive para dropdown simple */
+        @media (max-width: 991px) {
+            .dropdown-simple-menu {
+                position: static;
+                width: 100%;
+                margin-top: 8px;
+                margin-left: 20px;
+                background: rgba(79, 172, 254, 0.05);
+                border: 1px solid rgba(79, 172, 254, 0.1);
+                box-shadow: none;
+            }
+
+            .dropdown-simple-item {
+                text-align: center;
+                margin: 4px 0;
+            }
+        }
+
         /* Fix para Internet Explorer */
         .navbar-nav-modern {
             display: block;
@@ -679,6 +855,14 @@
 </head>
 
 <body>
+    <!-- Video de fondo global -->
+    <div class="video-background-global">
+        <video autoplay muted loop>
+            <source src="{{ asset('img/loginBanner/fondo.webm') }}" type="video/webm">
+        </video>
+    </div>
+    <div class="video-overlay-global"></div>
+
     <!-- Header Start -->
     <div class="header-modern">
         <nav class="navbar navbar-expand-lg navbar-modern container-fluid px-4">
@@ -704,7 +888,7 @@
 
             <!-- Navigation -->
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav navbar-nav-modern mx-auto">
+                <div class="navbar-nav navbar-nav-modern mx-auto mt-3">
                     <div class="nav-item nav-item-modern">
                         <a href="{{ route('home.index') }}"
                             class="nav-link nav-link-modern {{ request()->routeIs('home.index') ? 'active' : '' }}">
@@ -723,11 +907,19 @@
                             <i class="fas fa-book mr-2"></i>Contenido
                         </a>
                     </div>
-                    <div class="nav-item nav-item-modern">
-                        <a href="{{ route('home.gallery') }}"
-                            class="nav-link nav-link-modern {{ request()->routeIs('home.gallery') ? 'active' : '' }}">
-                            <i class="fas fa-images mr-2"></i>Galería
+                    <div class="nav-item nav-item-modern dropdown-simple">
+                        <a href="#" class="nav-link nav-link-modern {{ request()->routeIs('home.gallery*') ? 'active' : '' }}"
+                           onclick="toggleGalleryMenu(event)">
+                            <i class="fas fa-images mr-2"></i>Galería <i class="fas fa-chevron-down ml-1"></i>
                         </a>
+                        <div class="dropdown-simple-menu" id="galeriaMenu">
+                            <a href="{{ route('home.gallery') }}" class="dropdown-simple-item" onclick="closeMobileMenu()">
+                                <i class="fas fa-images mr-2"></i>Medición de cloro
+                            </a>
+                            <a href="#" class="dropdown-simple-item" onclick="closeMobileMenu()">
+                                <i class="fas fa-route mr-2"></i>Ruta del Agua Abancay
+                            </a>
+                        </div>
                     </div>
                     <div class="nav-item nav-item-modern">
                         <a href="{{ route('home.institution') }}"
@@ -802,10 +994,15 @@
                 window.attachEvent('onscroll', handleScroll);
             }
 
-            // Mobile menu auto-close
+            // Mobile menu auto-close - EXCEPTO para Galería
             var navLinks = document.querySelectorAll('.nav-link-modern');
             for (var j = 0; j < navLinks.length; j++) {
-                navLinks[j].addEventListener('click', function() {
+                navLinks[j].addEventListener('click', function(e) {
+                    // NO cerrar el menú si es el botón de Galería
+                    if (e.target.closest('[onclick="toggleGalleryMenu(event)"]')) {
+                        return; // No hacer nada si es el dropdown de Galería
+                    }
+                    
                     var navbarCollapse = document.getElementById('navbarCollapse');
                     if (window.innerWidth < 992 && navbarCollapse.classList.contains('show')) {
                         setTimeout(function() {
@@ -819,5 +1016,50 @@
                     }
                 });
             }
+
+            // Función simple para toggle del dropdown del menú
+            window.toggleGalleryMenu = function(event) {
+                event.preventDefault();
+                event.stopPropagation(); // Evitar que se propague el evento
+                
+                var menu = document.getElementById('galeriaMenu');
+                var chevron = event.target.querySelector('.fa-chevron-down') || event.target.parentElement.querySelector('.fa-chevron-down');
+                
+                if (menu.classList.contains('show')) {
+                    menu.classList.remove('show');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                } else {
+                    menu.classList.add('show');
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                }
+            };
+
+            // Cerrar dropdown al hacer click fuera
+            document.addEventListener('click', function(event) {
+                var dropdown = document.querySelector('.dropdown-simple');
+                var menu = document.getElementById('galeriaMenu');
+                
+                if (dropdown && !dropdown.contains(event.target)) {
+                    menu.classList.remove('show');
+                    var chevron = dropdown.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Función para cerrar menú móvil cuando haces click en un item del dropdown
+            window.closeMobileMenu = function() {
+                if (window.innerWidth < 992) {
+                    var navbarCollapse = document.getElementById('navbarCollapse');
+                    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+                        setTimeout(function() {
+                            if (typeof $ !== 'undefined' && $.fn.collapse) {
+                                $('.navbar-collapse').collapse('hide');
+                            } else {
+                                navbarCollapse.classList.remove('show');
+                            }
+                        }, 100);
+                    }
+                }
+            };
         });
     </script>
