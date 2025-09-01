@@ -102,10 +102,10 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 100%;
-            height: 100px;
+            width: 130%;
+            height:70px;
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100'%3E%3Cpath d='M0,50 Q250,0 500,50 T1000,50 L1000,100 L0,100 Z' fill='rgba(8,141,182,0.4)'/%3E%3C/svg%3E");
-            background-size: 1000px 100px;
+            background-size: 400px 100px;
             animation: wave 6s ease-in-out infinite;
         }
 
