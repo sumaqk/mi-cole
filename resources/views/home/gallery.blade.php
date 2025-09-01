@@ -607,7 +607,7 @@
     .elegant-container {
         width: 100%;
         margin: 20px auto;
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
         backdrop-filter: blur(10px);
         border-radius: 15px;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);

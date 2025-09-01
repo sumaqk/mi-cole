@@ -6,7 +6,7 @@
         color: white;
         position: relative;
         overflow: hidden;
-        margin-top: 3rem;
+        margin-top: 0rem;
         padding: 0;
     }
 

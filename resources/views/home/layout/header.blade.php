@@ -40,7 +40,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -10;
+            z-index: -1;
             /* overflow: hidden; */
         }
 
@@ -48,7 +48,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* opacity: 0.9; */
+            opacity: 0.8;
         }
 
         .video-overlay-global {

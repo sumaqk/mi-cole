@@ -68,6 +68,17 @@
             pointer-events: none;
             overflow: hidden;
         }
+        .elegant-container {
+            width: 100%;
+            margin: 20px auto;
+            background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
 
         .particle {
             position: absolute;
@@ -549,7 +560,7 @@
 </div>
 
 <!-- Contenedor del contenido superpuesto -->
-<div class="position-relative text-center px-0 px-md-5 mb-5"
+<div class="position-relative text-center px-0 px-md-0 mb-0"
     style="background: linear-gradient(to right, rgba(9, 64, 122, 0.6), rgba(255, 255, 255, 0)); padding-top: 320px; height: 80vh; display: flex; align-items: center;
  z-index: 5; pointer-events: none;">
     <div class="row align-items-center px-3" style="pointer-events: auto;">
@@ -573,9 +584,8 @@
         </div>
     </div>
 </div>
-
 <!-- Sección Principal - Rediseñada -->
-<div class="container-fluid pt-5 section-modern">
+<div class="container-fluid pt-5 section-modern elegant-container">
     <div class="container pb-3">
         <div class="text-center pb-4">
             <h2 class="animated-title mb-4" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>

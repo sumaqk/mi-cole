@@ -2,7 +2,7 @@
 
 <style>
     .content-container {
-        padding: 40px 20px;
+        padding: 0px 0px;
         min-height: 100vh;
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         animation: aguaTranquila 20s ease-in-out infinite;
@@ -27,6 +27,16 @@
         font-weight: bold;
         margin-bottom: 50px;
     }
+    .elegant-container {
+            width: 100%;
+            margin: 20px auto;
+            background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
 
     .category-section {
         margin-bottom: 40px;
@@ -495,7 +505,7 @@
     }
 </style>
 
-<div class="content-container">
+<div class="content-container elegant-container mb-0 mt-0 p-5 pb-0">
     <h1 class="page-title titulo"><i class="fas fa-book" style="color: #fffff;"></i> Contenido Educativo</h1>
 
     @foreach ($categoriesWithContent as $categoryName => $categoryData)
