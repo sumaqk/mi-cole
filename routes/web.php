@@ -43,6 +43,8 @@ Route::get('index/home/content_detail/{id}', [IndexController::class, 'actioncon
 
 Route::get('index/home/gallery', [IndexController::class, 'actionGallery'])->name('home.gallery');
 
+Route::get('index/home/ruta-agua-abancay', [IndexController::class, 'actionRutaAguaAbancay'])->name('home.ruta_agua_abancay');
+
 Route::get('index/home/institution', [InstitutionController::class, 'actionGetInstitutionsByUgel'])->name('home.institution');
 Route::get('/get-districts', [UserController::class, 'getDistrictsByProvince'])->name('getDistricts');
 

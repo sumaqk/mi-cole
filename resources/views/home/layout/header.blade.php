@@ -887,7 +887,7 @@
                             <a href="{{ route('home.gallery') }}" class="dropdown-simple-item" onclick="closeMobileMenu()">
                                 <i class="fas fa-images mr-2"></i>Medición de cloro
                             </a>
-                            <a href="#" class="dropdown-simple-item" onclick="closeMobileMenu()">
+                            <a href="{{ route('home.ruta_agua_abancay') }}" class="dropdown-simple-item" onclick="closeMobileMenu()">
                                 <i class="fas fa-route mr-2"></i>Ruta del Agua Abancay
                             </a>
                         </div>

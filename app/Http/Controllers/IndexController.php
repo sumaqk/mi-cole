@@ -55,6 +55,11 @@ class IndexController extends Controller
 		]);
 	}
 
+	public function actionRutaAguaAbancay()
+	{
+		return view('home/ruta_agua_abancay');
+	}
+
 	// public function actioncontent()
 	// {
 	// 	$contents = TContent::all();
