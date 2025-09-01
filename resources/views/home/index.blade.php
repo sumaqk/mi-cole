@@ -585,7 +585,7 @@
     </div>
 </div>
 <!-- Sección Principal - Rediseñada -->
-<div class="container-fluid pt-5 section-modern elegant-container">
+<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-0 pt-0">
     <div class="container pb-3">
         <div class="text-center pb-4">
             <h2 class="animated-title mb-4" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>
@@ -822,7 +822,7 @@
 </div>
 
 <!-- Materiales - Rediseñados -->
-<div class="container-fluid pt-5 section-modern" id="materiales">
+<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-0 pt-0" id="materiales">
     <div class="container">
         <div class="text-center pb-4">
             <p class="section-title px-5" style="color: #088db6; font-size: 1.2rem; font-weight: 600;"><span

@@ -684,8 +684,8 @@
     <div class="bubble"></div>
 </div>
 
-<div class="water-header">
-    <div class="header-content">
+<div class="water-header mb-0 mt-0 p-0">
+    <div class="header-content mb-0 mt-0 p-0">
         <div class="water-drop"></div>
         <h1 class="text-white font-weight-bold mb-3" style="font-size: 2.5rem;">
             Galería de la Ruta del Agua
@@ -695,8 +695,7 @@
         </p>
     </div>
 </div>
-
-<div class="elegant-container">
+<div class="elegant-container mb-0 mt-0 pt-0 pb-0">
     @php
         $totalImages = 0;
         $institutionsWithImages = [];

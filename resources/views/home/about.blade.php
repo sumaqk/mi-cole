@@ -1,6 +1,18 @@
 @include('home/layout/header')
+<style>
+    .elegant-container {
+            width: 100%;
+            margin: 20px auto;
+            background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+</style>
 <!-- Header Start -->
-<div class="container-fluid bg-primary mb-5">
+<div class="container-fluid bg-primary mb-0">
     <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
         <h3 class="display-3 font-weight-bold text-white">Quienes somos</h3>
         <div class="d-inline-flex text-white">
@@ -14,7 +26,7 @@
 
 
 <!-- About Start -->
-<div class="container-fluid py-5">
+<div class="container-fluid py-5 elegant-container mb-0 mt-0 pb-0 pt-0">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-5">
