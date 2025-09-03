@@ -43,6 +43,7 @@
                             style="width: 100%;">
                             <option value="Administrador">Administrador</option>
                             <option value="Supervisor">Supervisor</option>
+                            <option value="Super Supervisor">Super Supervisor</option>
                             <option value="Normal">Normal</option>
                         </select>
                     </div>
@@ -91,11 +92,11 @@
         $(document).ready(function() {
             // Evento cuando el select de rol cambia
             $('#selectRole').change(function() {
-                // Verificar si el rol de Supervisor está seleccionado
-                if ($(this).val().includes('Supervisor')) {
+                // Verificar si el rol de Supervisor está seleccionado (pero no Super Supervisor)
+                if ($(this).val().includes('Supervisor') && !$(this).val().includes('Super Supervisor')) {
                     $('#selectLevel').prop('disabled', false); // Habilitar select de nivel
                 } else {
-                    // Si no es Supervisor, deshabilitar y limpiar nivel, provincia y distrito
+                    // Si no es Supervisor regular, deshabilitar y limpiar nivel, provincia y distrito
                     $('#selectLevel, #selectProvince, #selectDistrict').prop('disabled', true).val(null);
                 }
             });

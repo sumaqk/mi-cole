@@ -91,7 +91,7 @@
             </ul>
         </li>
     @endif
-    @if (ViewHelper::hasMainRole('Súper usuario') || ViewHelper::hasMainRole('Administrador'))
+    @if (ViewHelper::hasMainRole('Súper usuario') || ViewHelper::hasMainRole('Administrador') || ViewHelper::hasMainRole('Supervisor') || ViewHelper::hasMainRole('Super Supervisor'))
         <li id="mWaterModule" class="treeview">
             <a href="#">
                 <i class="fa fa-life-saver"></i> <span>Supervisión de agua</span>

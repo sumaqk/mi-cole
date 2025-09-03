@@ -163,7 +163,39 @@ class IndexController extends Controller
 		$userProvince = $tUser->idProvince ?? null;
 		$userDistrict = $tUser->idDistrict ?? null;
 
-		// Query (misma estructura que tu getall, pero SOLO mes actual)
+		// Super Supervisor ve todos los datos disponibles (sin filtros de fecha)
+		if (strpos($userRole, 'Super Supervisor') !== false) {
+			$q = \Illuminate\Support\Facades\DB::table('twater')
+				->select([
+					'tinstitution.idInstitution as id',
+					'tinstitution.name as nombre',
+					'tinstitution.lender as prestador',
+					'tugel.name as ugel',
+					'tdistrict.name as distrito',
+					'tprovince.name as provincia',
+					'twater.month as mes',
+					'twater.resultW1',
+					'twater.resultW2',
+					'twater.resultW3',
+					'twater.resultW4',
+					'twater.resultW5',
+					'twater.created_at',
+					'twater.updated_at',
+				])
+				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+				->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+				->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+				->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
+				// último registro por institución (sin filtros de mes/año)
+				->whereRaw('twater.updated_at = (
+				SELECT MAX(sub_w.updated_at)
+				FROM twater as sub_w
+				WHERE sub_w.idInstitution = twater.idInstitution
+			)');
+			
+			$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+		} else {
+			// Query (misma estructura que tu getall, pero SOLO mes actual)
 		$q = \Illuminate\Support\Facades\DB::table('twater')
 			->select([
 				'tinstitution.idInstitution as id',
@@ -202,10 +234,11 @@ class IndexController extends Controller
 			$q->where('tdistrict.idDistrict', $userDistrict);
 		}
 
-		$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+			$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+		}
 
-		// (Opcional) Fallback: si no hay datos del mes actual, mostrar mes anterior
-		if ($listTWater->isEmpty()) {
+		// (Opcional) Fallback: si no hay datos del mes actual, mostrar mes anterior (solo para roles que no sean Super Supervisor)
+		if ($listTWater->isEmpty() && strpos($userRole, 'Super Supervisor') === false) {
 			$prev = now()->subMonth();
 			$prevMonthName = $monthsEs[(int)$prev->format('m') - 1];
 			$prevYear      = (int)$prev->format('Y');
@@ -267,7 +300,39 @@ class IndexController extends Controller
 		$userProvince = $tUser->idProvince ?? null;
 		$userDistrict = $tUser->idDistrict ?? null;
 
-		$q = DB::table('twater')
+		// Super Supervisor ve todos los datos disponibles (sin filtros de fecha)
+		if (strpos($userRole, 'Super Supervisor') !== false) {
+			$q = DB::table('twater')
+				->select([
+					'tinstitution.idInstitution as id',
+					'tinstitution.name as nombre',
+					'tinstitution.lender as prestador',
+					'tugel.name as ugel',
+					'tdistrict.name as distrito',
+					'tprovince.name as provincia',
+					'twater.month as mes',
+					'twater.resultW1',
+					'twater.resultW2',
+					'twater.resultW3',
+					'twater.resultW4',
+					'twater.resultW5',
+					'twater.created_at',
+					'twater.updated_at',
+				])
+				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+				->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+				->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+				->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
+				// último registro por institución (sin filtros de mes/año)
+				->whereRaw('twater.updated_at = (
+				SELECT MAX(sub_w.updated_at)
+				FROM twater as sub_w
+				WHERE sub_w.idInstitution = twater.idInstitution
+			)');
+			
+			$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+		} else {
+			$q = DB::table('twater')
 			->select([
 				'tinstitution.idInstitution as id',
 				'tinstitution.name as nombre',
@@ -305,9 +370,10 @@ class IndexController extends Controller
 			if ($userDistrict) $q->where('tdistrict.idDistrict', $userDistrict);
 		}
 
-		$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+			$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
+		}
 
-		if ($listTWater->isEmpty()) {
+		if ($listTWater->isEmpty() && strpos($userRole, 'Super Supervisor') === false) {
 			$prev = now()->subMonth();
 			$prevMonthName = $monthsEs[(int)$prev->format('m') - 1];
 			$prevYear      = $prev->format('Y');

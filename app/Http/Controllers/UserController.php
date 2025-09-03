@@ -63,7 +63,7 @@ class UserController extends Controller
 
 			if ($tUser != null && $tUser->status == 'Activo') {
 				if (Hash::check($request->input('passPassword'), $tUser->password)) {
-					if (count($tUser->tinstitutiontuser) == 0 && strpos($tUser->role, 'Súper usuario') === false && strpos($tUser->role, 'Administrador') === false && strpos($tUser->role, 'Supervisor') === false) {
+					if (count($tUser->tinstitutiontuser) == 0 && strpos($tUser->role, 'Súper usuario') === false && strpos($tUser->role, 'Administrador') === false && strpos($tUser->role, 'Supervisor') === false && strpos($tUser->role, 'Super Supervisor') === false) {
 						return PlatformHelper::redirectError(['Su usuario aún no fue asignado a ninguna institución.'], 'user/loginasadmin');
 					}
 
@@ -83,6 +83,8 @@ class UserController extends Controller
 						return PlatformHelper::redirectCorrect(['Bienvenido a la plataforma, ' . $tUser->firstName . '.'], 'water/insert');
 					} elseif ($tUser->role == 'Supervisor') {
 						return PlatformHelper::redirectCorrect(['Bienvenido a la plataforma, ' . $tUser->firstName . '.'], 'water/getall'); // Redirige a la misma vista, pero con restricciones
+					} elseif (strpos($tUser->role, 'Super Supervisor') !== false) {
+						return PlatformHelper::redirectCorrect(['Bienvenido a la plataforma, ' . $tUser->firstName . '.'], 'index/indexadmin'); // Super Supervisor va al panel de control
 					} else {
 						return PlatformHelper::redirectCorrect(['Bienvenido a la plataforma, ' . $tUser->firstName . '.'], 'index/indexadmin');
 					}
@@ -578,7 +580,7 @@ class UserController extends Controller
 	{
 		$searchParameter = $request->has('searchParameter') ? $request->input('searchParameter') : '';
 
-		$paginate = PlatformHelper::preparePaginate(TUser::whereRaw('compareFind(concat(firstName, surName, email, registerType), ?, 77)=1', [$searchParameter])->orderByRaw('idUser desc'), 9, $currentPage);
+		$paginate = PlatformHelper::preparePaginate(TUser::whereRaw('concat(firstName, surName, email, registerType) LIKE ?', ['%' . $searchParameter . '%'])->orderByRaw('idUser desc'), 9, $currentPage);
 
 		return view(
 			'user/getall',
@@ -610,7 +612,7 @@ class UserController extends Controller
 
 	public function actionFilterByFirstNameSurNameEmail(Request $request)
 	{
-		$listTUser = TUser::whereRaw('compareFind(concat(firstName, surName, email), ?, 77)=1 and status=?', [$request->input('q'), 'Activo'])->orderBy('firstName', 'asc')->orderBy('surName', 'asc')->take(10)->get();
+		$listTUser = TUser::whereRaw('concat(firstName, surName, email) LIKE ? and status=?', ['%' . $request->input('q') . '%', 'Activo'])->orderBy('firstName', 'asc')->orderBy('surName', 'asc')->take(10)->get();
 
 		$result = [];
 
@@ -627,7 +629,7 @@ class UserController extends Controller
 		try {
 			$searchParameter = $request->has('searchParameter') ? $request->input('searchParameter') : '';
 			$query = TUser::with(['tInstitutionTUser.tInstitution'])
-				->whereRaw('compareFind(concat(firstName, surName, email, registerType), ?, 77)=1', [$searchParameter])
+				->whereRaw('concat(firstName, surName, email, registerType) LIKE ?', ['%' . $searchParameter . '%'])
 				->orderByRaw('idUser desc');
 
 			$listTUser = $query->get();

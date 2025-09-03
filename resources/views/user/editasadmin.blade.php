@@ -76,6 +76,8 @@
 							<label for="selectRole">Rol</label>
 							<select id="selectRole" name="selectRole[]" class="form-control selectStatic" multiple style="width: 100%;">
 								<option value="Administrador" {{strpos($tUser->role, 'Administrador')!==false ? 'selected' : ''}}>Administrador</option>
+								<option value="Supervisor" {{strpos($tUser->role, 'Supervisor')!==false ? 'selected' : ''}}>Supervisor</option>
+								<option value="Super Supervisor" {{strpos($tUser->role, 'Super Supervisor')!==false ? 'selected' : ''}}>Super Supervisor</option>
 								<option value="Normal" {{strpos($tUser->role, 'Normal')!==false ? 'selected' : ''}}>Normal</option>
 							</select>
 						</div>

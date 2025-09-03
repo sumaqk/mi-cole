@@ -18,7 +18,7 @@ class DistrictController extends Controller
 
         $paginate = PlatformHelper::preparePaginate(
             TDistrict::with(['tprovince'])
-                ->whereRaw('compareFind(name, ?, 77)=1', [$searchParameter])
+                ->where('name', 'LIKE', '%' . $searchParameter . '%')
                 ->orderByRaw('created_at desc'), 
             7, 
             $currentPage

@@ -72,7 +72,7 @@ class GenericMiddleware
 		[
 			['Público', 'index/home', 'mHome', null],
 			['Público', 'index/index', 'mHome', null],
-			['Normal', 'index/indexadmin', 'mControlPanel', 'miHome'],
+			['Normal,Super Supervisor', 'index/indexadmin', 'mControlPanel', 'miHome'],
 
 			['Público', 'general/privacy', null, null],
 			['Público', 'general/accesserror', null, null],
@@ -111,11 +111,11 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'user/export', 'mUserModule', null],
 			
 			['Normal', 'water/insert', 'mWater', null],
-			['Súper usuario,Administrador,Supervisor', 'water/getall', 'mWaterModule', 'miWaterModuleGetAll'],
-			['Súper usuario,Administrador,Supervisor', 'water/detail', 'mWaterModule', 'miWaterModuleGetAll'],
-			['Súper usuario,Administrador,Supervisor', 'water/export', null, null],
-			['Súper usuario,Administrador,Supervisor', 'water/export-nonreporting', null, null],
-			['Súper usuario,Administrador,Supervisor', 'water/export-detailed', null, null],
+			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/getall', 'mWaterModule', 'miWaterModuleGetAll'],
+			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/detail', 'mWaterModule', 'miWaterModuleGetAll'],
+			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/export', null, null],
+			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/export-nonreporting', null, null],
+			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/export-detailed', null, null],
 
 			['Normal', 'district/chgtoinsertwater', null, null],
 
