@@ -288,20 +288,32 @@
                         <div id="heatMap" style="height: 500px; border: 1px solid #ddd; border-radius: 5px;"></div>
                         
                         <!-- Leyenda -->
-                        <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
-                            <h5 style="margin: 0 0 10px 0;">Leyenda de Colores:</h5>
-                            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
-                                <span style="display: flex; align-items: center;">
-                                    <span style="width: 20px; height: 20px; background-color: #FF0000; border-radius: 50%; margin-right: 8px;"></span>
-                                    🔴 Inadecuado (&lt; 0.5 mg/L)
+                        <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                            <h5 style="margin: 0 0 15px 0;">Leyenda de Calidad del Agua (MCR - mg/L):</h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #FF0000; border-radius: 50%; margin-right: 10px;"></span>
+                                    <strong>🔴 CRÍTICO:</strong>&nbsp;&lt; 0.3 mg/L - Riesgo microbiológico muy alto
                                 </span>
-                                <span style="display: flex; align-items: center;">
-                                    <span style="width: 20px; height: 20px; background-color: #00FF00; border-radius: 50%; margin-right: 8px;"></span>
-                                    🟢 Bueno (0.5 - 5.0 mg/L)
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #FFFF00; border-radius: 50%; margin-right: 10px; border: 1px solid #ccc;"></span>
+                                    <strong>🟡 DEFICIENTE:</strong>&nbsp;0.3 - 0.5 mg/L - Requiere acciones correctivas
                                 </span>
-                                <span style="display: flex; align-items: center;">
-                                    <span style="width: 20px; height: 20px; background-color: #808080; border-radius: 50%; margin-right: 8px;"></span>
-                                    ⚪ Sin datos
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #00FF00; border-radius: 50%; margin-right: 10px;"></span>
+                                    <strong>🟢 ÓPTIMO:</strong>&nbsp;0.5 - 2.0 mg/L - Cumple normativa peruana
+                                </span>
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #0000FF; border-radius: 50%; margin-right: 10px;"></span>
+                                    <strong>🔵 ALTO:</strong>&nbsp;2.0 - 5.0 mg/L - Monitorear sabor/olor
+                                </span>
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #800080; border-radius: 50%; margin-right: 10px;"></span>
+                                    <strong>🟣 EXCESIVO:</strong>&nbsp;&gt; 5.0 mg/L - Incumple DS 031-2010-SA
+                                </span>
+                                <span style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #808080; border-radius: 50%; margin-right: 10px;"></span>
+                                    <strong>⚪ SIN DATOS:</strong>&nbsp;No hay registros del mes actual
                                 </span>
                             </div>
                         </div>
@@ -404,25 +416,27 @@
                         // Popup con información detallada
                         marker.bindPopup(`
                             <div style="font-family: Arial, sans-serif;">
-                                <h4 style="margin: 0 0 10px 0; color: #333;">${institutionName}</h4>
-                                <table style="font-size: 12px; width: 100%;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">${inst.name}</h4>
+                                <table style="font-size: 12px; width: 100%; margin-bottom: 10px;">
                                     <tr><td><b>UGEL:</b></td><td>${inst.ugel}</td></tr>
-                                    <tr><td><b>Prestador:</b></td><td>${inst.prestador}</td></tr>
-                                    <tr><td><b>Distrito:</b></td><td>${inst.distrito}</td></tr>
-                                    <tr><td><b>Provincia:</b></td><td>${inst.provincia}</td></tr>
-                                    <tr><td><b>MCR Promedio:</b></td><td>${inst.promedio} mg/L</td></tr>
-                                    <tr><td><b>Estado:</b></td><td style="color: ${inst.color}; font-weight: bold;">${inst.estado}</td></tr>
+                                    <tr><td><b>Prestador:</b></td><td>${inst.lender}</td></tr>
+                                    <tr><td><b>Distrito:</b></td><td>${inst.district}</td></tr>
+                                    <tr><td><b>Provincia:</b></td><td>${inst.province}</td></tr>
+                                    <tr><td><b>MCR Promedio:</b></td><td>${inst.average} mg/L</td></tr>
                                 </table>
+                                <div style="padding: 8px; background-color: ${inst.color}20; border-left: 4px solid ${inst.color}; border-radius: 3px;">
+                                    <div style="color: ${inst.color}; font-weight: bold; font-size: 13px; margin-bottom: 5px;">
+                                        ${inst.status}
+                                    </div>
+                                    <div style="font-size: 11px; color: #555; line-height: 1.3;">
+                                        ${inst.description}
+                                    </div>
+                                </div>
                             </div>
                         `, {
-                            maxWidth: 250
+                            maxWidth: 300
                         });
                     });
-                })
-                .catch(error => {
-                    console.error('Error cargando datos del mapa:', error);
-                    mapContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error cargando datos del mapa</div>';
-                });
         })();
     </script>
 @endsection

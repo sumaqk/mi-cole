@@ -596,17 +596,32 @@ class IndexController extends Controller
                 $average = $count > 0 ? round($sum / $count, 2) : 0;
             }
 
-            // Determinar color según nuevos rangos: 0.5-5 verde, resto rojo
+            // Determinar color según rangos específicos de MCR
             $color = '#808080'; // Gris por defecto (sin datos)
             $status = 'Sin datos';
+            $description = 'No hay registros del mes actual';
             
             if ($hasData && $average > 0) {
-                if ($average < 0.5 || $average > 5) {
-                    $color = '#FF0000'; // Rojo
-                    $status = 'Inadecuado';
-                } else {
-                    $color = '#00FF00'; // Verde
-                    $status = 'Bueno';
+                if ($average < 0.3) {
+                    $color = '#FF0000'; // 🔴 Rojo - CRÍTICO
+                    $status = 'CRÍTICO';
+                    $description = 'Por debajo del mínimo absoluto - Riesgo microbiológico muy alto';
+                } elseif ($average >= 0.3 && $average < 0.5) {
+                    $color = '#FFFF00'; // 🟡 Amarillo - DEFICIENTE
+                    $status = 'DEFICIENTE';
+                    $description = 'Entre mínimo absoluto y obligatorio - Requiere acciones correctivas';
+                } elseif ($average >= 0.5 && $average <= 2.0) {
+                    $color = '#00FF00'; // 🟢 Verde - ÓPTIMO
+                    $status = 'ÓPTIMO';
+                    $description = 'Rango operacional ideal - Cumple normativa peruana';
+                } elseif ($average > 2.0 && $average <= 5.0) {
+                    $color = '#0000FF'; // 🔵 Azul - ALTO
+                    $status = 'ALTO';
+                    $description = 'Nivel alto pero dentro de norma - Monitorear sabor/olor';
+                } else { // > 5.0
+                    $color = '#800080'; // 🟣 Morado - EXCESIVO
+                    $status = 'EXCESIVO';
+                    $description = 'Excede límite máximo - Incumple DS 031-2010-SA';
                 }
             }
 
@@ -617,6 +632,7 @@ class IndexController extends Controller
                 'average' => $average,
                 'status' => $status,
                 'color' => $color,
+                'description' => $description,
                 'district' => $institution->tdistrict->name ?? '',
                 'province' => $institution->tdistrict->tprovince->name ?? '',
                 'lender' => $institution->lender ?? '',
