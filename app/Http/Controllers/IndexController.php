@@ -250,7 +250,10 @@ class IndexController extends Controller
 			$listTWater = $q2->orderBy('twater.updated_at', 'desc')->get();
 		}
 
-		return view('index/indexadmin', compact('listTWater'));
+		// Datos para el mapa de calor
+		$mapData = $this->getMapData();
+
+		return view('index/indexadmin', compact('listTWater', 'mapData'));
 	}
 
 

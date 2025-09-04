@@ -386,13 +386,11 @@
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
             
-            // Cargar datos del JSON
-            fetch('{{ asset("data/institutions_coordinates.json") }}')
-                .then(response => response.json())
-                .then(data => {
-                    // Agregar marcadores para cada institución
-                    Object.keys(data).forEach(function(institutionName) {
-                        var inst = data[institutionName];
+            // Datos del servidor (base de datos)
+            var mapData = @json($mapData ?? []);
+            
+            // Agregar marcadores para cada institución
+            mapData.forEach(function(inst) {
                         
                         // Crear marcador circular con color según estado
                         var marker = L.circleMarker([inst.lat, inst.lng], {
