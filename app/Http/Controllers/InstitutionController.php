@@ -132,8 +132,8 @@ class InstitutionController extends Controller
 	public function actionEdit(Request $request, $idInstitution)
 	{
 		try {
-			$institution = TInstitution::with(['tdistrict.tprovince', 'tugel'])->findOrFail($idInstitution);
-			$listTDistrict = TDistrict::with('tprovince')->orderBy('name', 'asc')->get();
+			$institution = TInstitution::with(['tDistrict.tProvince', 'tUgel'])->findOrFail($idInstitution);
+			$listTDistrict = TDistrict::with('tProvince')->orderBy('name', 'asc')->get();
 			$listTUgel = TUgel::where('is_active', 1)->orderBy('name', 'asc')->get();
 			$tConfigurationFmMdl = TConfiguration::first();
 
@@ -167,6 +167,14 @@ class InstitutionController extends Controller
 			$institution->lender = trim($request->input('lender'));
 			$institution->idDistrict = $request->input('idDistrict');
 			$institution->idUgel = $request->input('idUgel') ?: null;
+			
+			// Agregar coordenadas para el mapa (opcionales)
+			$latitude = $request->input('latitude');
+			$longitude = $request->input('longitude');
+			
+			$institution->latitude = (!empty($latitude) && is_numeric($latitude)) ? $latitude : null;
+			$institution->longitude = (!empty($longitude) && is_numeric($longitude)) ? $longitude : null;
+			
 			$institution->save();
 
 			DB::commit();

@@ -50,9 +50,9 @@
                                         <label for="idProvince">Provincia <span style="color: red;">*</span></label>
                                         <select class="form-control" id="idProvince" name="idProvince" required>
                                             <option value="">Seleccione una provincia...</option>
-                                            @foreach($listTDistrict->groupBy('tprovince.idProvince') as $provinceId => $districts)
-                                                <option value="{{$provinceId}}" {{$institution->tdistrict->tprovince->idProvince == $provinceId ? 'selected' : ''}}>
-                                                    {{$districts->first()->tprovince->name}}
+                                            @foreach($listTDistrict->groupBy('tProvince.idProvince') as $provinceId => $districts)
+                                                <option value="{{$provinceId}}" @if($institution->tDistrict->tProvince->idProvince == $provinceId) selected @endif>
+                                                    {{$districts->first()->tProvince->name}}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -66,8 +66,8 @@
                                             <option value="">Seleccione un distrito...</option>
                                             @foreach($listTDistrict as $district)
                                                 <option value="{{$district->idDistrict}}" 
-                                                        data-province="{{$district->tprovince->idProvince}}"
-                                                        {{$institution->idDistrict == $district->idDistrict ? 'selected' : ''}}>
+                                                        data-province="{{$district->tProvince->idProvince}}"
+                                                        @if($institution->idDistrict == $district->idDistrict) selected @endif>
                                                     {{$district->name}}
                                                 </option>
                                             @endforeach
@@ -91,6 +91,56 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Coordenadas para el Mapa -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4 style="color: #337ab7; margin-bottom: 15px;">
+                                        <i class="fa fa-map-marker"></i> Coordenadas para Mapa de Calor (Opcional)
+                                    </h4>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="latitude">
+                                            Latitud 
+                                            <small class="text-muted">(Ejemplo: -13.6340)</small>
+                                        </label>
+                                        <input type="number" 
+                                               step="0.00000001"
+                                               class="form-control" 
+                                               id="latitude" 
+                                               name="latitude" 
+                                               value="{{$institution->latitude}}"
+                                               placeholder="Ejm: -13.6340">
+                                        <small class="help-block text-muted">
+                                            <i class="fa fa-info-circle"></i> Coordenada Norte/Sur. Valores negativos para el hemisferio sur.
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="longitude">
+                                            Longitud 
+                                            <small class="text-muted">(Ejemplo: -72.8814)</small>
+                                        </label>
+                                        <input type="number" 
+                                               step="0.00000001"
+                                               class="form-control" 
+                                               id="longitude" 
+                                               name="longitude" 
+                                               value="{{$institution->longitude}}"
+                                               placeholder="Ejm: -72.8814">
+                                        <small class="help-block text-muted">
+                                            <i class="fa fa-info-circle"></i> Coordenada Este/Oeste. Valores negativos para el hemisferio oeste.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </div>
                         
                         <div class="box-footer">
@@ -134,7 +184,8 @@ $(document).ready(function() {
         });
     });
     
-    $('#idProvince').trigger('change');
+    // Comentado para que no limpie los valores al cargar
+    // $('#idProvince').trigger('change');
 });
 </script>
 @endsection

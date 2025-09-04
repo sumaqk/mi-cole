@@ -21,7 +21,9 @@ class TInstitution extends Model
         'name',
         'lender',
         'idDistrict',
-        'idUgel'
+        'idUgel',
+        'latitude',
+        'longitude'
     ];
 
     public function tDistrict()
