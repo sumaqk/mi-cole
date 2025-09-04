@@ -419,7 +419,7 @@
         <div class="container-fluid">
             <p class="copyright-text">
                 &copy; 2025 <span class="highlight">Gobierno Regional de Apurímac</span>.
-                Todos los derechos reservados - Desarrollado por <span class="highlight">Sub Gerencia de Desarrollo Social - FED</span>. 
+                Todos los derechos reservados - Desarrollado por <span class="highlight">Gerencia Regional de Desarrollo Social</span>. 
             </p>
         </div>
     </div>
