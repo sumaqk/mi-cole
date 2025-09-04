@@ -54,6 +54,13 @@ Route::get(
     [IndexController::class, 'actionExportNonReporting']
 )->middleware('GenericMiddleware:water/export-nonreporting')
  ->name('water.exportNonReporting');
+
+Route::get(
+    'water/export-withreporting',
+    [IndexController::class, 'actionExportWithReporting']
+)->middleware('GenericMiddleware:water/export-withreporting')
+ ->name('water.exportWithReporting');
+
 Route::get('index/indexadmin/{year?}/{month?}', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
 Route::post('index/indexadmin', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
 

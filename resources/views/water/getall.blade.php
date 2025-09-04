@@ -107,11 +107,11 @@
 								<div>{{$value->mes}}</div>
 								{{substr($value->created_at, 0, 4)}}
 							</td>
-							<td class="text-center" style="color: {{$value->resultW1==-1 ? '#000000' : (($value->resultW1<0.5 || $value->resultW1>1) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW1!=-1 ? number_format($value->resultW1, 1, '.') : '-'}}</td>
-							<td class="text-center" style="color: {{$value->resultW2==-1 ? '#000000' : (($value->resultW2<0.5 || $value->resultW2>1) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW2!=-1 ? number_format($value->resultW2, 1, '.') : '-'}}</td>
-							<td class="text-center" style="color: {{$value->resultW3==-1 ? '#000000' : (($value->resultW3<0.5 || $value->resultW3>1) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW3!=-1 ? number_format($value->resultW3, 1, '.') : '-'}}</td>
-							<td class="text-center" style="color: {{$value->resultW4==-1 ? '#000000' : (($value->resultW4<0.5 || $value->resultW4>1) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW4!=-1 ? number_format($value->resultW4, 1, '.') : '-'}}</td>
-							<td class="text-center" style="color: {{$value->resultW5==-1 ? '#000000' : (($value->resultW5<0.5 || $value->resultW5>1) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW5!=-1 ? number_format($value->resultW5, 1, '.') : '-'}}</td>
+							<td class="text-center" style="color: {{$value->resultW1==-1 ? '#000000' : (($value->resultW1<0.5 || $value->resultW1>5) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW1!=-1 ? number_format($value->resultW1, 1, '.') : '-'}}</td>
+							<td class="text-center" style="color: {{$value->resultW2==-1 ? '#000000' : (($value->resultW2<0.5 || $value->resultW2>5) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW2!=-1 ? number_format($value->resultW2, 1, '.') : '-'}}</td>
+							<td class="text-center" style="color: {{$value->resultW3==-1 ? '#000000' : (($value->resultW3<0.5 || $value->resultW3>5) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW3!=-1 ? number_format($value->resultW3, 1, '.') : '-'}}</td>
+							<td class="text-center" style="color: {{$value->resultW4==-1 ? '#000000' : (($value->resultW4<0.5 || $value->resultW4>5) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW4!=-1 ? number_format($value->resultW4, 1, '.') : '-'}}</td>
+							<td class="text-center" style="color: {{$value->resultW5==-1 ? '#000000' : (($value->resultW5<0.5 || $value->resultW5>5) ? 'red' : '#009e00')}}; font-size: 20px;">{{$value->resultW5!=-1 ? number_format($value->resultW5, 1, '.') : '-'}}</td>
 							
 							<td class="text-center">
 								<a href="{{ route('water.detail', ['id' => $value->id]) }}" 

@@ -133,7 +133,7 @@
             if ($v == -1) {
                 return 'mcr-na';
             }
-            return $v < 0.5 || $v > 1.0 ? 'mcr-bad' : 'mcr-good';
+            return $v < 0.5 || $v > 5.0 ? 'mcr-bad' : 'mcr-good';
         };
     @endphp
 
@@ -149,14 +149,14 @@
             </div>
 
             <div class="row" style="margin-bottom:16px">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="stat-card">
                         <p class="stat-title">Instituciones con al menos 1 reporte</p>
                         <p class="stat-value">{{ $withReport }}</p>
                     </div>
                 </div>
 
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="stat-card">
                         <p class="stat-title">Exportar instituciones sin reporte</p>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
@@ -172,7 +172,23 @@
                     </div>
                 </div>
 
-                <div class="col-sm-4">
+                <div class="col-sm-3">
+                    <div class="stat-card">
+                        <p class="stat-title">Exportar instituciones CON reporte</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                            <a href="{{ route('water.exportWithReporting', ['scope' => 'month']) }}"
+                                class="btn btn-success btn-sm">
+                                <i class="fa fa-file-excel-o"></i> Mes actual
+                            </a>
+                            <a href="{{ route('water.exportWithReporting', ['scope' => 'week']) }}"
+                                class="btn btn-info btn-sm">
+                                <i class="fa fa-file-excel-o"></i> Semana actual
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
                     <div class="stat-card">
                         <p class="stat-title">Promedio MCR del mes</p>
                         <p class="stat-value">{{ number_format($avgAll, 2, '.', '') }}</p>
@@ -262,11 +278,46 @@
                 </div>
             </div>
 
+            <!-- NUEVO: Mapa de Calor -->
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-sm-12">
+                    <div class="stat-card">
+                        <h4 style="margin: 0 0 15px 0; color: #495057;">
+                            <i class="fa fa-map-marker"></i> Mapa de Calor - Calidad del Agua por Institución
+                        </h4>
+                        <div id="heatMap" style="height: 500px; border: 1px solid #ddd; border-radius: 5px;"></div>
+                        
+                        <!-- Leyenda -->
+                        <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                            <h5 style="margin: 0 0 10px 0;">Leyenda de Colores:</h5>
+                            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                                <span style="display: flex; align-items: center;">
+                                    <span style="width: 20px; height: 20px; background-color: #FF0000; border-radius: 50%; margin-right: 8px;"></span>
+                                    🔴 Inadecuado (&lt; 0.5 mg/L)
+                                </span>
+                                <span style="display: flex; align-items: center;">
+                                    <span style="width: 20px; height: 20px; background-color: #00FF00; border-radius: 50%; margin-right: 8px;"></span>
+                                    🟢 Bueno (0.5 - 5.0 mg/L)
+                                </span>
+                                <span style="display: flex; align-items: center;">
+                                    <span style="width: 20px; height: 20px; background-color: #808080; border-radius: 50%; margin-right: 8px;"></span>
+                                    ⚪ Sin datos
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection
 
 @section('jsSection')
+    <!-- Leaflet CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('plugin/adminlte/bower_components/chart.js/Chart.js') }}"></script>
     <script>
@@ -320,6 +371,60 @@
                     }
                 }
             });
+        })();
+
+        // Mapa de Calor con Leaflet
+        (function() {
+            var mapContainer = document.getElementById('heatMap');
+            if (!mapContainer) return;
+
+            // Inicializar mapa centrado en Apurímac
+            var map = L.map('heatMap').setView([-13.8, -72.8], 9);
+            
+            // Agregar capa base de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Cargar datos del JSON
+            fetch('{{ asset("data/institutions_coordinates.json") }}')
+                .then(response => response.json())
+                .then(data => {
+                    // Agregar marcadores para cada institución
+                    Object.keys(data).forEach(function(institutionName) {
+                        var inst = data[institutionName];
+                        
+                        // Crear marcador circular con color según estado
+                        var marker = L.circleMarker([inst.lat, inst.lng], {
+                            color: inst.color,
+                            fillColor: inst.color,
+                            fillOpacity: 0.8,
+                            radius: 10,
+                            weight: 2
+                        }).addTo(map);
+                        
+                        // Popup con información detallada
+                        marker.bindPopup(`
+                            <div style="font-family: Arial, sans-serif;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">${institutionName}</h4>
+                                <table style="font-size: 12px; width: 100%;">
+                                    <tr><td><b>UGEL:</b></td><td>${inst.ugel}</td></tr>
+                                    <tr><td><b>Prestador:</b></td><td>${inst.prestador}</td></tr>
+                                    <tr><td><b>Distrito:</b></td><td>${inst.distrito}</td></tr>
+                                    <tr><td><b>Provincia:</b></td><td>${inst.provincia}</td></tr>
+                                    <tr><td><b>MCR Promedio:</b></td><td>${inst.promedio} mg/L</td></tr>
+                                    <tr><td><b>Estado:</b></td><td style="color: ${inst.color}; font-weight: bold;">${inst.estado}</td></tr>
+                                </table>
+                            </div>
+                        `, {
+                            maxWidth: 250
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error cargando datos del mapa:', error);
+                    mapContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error cargando datos del mapa</div>';
+                });
         })();
     </script>
 @endsection

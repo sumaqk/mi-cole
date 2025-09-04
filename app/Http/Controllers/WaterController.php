@@ -443,7 +443,7 @@ class WaterController extends Controller
 				($value->resultW4 != -1 ? number_format($value->resultW4, 1, '.') : '-'),
 				($value->resultW5 != -1 ? number_format($value->resultW5, 1, '.') : '-'),
 				$value->average,
-				($value->average < 0.5 || $value->average > 1) ? 'Inadecuado' : 'Bueno'
+				($value->average < 0.5 || $value->average > 5) ? 'Inadecuado' : 'Bueno'
 			];
 		}
 
@@ -741,11 +741,11 @@ class WaterController extends Controller
 		} elseif ($promedio == 0) {
 			return 'Su reporte de cloro residual quedó en inadecuado';
 		} elseif ($promedio < 0.5) {
-			return 'Su reporte de cloro residual quedó en inadecuado';
-		} elseif ($promedio >= 0.5 && $promedio <= 1.0) {
-			return 'Su reporte muestra avances positivos en cloro residual';
+			return 'Su reporte de cloro residual quedó en inadecuado - Insuficiente desinfección';
+		} elseif ($promedio >= 0.5 && $promedio <= 5.0) {
+			return 'Su reporte muestra nivel adecuado de cloro residual';
 		} else {
-			return 'Su reporte de cloro residual presenta inconsistencias';
+			return 'Su reporte de cloro residual excede niveles aceptables';
 		}
 	}
 }

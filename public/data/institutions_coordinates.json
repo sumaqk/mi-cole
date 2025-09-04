@@ -1,0 +1,79 @@
+{
+  "San Juan Bautista": {
+    "lat": -13.4167,
+    "lng": -73.7167,
+    "ugel": "Chincheros",
+    "prestador": "Jass",
+    "distrito": "Chincheros",
+    "provincia": "Chincheros",
+    "promedio": 0.5,
+    "estado": "Bueno",
+    "color": "#00FF00"
+  },
+  "CEMA Ñahuinlla": {
+    "lat": -14.1833,
+    "lng": -72.6500,
+    "ugel": "Cotabambas",
+    "prestador": "Jass",
+    "distrito": "Coyllurqui",
+    "provincia": "Cotabambas",
+    "promedio": 1.5,
+    "estado": "Bueno",
+    "color": "#00FF00"
+  },
+  "Apu Suparaura": {
+    "lat": -14.0833,
+    "lng": -73.4667,
+    "ugel": "Aymaraes",
+    "prestador": "Jass",
+    "distrito": "Chapimarca",
+    "provincia": "Aymaraes",
+    "promedio": 0.2,
+    "estado": "Inadecuado",
+    "color": "#FF0000"
+  },
+  "Gran Amauta": {
+    "lat": -14.0167,
+    "lng": -72.1000,
+    "ugel": "Cotabambas",
+    "prestador": "UGM Municipal",
+    "distrito": "Chalhuahuacho",
+    "provincia": "Cotabambas",
+    "promedio": 0.1,
+    "estado": "Inadecuado",
+    "color": "#FF0000"
+  },
+  "Albert Einstein": {
+    "lat": -14.1000,
+    "lng": -73.2833,
+    "ugel": "Aymaraes",
+    "prestador": "Jass",
+    "distrito": "Tapayrihua",
+    "provincia": "Aymaraes",
+    "promedio": 0.3,
+    "estado": "Inadecuado",
+    "color": "#FF0000"
+  },
+  "Libertadores de América": {
+    "lat": -14.3667,
+    "lng": -73.1833,
+    "ugel": "Aymaraes",
+    "prestador": "UGM Municipal",
+    "distrito": "Chalhuanca",
+    "provincia": "Aymaraes",
+    "promedio": 0.1,
+    "estado": "Inadecuado",
+    "color": "#FF0000"
+  },
+  "El Carmelo": {
+    "lat": -13.6340,
+    "lng": -72.8814,
+    "ugel": "Abancay",
+    "prestador": "Jass",
+    "distrito": "Abancay",
+    "provincia": "Abancay",
+    "promedio": 0.4,
+    "estado": "Inadecuado",
+    "color": "#FF0000"
+  }
+}

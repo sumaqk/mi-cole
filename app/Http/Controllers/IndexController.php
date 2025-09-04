@@ -15,6 +15,7 @@ use App\Models\TImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Export\NonReportingExport;
+use App\Export\WithReportingExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\TInstitution;
 use App\Models\TWater;
@@ -447,6 +448,180 @@ class IndexController extends Controller
             : "no_reportantes_mes_{$monthName}_{$year}.xlsx";
 
         return Excel::download(new NonReportingExport($rows, $title), $filename);
+    }
+
+    public function actionExportWithReporting(Request $request)
+    {
+        $scope = $request->get('scope', 'month'); // 'month' | 'week'
+
+        $monthsEs  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+        $monthName = $monthsEs[(int)date('m') - 1];
+        $year      = (int)date('Y');
+
+        // Semana "del mes" como en tu WaterController
+        $today          = date('Y-m-d');
+        $firstOfMonth   = date('Y-m-01', strtotime($today));
+        $currentWeek    = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+        if ($currentWeek < 1) $currentWeek = 1;
+        if ($currentWeek > 5) $currentWeek = 5;
+
+        // Alcance por usuario
+        $tUser        = TUser::find(Session::get('idUser'));
+        $userRole     = $tUser->role ?? null;
+        $userLevel    = $tUser->level ?? null;
+        $userProvince = $tUser->idProvince ?? null;
+        $userDistrict = $tUser->idDistrict ?? null;
+
+        // Todas las instituciones del alcance
+        $qInst = TInstitution::with(['tdistrict.tprovince','tugel']);
+        if ($userRole === 'Supervisor' && $userLevel === 'levelProvince' && $userProvince) {
+            $qInst->whereHas('tdistrict.tprovince', fn($q)=>$q->where('idProvince',$userProvince));
+        }
+        if ($userRole === 'Supervisor' && ($userLevel === 'levelDistrict' || $userLevel === 'levelDistrit') && $userDistrict) {
+            $qInst->whereHas('tdistrict', fn($q)=>$q->where('idDistrict',$userDistrict));
+        }
+        $instituciones = $qInst->get();
+        $ids = $instituciones->pluck('idInstitution')->all();
+
+        // Último registro por institución del MES ACTUAL
+        $waters = TWater::whereIn('idInstitution', $ids)
+            ->where('month', $monthName)
+            ->whereYear('created_at', $year)
+            ->orderBy('updated_at','desc')
+            ->get()
+            ->unique('idInstitution')                 // nos quedamos con el más reciente
+            ->keyBy('idInstitution');
+
+        $rows = [];
+        foreach ($instituciones as $inst) {
+            $w = $waters->get($inst->idInstitution);
+
+            $conMes = false;
+            $conSemana = false;
+
+            if ($w) {
+                // Mes con reportes = al menos una semana reportada
+                $reportadas = 0;
+                $sumAll = 0;
+                $countAll = 0;
+                for ($i=1; $i<=5; $i++) {
+                    $f = "resultW{$i}";
+                    if (isset($w->$f) && $w->$f != -1) {
+                        $reportadas++;
+                        $sumAll += $w->$f;
+                        $countAll++;
+                    }
+                }
+                $conMes = ($reportadas > 0);
+
+                // Semana actual con reporte
+                $fw = "resultW{$currentWeek}";
+                $conSemana = isset($w->$fw) && $w->$fw != -1;
+
+                $promedio = $countAll > 0 ? round($sumAll / $countAll, 2) : 0;
+                $estado = ($promedio < 0.5 || $promedio > 5) ? 'Inadecuado' : 'Bueno';
+
+                $incluir = ($scope === 'week') ? $conSemana : $conMes;
+
+                if ($incluir) {
+                    $rows[] = [
+                        $inst->tugel->name ?? 'Sin UGEL',
+                        $inst->name,
+                        $inst->lender,
+                        $inst->tdistrict->tprovince->name ?? '',
+                        $inst->tdistrict->name ?? '',
+                        $year,
+                        $monthName,
+                        $w->resultW1 != -1 ? number_format($w->resultW1, 1, '.') : '-',
+                        $w->resultW2 != -1 ? number_format($w->resultW2, 1, '.') : '-',
+                        $w->resultW3 != -1 ? number_format($w->resultW3, 1, '.') : '-',
+                        $w->resultW4 != -1 ? number_format($w->resultW4, 1, '.') : '-',
+                        $w->resultW5 != -1 ? number_format($w->resultW5, 1, '.') : '-',
+                        number_format($promedio, 2, '.'),
+                        $estado,
+                    ];
+                }
+            }
+        }
+
+        $title = $scope === 'week'
+            ? "Semana {$currentWeek} — {$monthName} {$year}"
+            : "Mes actual — {$monthName} {$year}";
+
+        $filename = $scope === 'week'
+            ? "con_reportes_semana_{$currentWeek}_{$monthName}_{$year}.xlsx"
+            : "con_reportes_mes_{$monthName}_{$year}.xlsx";
+
+        return Excel::download(new WithReportingExport($rows, $title), $filename);
+    }
+
+    private function getMapData()
+    {
+        $monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+        $monthName = $monthsEs[(int)date('m') - 1];
+        $year = (int)date('Y');
+
+        // Obtener solo instituciones que tienen coordenadas (no NULL)
+        $institutions = TInstitution::with(['tdistrict.tprovince', 'tugel'])
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        $mapData = [];
+        foreach ($institutions as $institution) {
+            // Buscar el último registro de agua para esta institución del mes actual
+            $waterData = TWater::where('idInstitution', $institution->idInstitution)
+                              ->where('month', $monthName)
+                              ->whereYear('created_at', $year)
+                              ->orderBy('updated_at', 'desc')
+                              ->first();
+            
+            $average = 0;
+            $hasData = false;
+            
+            if ($waterData) {
+                $sum = 0;
+                $count = 0;
+                for ($i = 1; $i <= 5; $i++) {
+                    $field = "resultW{$i}";
+                    if ($waterData->$field != -1) {
+                        $sum += $waterData->$field;
+                        $count++;
+                        $hasData = true;
+                    }
+                }
+                $average = $count > 0 ? round($sum / $count, 2) : 0;
+            }
+
+            // Determinar color según nuevos rangos: 0.5-5 verde, resto rojo
+            $color = '#808080'; // Gris por defecto (sin datos)
+            $status = 'Sin datos';
+            
+            if ($hasData && $average > 0) {
+                if ($average < 0.5 || $average > 5) {
+                    $color = '#FF0000'; // Rojo
+                    $status = 'Inadecuado';
+                } else {
+                    $color = '#00FF00'; // Verde
+                    $status = 'Bueno';
+                }
+            }
+
+            $mapData[] = [
+                'name' => $institution->name,
+                'lat' => (float)$institution->latitude,
+                'lng' => (float)$institution->longitude,
+                'average' => $average,
+                'status' => $status,
+                'color' => $color,
+                'district' => $institution->tdistrict->name ?? '',
+                'province' => $institution->tdistrict->tprovince->name ?? '',
+                'lender' => $institution->lender ?? '',
+                'ugel' => $institution->tugel->name ?? 'Sin UGEL'
+            ];
+        }
+
+        return $mapData;
     }
 
 }
