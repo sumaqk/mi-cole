@@ -253,7 +253,7 @@ class IndexController extends Controller
 		// Datos para el mapa de calor
 		$mapData = $this->getMapData();
 
-		return view('index/indexadmin', compact('listTWater', 'mapData'));
+		return view('index/indexadmin', compact('listTWater', 'mapData', 'tUser'));
 	}
 
 

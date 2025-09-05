@@ -264,92 +264,43 @@ class WaterController extends Controller
 		$userProvince = $tUser->idProvince;
 		$userDistrict = $tUser->idDistrict;
 
-		// Si el usuario es Supervisor, filtrar por su provincia
-		if ($userRole === 'Supervisor' && $userLevel === 'levelProvince') {
-			$query = TWater::select([
-				'tinstitution.idInstitution as id',
-				'tinstitution.name as nombre',
-				'tinstitution.lender as prestador',
-				'tugel.name as ugel',
-				'tdistrict.name as distrito',
-				'tprovince.name as provincia',
-				'twater.month as mes',
-				'twater.resultW1',
-				'twater.resultW2',
-				'twater.resultW3',
-				'twater.resultW4',
-				'twater.resultW5',
-				'twater.created_at'
-			])
-				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
-				->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')  // AGREGAR ESTA LÍNEA
-				->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
-				->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
-				->where('tprovince.idProvince', '=', $userProvince)
-				->whereRaw('twater.updated_at = (
+		// Consulta base para todos los roles
+		$query = TWater::select([
+			'tinstitution.idInstitution as id',
+			'tinstitution.name as nombre',
+			'tinstitution.lender as prestador',
+			'tugel.name as ugel',
+			'tdistrict.name as distrito',
+			'tprovince.name as provincia',
+			'twater.month as mes',
+			'twater.resultW1',
+			'twater.resultW2',
+			'twater.resultW3',
+			'twater.resultW4',
+			'twater.resultW5',
+			'twater.created_at'
+		])
+			->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+			->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+			->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+			->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
+			->whereRaw('twater.updated_at = (
 				SELECT MAX(sub_w.updated_at)
 				FROM twater as sub_w
 				WHERE sub_w.idInstitution = twater.idInstitution
-			)')
-				->get();
+			)');
+
+		// Si el usuario es Supervisor, filtrar por su provincia
+		if ($userRole === 'Supervisor' && $userLevel === 'levelProvince') {
+			$query->where('tprovince.idProvince', '=', $userProvince);
 		}
 
 		// Si el usuario es Supervisor, filtrar por su distrito
 		if ($userRole === 'Supervisor' && $userLevel === 'levelDistrit') {
-			$query = TWater::select([
-				'tinstitution.idInstitution as id',
-				'tinstitution.name as nombre',
-				'tinstitution.lender as prestador',
-				'tugel.name as ugel',  // AGREGAR ESTA LÍNEA
-				'tdistrict.name as distrito',
-				'tprovince.name as provincia',
-				'twater.month as mes',
-				'twater.resultW1',
-				'twater.resultW2',
-				'twater.resultW3',
-				'twater.resultW4',
-				'twater.resultW5',
-				'twater.created_at'
-			])
-				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
-				->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')  // AGREGAR ESTA LÍNEA
-				->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
-				->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
-				->where('tdistrict.idDistrict', '=', $userDistrict)
-				->whereRaw('twater.updated_at = (
-				SELECT MAX(sub_w.updated_at)
-				FROM twater as sub_w
-				WHERE sub_w.idInstitution = twater.idInstitution
-			)')
-				->get();
-		} else {
-			// Consulta por defecto para Super Supervisor, Administrador y otros roles sin restricciones geográficas
-			$query = TWater::select([
-				'tinstitution.idInstitution as id',
-				'tinstitution.name as nombre',
-				'tinstitution.lender as prestador',
-				'tugel.name as ugel',
-				'tdistrict.name as distrito',
-				'tprovince.name as provincia',
-				'twater.month as mes',
-				'twater.resultW1',
-				'twater.resultW2',
-				'twater.resultW3',
-				'twater.resultW4',
-				'twater.resultW5',
-				'twater.created_at'
-			])
-				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
-				->leftJoin('tugel', DB::raw('tinstitution.idUgel COLLATE utf8mb4_unicode_ci'), '=', DB::raw('tugel.idUgel COLLATE utf8mb4_unicode_ci'))
-				->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
-				->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
-				->whereRaw('twater.updated_at = (
-				SELECT MAX(sub_w.updated_at)
-				FROM twater as sub_w
-				WHERE sub_w.idInstitution = twater.idInstitution
-			)')
-				->get();
+			$query->where('tdistrict.idDistrict', '=', $userDistrict);
 		}
+
+		$query = $query->get();
 
 		return view('water/getall', [
 			'listTWater' => $query

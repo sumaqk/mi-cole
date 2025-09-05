@@ -278,7 +278,8 @@
                 </div>
             </div>
 
-            <!-- NUEVO: Mapa de Calor -->
+            <!-- NUEVO: Mapa de Calor - Solo para Admin y Super Supervisor -->
+            @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
                     <div class="stat-card">
@@ -320,8 +321,10 @@
                     </div>
                 </div>
             </div>
+            @endif
 
-            <!-- Power BI Dashboard -->
+            <!-- Power BI Dashboard - Solo para Admin y Super Supervisor -->
+            @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
                     <div class="stat-card">
@@ -340,6 +343,7 @@
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
@@ -405,7 +409,8 @@
             });
         })();
 
-        // Mapa de Calor con Leaflet
+        // Mapa de Calor con Leaflet - Solo si el usuario puede verlo
+        @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
         (function() {
             var mapContainer = document.getElementById('heatMap');
             if (!mapContainer) return;
@@ -458,5 +463,6 @@
                         });
                     });
         })();
+        @endif
     </script>
 @endsection
