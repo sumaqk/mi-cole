@@ -279,7 +279,7 @@
             </div>
 
             <!-- NUEVO: Mapa de Calor - Solo para Admin y Super Supervisor -->
-            @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
+            @if(isset($tUser) && (strpos($tUser->role, 'Administrador') !== false || strpos($tUser->role, 'Super Supervisor') !== false || strpos($tUser->role, 'Súper usuario') !== false))
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
                     <div class="stat-card">
@@ -324,7 +324,7 @@
             @endif
 
             <!-- Power BI Dashboard - Solo para Admin y Super Supervisor -->
-            @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
+            @if(isset($tUser) && (strpos($tUser->role, 'Administrador') !== false || strpos($tUser->role, 'Super Supervisor') !== false || strpos($tUser->role, 'Súper usuario') !== false))
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
                     <div class="stat-card">
@@ -410,7 +410,7 @@
         })();
 
         // Mapa de Calor con Leaflet - Solo si el usuario puede verlo
-        @if(isset($tUser) && in_array($tUser->role, ['Administrador', 'Super Supervisor']))
+        @if(isset($tUser) && (strpos($tUser->role, 'Administrador') !== false || strpos($tUser->role, 'Super Supervisor') !== false || strpos($tUser->role, 'Súper usuario') !== false))
         (function() {
             var mapContainer = document.getElementById('heatMap');
             if (!mapContainer) return;
