@@ -124,7 +124,7 @@
 		</div>
 		<footer class="main-footer">
 			<div class="pull-right hidden-xs">
-				<b>Versión</b> 1.0
+				<b>Versión</b> 2.0
 			</div>
 			<b>Copyright © {{$tConfigurationFmMdl!=null ? $tConfigurationFmMdl->footerYear : '2024'}}-{{date('Y')}} <a href="{{$tConfigurationFmMdl!=null ? $tConfigurationFmMdl->footerUrl : '#'}}" target="_blank">{{$tConfigurationFmMdl!=null ? $tConfigurationFmMdl->footerText : 'Codideep\'s developer'}}</a></b>. Todo los derechos reservados.
 		</footer>

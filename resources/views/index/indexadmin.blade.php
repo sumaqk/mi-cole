@@ -321,6 +321,26 @@
                 </div>
             </div>
 
+            <!-- Power BI Dashboard -->
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-sm-12">
+                    <div class="stat-card">
+                        <h4 style="margin: 0 0 15px 0; color: #495057;">
+                            <i class="fa fa-bar-chart"></i> Dashboard Power BI - Análisis de Datos
+                        </h4>
+                        <div style="position: relative; height: 600px; overflow: hidden; border-radius: 5px;">
+                            <iframe 
+                                src="https://app.powerbi.com/view?r=eyJrIjoiMTNlYmE0ZjMtMzE1Ny00YzU4LWIzODctOGI3YzNiMmNhYTNmIiwidCI6ImJlNzEzZTU0LTYyMWItNGQ5Ni1hYjI3LTFjYzA0NzcwYTdkMSIsImMiOjR9"
+                                width="100%" 
+                                height="100%" 
+                                style="border: none; border-radius: 5px;"
+                                allowfullscreen="true">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection
