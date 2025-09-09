@@ -479,6 +479,36 @@
 
         </div>
     </div>
+
+    <!-- Modal de Captura Exitosa -->
+    <div class="modal fade" id="captureSuccessModal" tabindex="-1" role="dialog" aria-labelledby="captureSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <div class="modal-body" style="padding: 30px 25px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+                        <i class="fa fa-check" style="font-size: 20px; color: #6b7280;"></i>
+                    </div>
+                    <h6 style="color: #374151; margin-bottom: 6px; font-weight: 500;">Captura completada</h6>
+                    <p style="color: #9ca3af; margin-bottom: 20px; font-size: 13px;">
+                        <span id="captureTypeText"></span> • <span id="dataPeriodText"></span>
+                    </p>
+                    
+                    <div style="background: #f9fafb; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 12px; color: #6b7280; word-break: break-all;" id="filenameText"></p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 6px; font-size: 13px; padding: 6px 14px;">
+                            Cerrar
+                        </button>
+                        <a href="{{ route('map.history') }}" class="btn btn-dark" style="border-radius: 6px; font-size: 13px; padding: 6px 14px;">
+                            Ver historial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('jsSection')
@@ -767,8 +797,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const captureType = isAutomatic ? 'automática' : 'manual';
-                        alert('✅ Mapa capturado exitosamente (' + captureType + ')!\n\nArchivo: ' + data.filename);
+                        const captureType = isAutomatic ? 'Automática' : 'Manual';
+                        showCaptureSuccessModal(captureType, data.filename, isAutomatic);
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -817,8 +847,8 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                const captureType = isAutomatic ? 'automática' : 'manual';
-                                alert('✅ Mapa capturado exitosamente (' + captureType + ') - Vista Blanca!\n\nArchivo: ' + data.filename + '\n\n(Capturado con método alternativo para vista estadística)');
+                                const captureType = isAutomatic ? 'Automática (Vista Blanca)' : 'Manual (Vista Blanca)';
+                                showCaptureSuccessModal(captureType, data.filename, isAutomatic);
                             } else {
                                 alert('Error: ' + data.message);
                             }
@@ -874,6 +904,25 @@
                 testBtn.innerHTML = originalText;
                 testBtn.disabled = false;
             });
+        }
+        
+        // Función para mostrar modal de captura exitosa
+        function showCaptureSuccessModal(captureType, filename, isAutomatic) {
+            // Obtener información del período de datos
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataMonth = urlParams.get('month') || '{{ $currentMonthNum }}';
+            const dataYear = urlParams.get('year') || '{{ $currentYear }}';
+            const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const dataMonthName = months[parseInt(dataMonth)];
+            
+            // Actualizar contenido del modal (diseño minimalista)
+            document.getElementById('captureTypeText').textContent = captureType;
+            document.getElementById('filenameText').textContent = filename;
+            document.getElementById('dataPeriodText').textContent = dataMonthName + ' ' + dataYear;
+            
+            // Mostrar modal
+            $('#captureSuccessModal').modal('show');
         }
         
         // Función para cambiar periodo del mapa
