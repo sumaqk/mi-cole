@@ -180,6 +180,9 @@
                                             <small class="text-muted">
                                                 <strong>Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}<br>
                                                 <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}<br>
+                                                @if(isset($screenshot->metadata['data_period']) && $screenshot->metadata['data_period']['month_name'])
+                                                    <strong>Datos mostrados:</strong> {{ $screenshot->metadata['data_period']['month_name'] }} {{ $screenshot->metadata['data_period']['year'] }}<br>
+                                                @endif
                                                 <strong>Colaboración:</strong> 
                                                 <a href="https://leafletjs.com/" target="_blank" rel="noopener" style="color: #28a745; text-decoration: none;">
                                                     <i class="fa fa-external-link" style="font-size: 10px;"></i> Leaflet

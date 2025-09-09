@@ -742,6 +742,19 @@
                 const formData = new FormData();
                 formData.append('map_screenshot', blob, 'mapa_captura.png');
                 formData.append('_token', '{{ csrf_token() }}');
+                
+                // Agregar información del periodo de datos que se está mostrando
+                const urlParams = new URLSearchParams(window.location.search);
+                const dataMonth = urlParams.get('month') || '{{ $currentMonthNum }}';
+                const dataYear = urlParams.get('year') || '{{ $currentYear }}';
+                const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                              'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                const dataMonthName = months[parseInt(dataMonth)];
+                
+                formData.append('data_period_month', dataMonth);
+                formData.append('data_period_year', dataYear);
+                formData.append('data_period_name', dataMonthName);
+                
                 if (isAutomatic) {
                     formData.append('is_automatic', 'true');
                 }

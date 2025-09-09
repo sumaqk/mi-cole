@@ -71,7 +71,16 @@ class MapScreenshotController extends Controller
             
             // Determinar si es captura automática basado en el parámetro
             $isAutomatic = $request->has('is_automatic') && $request->get('is_automatic') === 'true';
+            
+            // Obtener información del periodo de datos
+            $dataPeriodMonth = $request->get('data_period_month');
+            $dataPeriodYear = $request->get('data_period_year'); 
+            $dataPeriodName = $request->get('data_period_name');
+            
             $description = $isAutomatic ? 'Captura automática de test' : 'Captura desde el dashboard';
+            if ($dataPeriodName && $dataPeriodYear) {
+                $description .= " - Datos de {$dataPeriodName} {$dataPeriodYear}";
+            }
             
             // Guardar registro en base de datos
             $screenshot = TMapScreenshot::create([
@@ -87,7 +96,12 @@ class MapScreenshotController extends Controller
                     'user_agent' => $request->userAgent(),
                     'ip' => $request->ip(),
                     'timestamp' => $now->toDateTimeString(),
-                    'type' => $isAutomatic ? 'automatic_test' : 'manual'
+                    'type' => $isAutomatic ? 'automatic_test' : 'manual',
+                    'data_period' => [
+                        'month' => $dataPeriodMonth,
+                        'year' => $dataPeriodYear,
+                        'month_name' => $dataPeriodName
+                    ]
                 ]
             ]);
             
