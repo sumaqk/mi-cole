@@ -555,31 +555,39 @@
             // Agregar marcadores para cada institución
             mapData.forEach(function(inst) {
                         
+                        // Definir z-index y tamaño según el color (grises al fondo y más pequeños)
+                        var isGray = inst.color === '#808080';
+                        var zIndex = isGray ? 100 : 500; // Gris al fondo, otros colores encima
+                        var radius = isGray ? 9 : 12; // Grises más pequeños
+                        var opacity = isGray ? 0.7 : 0.9; // Grises más transparentes
+                        
                         // Crear marcador circular con color según estado y efectos visuales
                         var marker = L.circleMarker([inst.lat, inst.lng], {
                             color: '#ffffff',
                             fillColor: inst.color,
-                            fillOpacity: 0.9,
-                            radius: 12,
-                            weight: 3,
+                            fillOpacity: opacity,
+                            radius: radius,
+                            weight: isGray ? 2 : 3,
                             opacity: 1,
-                            className: 'custom-marker'
+                            className: 'custom-marker',
+                            zIndexOffset: zIndex
                         }).addTo(map);
                         
-                        // Agregar efecto de pulsación
+                        // Agregar efecto de pulsación (respetando el tamaño original)
                         marker.on('mouseover', function(e) {
+                            var hoverRadius = isGray ? 12 : 16; // Hover proporcional
                             e.target.setStyle({
-                                radius: 16,
+                                radius: hoverRadius,
                                 fillOpacity: 1,
-                                weight: 4
+                                weight: isGray ? 3 : 4
                             });
                         });
                         
                         marker.on('mouseout', function(e) {
                             e.target.setStyle({
-                                radius: 12,
-                                fillOpacity: 0.9,
-                                weight: 3
+                                radius: radius, // Volver al tamaño original
+                                fillOpacity: opacity, // Volver a la opacidad original
+                                weight: isGray ? 2 : 3
                             });
                         });
                         
