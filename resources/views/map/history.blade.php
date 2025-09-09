@@ -105,16 +105,6 @@
                                          title="Clic para ver en tamaño completo">
                                 </div>
                                 
-                                <div style="text-align: center; margin-bottom: 10px;">
-                                    <span class="badge {{ $screenshot->is_automatic ? 'auto-badge' : 'manual-badge' }}"
-                                          style="padding: 5px 10px; font-size: 11px; border-radius: 12px;">
-                                        @if($screenshot->is_automatic)
-                                            <i class="fa fa-clock-o"></i> AUTOMÁTICA
-                                        @else
-                                            <i class="fa fa-user"></i> MANUAL
-                                        @endif
-                                    </span>
-                                </div>
                                 
                                 <div style="text-align: center;">
                                     <h5 style="margin: 0 0 5px 0; color: #495057;">
@@ -179,7 +169,6 @@
                                         <div style="text-align: left; flex: 1;">
                                             <small class="text-muted">
                                                 <strong>Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}<br>
-                                                <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}<br>
                                                 @if(isset($screenshot->metadata['data_period']) && $screenshot->metadata['data_period']['month_name'])
                                                     <strong>Datos mostrados:</strong> {{ $screenshot->metadata['data_period']['month_name'] }} {{ $screenshot->metadata['data_period']['year'] }}<br>
                                                 @endif
@@ -207,38 +196,46 @@
                         
                         <!-- Modal para confirmar eliminación -->
                         <div class="modal fade" id="deleteModal{{ $screenshot->id }}" tabindex="-1" role="dialog">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">
-                                            <i class="fa fa-warning text-danger"></i>
-                                            Confirmar Eliminación
-                                        </h4>
-                                        <button type="button" class="close" data-dismiss="modal">
-                                            <span>&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>¿Estás seguro de que quieres eliminar esta captura de mapa?</p>
-                                        <div class="alert alert-warning">
-                                            <strong>Mapa:</strong> {{ $screenshot->month_name }} {{ $screenshot->year }}<br>
-                                            <strong>Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}<br>
-                                            <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); background: white;">
+                                    <div class="modal-body" style="padding: 50px 40px; text-align: center;">
+                                        <!-- Icono de advertencia animado -->
+                                        <div class="warning-animation" style="margin: 0 auto 30px auto;">
+                                            <svg width="80" height="80" viewBox="0 0 80 80" style="margin: 0 auto;">
+                                                <circle cx="40" cy="40" r="35" fill="#fbbf24" stroke="#f59e0b" stroke-width="2" 
+                                                        style="animation: pulseWarn 2s infinite;">
+                                                </circle>
+                                                <path d="M40 25 L40 45" stroke="white" stroke-width="4" stroke-linecap="round"
+                                                      style="animation: fadeIn 1s ease-out 0.3s both;">
+                                                </path>
+                                                <circle cx="40" cy="55" r="3" fill="white"
+                                                        style="animation: fadeIn 1s ease-out 0.5s both;">
+                                                </circle>
+                                            </svg>
                                         </div>
-                                        <p class="text-danger">
-                                            <i class="fa fa-exclamation-triangle"></i>
-                                            <strong>Esta acción no se puede deshacer. La imagen será eliminada permanentemente.</strong>
+                                        
+                                        <h4 style="color: #1f2937; margin-bottom: 15px; font-weight: 600;">¿Eliminar Captura?</h4>
+                                        <p style="color: #6b7280; margin-bottom: 25px; font-size: 16px;">
+                                            Esta acción no se puede deshacer
                                         </p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                            Cancelar
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-danger" 
-                                                onclick="deleteScreenshot({{ $screenshot->id }})">
-                                            <i class="fa fa-trash"></i> Sí, Eliminar
-                                        </button>
+                                        
+                                        <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left;">
+                                            <div style="color: #92400e; font-size: 14px;">
+                                                <strong>📅 Mapa:</strong> {{ $screenshot->month_name }} {{ $screenshot->year }}<br>
+                                                <strong>🕒 Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 15px; justify-content: center;">
+                                            <button type="button" class="btn btn-light" data-dismiss="modal" 
+                                                    style="border-radius: 12px; font-size: 14px; padding: 12px 24px; border: 1px solid #e2e8f0;">
+                                                Cancelar
+                                            </button>
+                                            <button type="button" class="btn btn-danger" onclick="deleteScreenshot({{ $screenshot->id }})"
+                                                    style="border-radius: 12px; font-size: 14px; padding: 12px 24px; background: #ef4444; border: none;">
+                                                <i class="fa fa-trash"></i> Sí, Eliminar
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -305,11 +302,10 @@
                     // Cerrar modal
                     $(`#deleteModal${screenshotId}`).modal('hide');
                     
-                    // Mostrar mensaje de éxito
-                    alert('✅ ' + data.message);
-                    
-                    // Recargar página para actualizar la lista
-                    location.reload();
+                    // Recargar página para actualizar la lista después de un momento
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
                 } else {
                     alert('❌ Error: ' + data.message);
                     deleteBtn.html(originalText).prop('disabled', false);
@@ -322,4 +318,28 @@
             });
         }
     </script>
+
+    <style>
+        @keyframes pulseWarn {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 @endsection

@@ -479,33 +479,73 @@
 
     <!-- Modal de Captura Exitosa -->
     <div class="modal fade" id="captureSuccessModal" tabindex="-1" role="dialog" aria-labelledby="captureSuccessModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-            <div class="modal-content" style="border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <div class="modal-body" style="padding: 30px 25px; text-align: center;">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
-                        <i class="fa fa-check" style="font-size: 20px; color: #6b7280;"></i>
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border: none; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); background: white;">
+                <div class="modal-body" style="padding: 50px 40px; text-align: center;">
+                    <!-- Check animado -->
+                    <div class="success-animation" style="margin: 0 auto 30px auto;">
+                        <svg width="80" height="80" viewBox="0 0 80 80" style="margin: 0 auto;">
+                            <circle cx="40" cy="40" r="35" fill="#4ade80" stroke="#22c55e" stroke-width="2" 
+                                    style="animation: scaleIn 0.8s ease-out;">
+                            </circle>
+                            <path d="M25 40 L35 50 L55 30" stroke="white" stroke-width="4" fill="none" 
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  style="animation: checkDraw 1s ease-out 0.3s both;">
+                            </path>
+                        </svg>
                     </div>
-                    <h6 style="color: #374151; margin-bottom: 6px; font-weight: 500;">Captura completada</h6>
-                    <p style="color: #9ca3af; margin-bottom: 20px; font-size: 13px;">
-                        <span id="captureTypeText"></span> • <span id="dataPeriodText"></span>
+                    
+                    <h4 style="color: #1f2937; margin-bottom: 15px; font-weight: 600;">¡Captura Completada!</h4>
+                    <p style="color: #6b7280; margin-bottom: 25px; font-size: 16px;">
+                        <span id="dataPeriodText"></span>
                     </p>
                     
-                    <div style="background: #f9fafb; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
-                        <p style="margin: 0; font-size: 12px; color: #6b7280; word-break: break-all;" id="filenameText"></p>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+                        <i class="fa fa-file-image-o" style="color: #64748b; margin-right: 8px;"></i>
+                        <span style="color: #475569; font-size: 14px;" id="filenameText"></span>
                     </div>
                     
-                    <div style="display: flex; gap: 8px; justify-content: center;">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 6px; font-size: 13px; padding: 6px 14px;">
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button type="button" class="btn btn-light" data-dismiss="modal" 
+                                style="border-radius: 12px; font-size: 14px; padding: 12px 24px; border: 1px solid #e2e8f0;">
                             Cerrar
                         </button>
-                        <a href="{{ route('map.history') }}" class="btn btn-dark" style="border-radius: 6px; font-size: 13px; padding: 6px 14px;">
-                            Ver historial
+                        <a href="{{ route('map.history') }}" class="btn btn-success" 
+                           style="border-radius: 12px; font-size: 14px; padding: 12px 24px; background: #22c55e; border: none;">
+                            <i class="fa fa-history"></i> Ver Historial
                         </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes checkDraw {
+            0% {
+                stroke-dasharray: 0 50;
+                stroke-dashoffset: 0;
+            }
+            100% {
+                stroke-dasharray: 50 0;
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
 @endsection
 
 @section('jsSection')
@@ -794,8 +834,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const captureType = isAutomatic ? 'Automática' : 'Manual';
-                        showCaptureSuccessModal(captureType, data.filename, isAutomatic);
+                        showCaptureSuccessModal('Captura', data.filename, isAutomatic);
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -844,8 +883,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                const captureType = isAutomatic ? 'Automática (Vista Blanca)' : 'Manual (Vista Blanca)';
-                                showCaptureSuccessModal(captureType, data.filename, isAutomatic);
+                                showCaptureSuccessModal('Captura', data.filename, isAutomatic);
                             } else {
                                 alert('Error: ' + data.message);
                             }
@@ -877,8 +915,7 @@
                           'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             const dataMonthName = months[parseInt(dataMonth)];
             
-            // Actualizar contenido del modal (diseño minimalista)
-            document.getElementById('captureTypeText').textContent = captureType;
+            // Actualizar contenido del modal
             document.getElementById('filenameText').textContent = filename;
             document.getElementById('dataPeriodText').textContent = dataMonthName + ' ' + dataYear;
             
