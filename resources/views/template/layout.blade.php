@@ -69,8 +69,12 @@
 	<div class="wrapper">
 		<header class="main-header">
 			<a href="{{url('index/indexadmin')}}" class="logo">
-				<span class="logo-mini">{{mb_strtoupper($tConfigurationFmMdl!=null ? $tConfigurationFmMdl->platformTitle : config('var.PLATFORM_TITLE'))}}</span>
-				<span class="logo-lg">{{mb_strtoupper($tConfigurationFmMdl!=null ? $tConfigurationFmMdl->platformName : config('var.PLATFORM_NAME'))}}</span>
+				<span class="logo-mini">
+					<img src="{{asset('img/loginBanner/logohector.png')}}" alt="Logo" style="height: 35px; width: auto;">
+				</span>
+				<span class="logo-lg">
+					<img src="{{asset('img/loginBanner/logohector.png')}}" alt="HectorFD Logo" style="height: 40px; width: auto;">
+				</span>
 			</a>
 			<nav class="navbar navbar-static-top">
 				<a href="#" class="sidebar-toggle" onclick="saveCollapseMenu()" data-toggle="push-menu" role="button">
@@ -89,22 +93,10 @@
 		</header>
 		<aside class="main-sidebar">
 			<section class="sidebar">
-				<div class="user-panel">
-					<div class="pull-left image" style="background-color: #ffffff;border-radius: 10px;box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5) inset;padding: 1px;overflow: hidden;">
-						@php
-							$logoPath = 'general/logoMinimoNegro.png';
-							if($tConfigurationFmMdl!=null && $tConfigurationFmMdl->blackLogoMinimalExtension!='') {
-								$customLogoPath = 'logo/'.$tConfigurationFmMdl->idConfiguration.'-blackLogoMinimal.'.$tConfigurationFmMdl->blackLogoMinimalExtension;
-								if(file_exists(public_path('img/'.$customLogoPath))) {
-									$logoPath = $customLogoPath;
-								}
-							}
-						@endphp
-						<img src="{{asset('img/'.$logoPath)}}?x={{$tConfigurationFmMdl!=null ? str_replace(':', '-', str_replace(' ', '_', $tConfigurationFmMdl->updated_at)) : config('var.CACHE_LAST_UPDATE')}}" alt="">
-					</div>
-					<div class="pull-left info">
-						<p>{{mb_substr(Session::get('fullName', 'Anónimo'), 0, 12)}}</p>
-						<small>Panel de control</small>
+				<div class="user-panel" style="text-align: center;">
+					<div style="width: 100%;">
+						<p style="color: #fff; font-size: 14px; margin-bottom: 5px;">{{Session::get('fullName', 'Anónimo')}}</p>
+						<small style="color: #b3b3b3; font-size: 12px;">Panel de control</small>
 					</div>
 				</div>
 				@include('template/parcial/layout/menu')
