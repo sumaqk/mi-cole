@@ -96,6 +96,18 @@
             background-color: rgba(0, 123, 255, 0.05);
             transform: translateX(2px);
         }
+        
+        /* Estilos para etiquetas de provincias */
+        .provincia-label {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .provincia-label div {
+            font-family: 'Arial', sans-serif;
+            letter-spacing: 0.5px;
+        }
     </style>
 @endsection
 
@@ -529,6 +541,17 @@
             // Datos del servidor (base de datos)
             var mapData = @json($mapData ?? []);
             
+            // Coordenadas aproximadas de las provincias de Apurímac
+            var provincias = [
+                { name: 'ABANCAY', lat: -13.6333, lng: -72.8831, size: 'large' },
+                { name: 'ANDAHUAYLAS', lat: -13.6564, lng: -73.3867, size: 'large' },
+                { name: 'ANTABAMBA', lat: -14.3667, lng: -72.8833, size: 'medium' },
+                { name: 'AYMARAES', lat: -14.2000, lng: -73.2167, size: 'medium' },
+                { name: 'CHINCHEROS', lat: -13.4167, lng: -73.5167, size: 'medium' },
+                { name: 'COTABAMBAS', lat: -14.0333, lng: -72.0500, size: 'medium' },
+                { name: 'GRAU', lat: -14.0833, lng: -72.6667, size: 'medium' }
+            ];
+            
             // Agregar marcadores para cada institución
             mapData.forEach(function(inst) {
                         
@@ -584,6 +607,25 @@
                             maxWidth: 300
                         });
                     });
+            
+            // Agregar etiquetas de provincias
+            provincias.forEach(function(provincia) {
+                var fontSize = provincia.size === 'large' ? '14px' : '12px';
+                var fontWeight = provincia.size === 'large' ? 'bold' : '600';
+                
+                var divIcon = L.divIcon({
+                    className: 'provincia-label',
+                    html: '<div style="color: #2c3e50; font-size: ' + fontSize + '; font-weight: ' + fontWeight + '; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8), 1px -1px 2px rgba(255,255,255,0.8), -1px 1px 2px rgba(255,255,255,0.8); text-align: center; white-space: nowrap; pointer-events: none;">' + provincia.name + '</div>',
+                    iconSize: [100, 20],
+                    iconAnchor: [50, 10]
+                });
+                
+                L.marker([provincia.lat, provincia.lng], {
+                    icon: divIcon,
+                    interactive: false, // No interactúa con clics
+                    zIndexOffset: 1000 // Aparece encima de otros elementos
+                }).addTo(map);
+            });
         })();
         @endif
 
