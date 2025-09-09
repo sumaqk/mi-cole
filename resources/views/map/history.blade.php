@@ -39,8 +39,17 @@
         }
         
         .modal-img {
-            max-width: 100%;
-            height: auto;
+            width: 100% !important;
+            height: auto !important;
+            max-width: none !important;
+            display: block !important;
+            margin: 0 auto !important;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .modal-body {
+            padding: 15px !important;
         }
     </style>
 @endsection
@@ -160,10 +169,11 @@
                                             <span>&times;</span>
                                         </button>
                                     </div>
-                                    <div class="modal-body text-center">
+                                    <div class="modal-body text-center" style="padding: 15px;">
                                         <img src="{{ asset($screenshot->filepath) }}" 
                                              alt="Mapa {{ $screenshot->month_name }} {{ $screenshot->year }}"
-                                             class="modal-img">
+                                             class="modal-img"
+                                             style="width: 100% !important; height: auto !important; display: block !important; margin: 0 auto !important; max-width: none !important;">
                                     </div>
                                     <div class="modal-footer">
                                         <div style="text-align: left; flex: 1;">

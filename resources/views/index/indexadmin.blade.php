@@ -54,6 +54,9 @@
             border: 2px solid #e9ecef;
             transition: all 0.3s ease;
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
         }
         
         #heatMap:hover {
@@ -669,6 +672,12 @@
             domtoimage.toBlob(mapContainer, {
                 quality: 0.95,
                 bgcolor: '#ffffff',
+                width: mapContainer.offsetWidth,
+                height: mapContainer.offsetHeight,
+                style: {
+                    padding: '0px',
+                    margin: '0px'
+                },
                 filter: function (node) {
                     // Filtrar elementos problemáticos
                     if (node.classList) {
