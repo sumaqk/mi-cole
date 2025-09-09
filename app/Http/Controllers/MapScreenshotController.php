@@ -20,6 +20,35 @@ class MapScreenshotController extends Controller
     public function capture(Request $request)
     {
         try {
+            // Manejar captura manual (solo registro)
+            if ($request->has('manual_capture')) {
+                $now = Carbon::now();
+                
+                $screenshot = TMapScreenshot::create([
+                    'filename' => 'captura_manual_' . $now->format('Y-m-d_H-i-s') . '.txt',
+                    'filepath' => 'img/mapa/captura_manual_' . $now->format('Y-m-d_H-i-s') . '.txt',
+                    'capture_date' => $now->toDateString(),
+                    'year' => $now->year,
+                    'month' => $now->month,
+                    'month_name' => TMapScreenshot::getSpanishMonthName($now->month),
+                    'is_automatic' => false,
+                    'description' => 'Captura manual del usuario usando Print Screen',
+                    'metadata' => [
+                        'type' => 'manual',
+                        'instructions' => 'Usuario debe usar Print Screen para capturar pantalla',
+                        'timestamp' => $now->toDateTimeString()
+                    ]
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Captura manual registrada',
+                    'filename' => $screenshot->filename,
+                    'id' => $screenshot->id
+                ]);
+            }
+            
+            // Manejar captura automática (archivo)
             if (!$request->hasFile('map_screenshot')) {
                 return response()->json(['success' => false, 'message' => 'No se recibió ninguna imagen']);
             }
@@ -27,18 +56,18 @@ class MapScreenshotController extends Controller
             $file = $request->file('map_screenshot');
             $now = Carbon::now();
             
-            // Crear directorio si no existe
-            $directory = 'map_screenshots/' . $now->year . '/' . sprintf('%02d', $now->month);
-            if (!Storage::disk('public')->exists($directory)) {
-                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            // Usar directorio public/img/mapa directamente
+            $publicMapaDir = public_path('img/mapa');
+            if (!file_exists($publicMapaDir)) {
+                mkdir($publicMapaDir, 0755, true);
             }
             
             // Generar nombre único para el archivo
-            $filename = 'mapa_' . $now->format('Y-m-d_H-i-s') . '_' . uniqid() . '.png';
-            $filepath = $directory . '/' . $filename;
+            $filename = 'captura_mapa_' . $now->format('Y-m-d_H-i-s') . '_' . uniqid() . '.png';
+            $filepath = 'img/mapa/' . $filename;
             
-            // Guardar archivo
-            $file->storeAs('', $filepath, 'public');
+            // Guardar archivo directamente en public/img/mapa
+            $file->move($publicMapaDir, $filename);
             
             // Guardar registro en base de datos
             $screenshot = TMapScreenshot::create([
@@ -49,7 +78,7 @@ class MapScreenshotController extends Controller
                 'month' => $now->month,
                 'month_name' => TMapScreenshot::getSpanishMonthName($now->month),
                 'is_automatic' => false,
-                'description' => 'Captura manual desde el dashboard',
+                'description' => 'Captura desde el dashboard',
                 'metadata' => [
                     'user_agent' => $request->userAgent(),
                     'ip' => $request->ip(),
@@ -111,7 +140,7 @@ class MapScreenshotController extends Controller
             $sheet->setCellValue('B5', $screenshot->capture_date->format('d/m/Y'));
             
             // Agregar imagen del mapa
-            $imagePath = storage_path('app/public/' . $screenshot->filepath);
+            $imagePath = public_path($screenshot->filepath);
             if (file_exists($imagePath)) {
                 $drawing = new Drawing();
                 $drawing->setName('Mapa de Calor');
@@ -178,6 +207,36 @@ class MapScreenshotController extends Controller
             
         } catch (\Exception $e) {
             return back()->with('error', 'Error al generar el Excel: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Eliminar una captura de mapa
+     */
+    public function delete($id)
+    {
+        try {
+            $screenshot = TMapScreenshot::findOrFail($id);
+            
+            // Eliminar archivo físico si existe
+            $filePath = public_path($screenshot->filepath);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            
+            // Eliminar registro de base de datos
+            $screenshot->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Mapa eliminado exitosamente'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el mapa: ' . $e->getMessage()
+            ]);
         }
     }
     

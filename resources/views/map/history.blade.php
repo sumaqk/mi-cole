@@ -88,7 +88,7 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="screenshot-card">
                                 <div class="text-center" style="margin-bottom: 15px;">
-                                    <img src="{{ asset('storage/' . $screenshot->filepath) }}" 
+                                    <img src="{{ asset($screenshot->filepath) }}" 
                                          alt="Mapa {{ $screenshot->month_name }} {{ $screenshot->year }}"
                                          class="screenshot-preview"
                                          data-toggle="modal" 
@@ -130,12 +130,18 @@
                                                 title="Ver imagen completa">
                                             <i class="fa fa-eye"></i> Ver
                                         </button>
-                                        <a href="{{ asset('storage/' . $screenshot->filepath) }}" 
+                                        <a href="{{ asset($screenshot->filepath) }}" 
                                            download="{{ $screenshot->filename }}"
                                            class="btn btn-sm btn-success"
                                            title="Descargar imagen">
                                             <i class="fa fa-download"></i> Descargar
                                         </a>
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-toggle="modal" 
+                                                data-target="#deleteModal{{ $screenshot->id }}"
+                                                title="Eliminar mapa">
+                                            <i class="fa fa-trash"></i> Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -155,7 +161,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body text-center">
-                                        <img src="{{ asset('storage/' . $screenshot->filepath) }}" 
+                                        <img src="{{ asset($screenshot->filepath) }}" 
                                              alt="Mapa {{ $screenshot->month_name }} {{ $screenshot->year }}"
                                              class="modal-img">
                                     </div>
@@ -166,13 +172,52 @@
                                                 <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}
                                             </small>
                                         </div>
-                                        <a href="{{ asset('storage/' . $screenshot->filepath) }}" 
+                                        <a href="{{ asset($screenshot->filepath) }}" 
                                            download="{{ $screenshot->filename }}"
                                            class="btn btn-success">
                                             <i class="fa fa-download"></i> Descargar Imagen
                                         </a>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                             Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal para confirmar eliminación -->
+                        <div class="modal fade" id="deleteModal{{ $screenshot->id }}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">
+                                            <i class="fa fa-warning text-danger"></i>
+                                            Confirmar Eliminación
+                                        </h4>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>¿Estás seguro de que quieres eliminar esta captura de mapa?</p>
+                                        <div class="alert alert-warning">
+                                            <strong>Mapa:</strong> {{ $screenshot->month_name }} {{ $screenshot->year }}<br>
+                                            <strong>Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}<br>
+                                            <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}
+                                        </div>
+                                        <p class="text-danger">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                            <strong>Esta acción no se puede deshacer. La imagen será eliminada permanentemente.</strong>
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Cancelar
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-danger" 
+                                                onclick="deleteScreenshot({{ $screenshot->id }})">
+                                            <i class="fa fa-trash"></i> Sí, Eliminar
                                         </button>
                                     </div>
                                 </div>
@@ -216,5 +261,45 @@
                 'transform-origin': 'center'
             });
         });
+        
+        // Función para eliminar captura de mapa
+        function deleteScreenshot(screenshotId) {
+            const deleteBtn = $(`#deleteModal${screenshotId} .btn-danger`);
+            const originalText = deleteBtn.html();
+            
+            // Cambiar botón a estado de carga
+            deleteBtn.html('<i class="fa fa-spinner fa-spin"></i> Eliminando...').prop('disabled', true);
+            
+            // Enviar petición DELETE al servidor
+            fetch(`{{ url('map/delete') }}/${screenshotId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cerrar modal
+                    $(`#deleteModal${screenshotId}`).modal('hide');
+                    
+                    // Mostrar mensaje de éxito
+                    alert('✅ ' + data.message);
+                    
+                    // Recargar página para actualizar la lista
+                    location.reload();
+                } else {
+                    alert('❌ Error: ' + data.message);
+                    deleteBtn.html(originalText).prop('disabled', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error al eliminar la captura');
+                deleteBtn.html(originalText).prop('disabled', false);
+            });
+        }
     </script>
 @endsection

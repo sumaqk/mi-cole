@@ -68,6 +68,7 @@ Route::post('index/indexadmin', [IndexController::class, 'actionIndexAdmin'])->m
 // Rutas para captura y manejo de mapas
 Route::post('map/capture', [MapScreenshotController::class, 'capture'])->middleware('GenericMiddleware:index/indexadmin')->name('map.capture');
 Route::get('map/history', [MapScreenshotController::class, 'history'])->middleware('GenericMiddleware:index/indexadmin')->name('map.history');
+Route::delete('map/delete/{id}', [MapScreenshotController::class, 'delete'])->middleware('GenericMiddleware:index/indexadmin')->name('map.delete');
 Route::get('map/export-excel', [MapScreenshotController::class, 'exportWithMap'])->middleware('GenericMiddleware:index/indexadmin')->name('map.export-excel');
 Route::get('map/automatic-capture', [MapScreenshotController::class, 'automaticCapture'])->name('map.automatic-capture');
 

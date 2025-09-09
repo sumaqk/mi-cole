@@ -337,18 +337,15 @@
                                 <i class="fa fa-map-marker" style="color: #007bff; text-shadow: 0 0 5px rgba(0,123,255,0.3);"></i> Mapa de Calor - Calidad del Agua por Institución
                             </h4>
                             <div style="display: flex; gap: 10px;">
-                                <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa (html2canvas)">
+                                <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa">
                                     <i class="fa fa-camera"></i> Capturar Mapa
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="captureMapWithNativeAPI()" title="Captura perfecta usando API del navegador">
-                                    <i class="fa fa-desktop"></i> Captura Nativa
                                 </button>
                                 <a href="{{ route('map.history') }}" class="btn btn-info btn-sm" title="Ver historial de mapas capturados">
                                     <i class="fa fa-history"></i> Historial
                                 </a>
                             </div>
                         </div>
-                        <div id="heatMap" style="height: 70vh; min-height: 600px; border: 1px solid #ddd; border-radius: 5px;"></div>
+                        <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px;"></div>
                         
                         <!-- Leyenda -->
                         <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
@@ -416,8 +413,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- html2canvas para capturar screenshots -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- dom-to-image para capturar screenshots -->
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
     
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('plugin/adminlte/bower_components/chart.js/Chart.js') }}"></script>
@@ -481,7 +478,7 @@
             if (!mapContainer) return;
 
             // Inicializar mapa centrado en Apurímac con zoom más cercano
-            var map = L.map('heatMap').setView([-13.8, -72.8], 8);
+            var map = L.map('heatMap').setView([-14.00, -72.9], 9);
             globalMap = map; // Asignar a variable global
             
             // Definir diferentes tipos de mapas disponibles
@@ -522,9 +519,9 @@
             }).addTo(map);
             
             // Ajustar el mapa para que encaje perfectamente en el contenedor
-            map.fitBounds(apurimacBounds, {
-                padding: [20, 20] // Un poco de margen alrededor
-            });
+            // map.fitBounds(apurimacBounds, {
+            //     padding: [20, 20] 
+            // });
             
             // Datos del servidor (base de datos)
             var mapData = @json($mapData ?? []);
@@ -590,7 +587,7 @@
         // Variable global para el mapa
         var globalMap = null;
         
-        // Función para capturar SOLO el mapa (no las cards)
+        // Función para capturar mapa con dom-to-image
         function captureMapScreenshot() {
             const captureBtn = document.getElementById('captureMapBtn');
             const originalText = captureBtn.innerHTML;
@@ -599,136 +596,63 @@
             captureBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Capturando...';
             captureBtn.disabled = true;
             
-            // Obtener SOLO el contenedor del mapa (no toda la card)
+            // Capturar el contenedor del mapa
             const mapContainer = document.getElementById('heatMap');
             
             if (!mapContainer) {
-                alert('Error: No se encontró el mapa');
+                alert('No se encontró el mapa para capturar');
                 captureBtn.innerHTML = originalText;
                 captureBtn.disabled = false;
                 return;
             }
             
-            // Verificar que el mapa tenga contenido
-            const hasMapContent = mapContainer.querySelector('.leaflet-map-pane');
-            if (!hasMapContent) {
-                alert('Error: El mapa aún no está completamente cargado. Espera unos segundos e intenta de nuevo.');
-                captureBtn.innerHTML = originalText;
-                captureBtn.disabled = false;
-                return;
-            }
-            
-            // Esperar un poco para que se carguen todos los tiles
-            setTimeout(() => {
-                // Configuración simple para capturar mejor el mapa
-                html2canvas(mapContainer, {
-                    useCORS: false,
-                    allowTaint: true,
-                    scale: 1.5,
-                    backgroundColor: '#ffffff',
-                    logging: true,
-                    ignoreElements: (element) => {
-                        // Ignorar controles de zoom y otros elementos problemáticos
-                        return element.classList.contains('leaflet-control-zoom') ||
-                               element.classList.contains('leaflet-control-layers') ||
-                               element.classList.contains('leaflet-attribution-flag');
-                    },
-                    windowWidth: mapContainer.scrollWidth,
-                    windowHeight: mapContainer.scrollHeight,
-                    // No usar onclone para evitar problemas
-                }).then(canvas => {
-                    // Convertir a blob y enviar al servidor
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('map_screenshot', blob, `mapa_${new Date().getTime()}.png`);
-                        formData.append('_token', '{{ csrf_token() }}');
-                        
-                        fetch('{{ route("map.capture") }}', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('¡Mapa capturado exitosamente! Se guardó como: ' + data.filename);
-                            } else {
-                                alert('Error al guardar la captura: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error al procesar la captura');
-                        })
-                        .finally(() => {
-                            // Restaurar botón
-                            captureBtn.innerHTML = originalText;
-                            captureBtn.disabled = false;
-                        });
-                    }, 'image/png', 0.9);
-                }).catch(error => {
-                    console.error('Error capturing map:', error);
-                    alert('Error al capturar el mapa: ' + error.message);
-                    
-                    // Restaurar botón
+            // Usar dom-to-image que funciona mejor con Leaflet
+            domtoimage.toBlob(mapContainer, {
+                quality: 0.95,
+                bgcolor: '#ffffff',
+                filter: function (node) {
+                    // Filtrar elementos problemáticos
+                    if (node.classList) {
+                        return !node.classList.contains('leaflet-control-zoom') &&
+                               !node.classList.contains('leaflet-bar') &&
+                               !node.classList.contains('leaflet-control-attribution');
+                    }
+                    return true;
+                }
+            })
+            .then(function (blob) {
+                // Crear FormData para enviar la imagen
+                const formData = new FormData();
+                formData.append('map_screenshot', blob, 'mapa_captura.png');
+                formData.append('_token', '{{ csrf_token() }}');
+                
+                // Enviar al servidor
+                fetch('{{ route("map.capture") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Mapa capturado exitosamente!\n\nArchivo: ' + data.filename);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al enviar la captura al servidor');
+                })
+                .finally(() => {
                     captureBtn.innerHTML = originalText;
                     captureBtn.disabled = false;
                 });
-            }, 1500); // Esperar 1.5 segundos para que se carguen los tiles
-        }
-
-        // Función alternativa usando la API nativa del navegador (mejor para mapas)
-        function captureMapWithNativeAPI() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-                alert('Tu navegador no soporta captura de pantalla nativa. Usa el botón "Capturar Mapa" normal.');
-                return;
-            }
-            
-            alert('Se abrirá el selector de captura de pantalla del navegador. Selecciona la pestaña del mapa para una captura perfecta.');
-            
-            navigator.mediaDevices.getDisplayMedia({
-                video: {
-                    mediaSource: 'screen'
-                }
-            }).then(stream => {
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-                
-                video.addEventListener('loadedmetadata', () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    
-                    ctx.drawImage(video, 0, 0);
-                    
-                    // Detener la captura
-                    stream.getTracks().forEach(track => track.stop());
-                    
-                    // Convertir y enviar
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('map_screenshot', blob, `mapa_nativo_${new Date().getTime()}.png`);
-                        formData.append('_token', '{{ csrf_token() }}');
-                        
-                        fetch('{{ route("map.capture") }}', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('¡Captura nativa exitosa! Se guardó como: ' + data.filename);
-                            } else {
-                                alert('Error al guardar: ' + data.message);
-                            }
-                        });
-                    }, 'image/png', 0.9);
-                });
-            }).catch(err => {
-                console.log('Error:', err);
-                alert('Captura cancelada o no permitida');
+            })
+            .catch(function (error) {
+                console.error('Error al capturar:', error);
+                alert('Error al capturar el mapa: ' + error.message);
+                captureBtn.innerHTML = originalText;
+                captureBtn.disabled = false;
             });
         }
     </script>
