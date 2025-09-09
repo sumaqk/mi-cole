@@ -150,8 +150,10 @@
             'Noviembre',
             'Diciembre',
         ];
-        $currentMonthNum = (int) date('m');
-        $currentYear = (int) date('Y');
+        $selectedMonth = request('month', date('m'));
+        $selectedYear = request('year', date('Y'));
+        $currentMonthNum = (int) $selectedMonth;
+        $currentYear = (int) $selectedYear;
         $currentMonthName = $monthsEs[$currentMonthNum - 1];
 
         $allRows = collect($listTWater ?? []);
@@ -369,16 +371,46 @@
                             <h4 style="margin: 0; color: #495057; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); font-weight: 600;">
                                 <i class="fa fa-map-marker" style="color: #007bff; text-shadow: 0 0 5px rgba(0,123,255,0.3);"></i> Mapa de Calor - Calidad del Agua por Institución
                             </h4>
-                            <div style="display: flex; gap: 10px;">
-                                <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa">
-                                    <i class="fa fa-camera"></i> Capturar Mapa
-                                </button>
-                                <button id="testAutoBtn" class="btn btn-warning btn-sm" onclick="testAutomaticCapture()" title="Test de captura automática">
-                                    <i class="fa fa-cogs"></i> Test Auto
-                                </button>
-                                <a href="{{ route('map.history') }}" class="btn btn-info btn-sm" title="Ver historial de mapas capturados">
-                                    <i class="fa fa-history"></i> Historial
-                                </a>
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <!-- Selector de fecha para cambiar periodo -->
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <label style="font-size: 12px; color: #666; white-space: nowrap;">📅 Periodo:</label>
+                                    <select id="monthSelector" class="form-control" style="width: 100px; height: 30px; font-size: 12px;">
+                                        <option value="1" {{ $currentMonthNum == 1 ? 'selected' : '' }}>Enero</option>
+                                        <option value="2" {{ $currentMonthNum == 2 ? 'selected' : '' }}>Febrero</option>
+                                        <option value="3" {{ $currentMonthNum == 3 ? 'selected' : '' }}>Marzo</option>
+                                        <option value="4" {{ $currentMonthNum == 4 ? 'selected' : '' }}>Abril</option>
+                                        <option value="5" {{ $currentMonthNum == 5 ? 'selected' : '' }}>Mayo</option>
+                                        <option value="6" {{ $currentMonthNum == 6 ? 'selected' : '' }}>Junio</option>
+                                        <option value="7" {{ $currentMonthNum == 7 ? 'selected' : '' }}>Julio</option>
+                                        <option value="8" {{ $currentMonthNum == 8 ? 'selected' : '' }}>Agosto</option>
+                                        <option value="9" {{ $currentMonthNum == 9 ? 'selected' : '' }}>Setiembre</option>
+                                        <option value="10" {{ $currentMonthNum == 10 ? 'selected' : '' }}>Octubre</option>
+                                        <option value="11" {{ $currentMonthNum == 11 ? 'selected' : '' }}>Noviembre</option>
+                                        <option value="12" {{ $currentMonthNum == 12 ? 'selected' : '' }}>Diciembre</option>
+                                    </select>
+                                    <select id="yearSelector" class="form-control" style="width: 80px; height: 30px; font-size: 12px;">
+                                        @for($y = date('Y'); $y >= 2020; $y--)
+                                            <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                        @endfor
+                                    </select>
+                                    <button id="changePeriodBtn" class="btn btn-primary btn-sm" onclick="changePeriod()" title="Cambiar a este periodo">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Botones de captura -->
+                                <div style="display: flex; gap: 8px;">
+                                    <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa">
+                                        <i class="fa fa-camera"></i> Capturar
+                                    </button>
+                                    <button id="testAutoBtn" class="btn btn-warning btn-sm" onclick="testAutomaticCapture()" title="Test de captura automática">
+                                        <i class="fa fa-cogs"></i> Test Auto
+                                    </button>
+                                    <a href="{{ route('map.history') }}" class="btn btn-info btn-sm" title="Ver historial de mapas capturados">
+                                        <i class="fa fa-history"></i> Historial
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px; position: relative;">
@@ -830,5 +862,53 @@
                 testBtn.disabled = false;
             });
         }
+        
+        // Función para cambiar periodo del mapa
+        function changePeriod() {
+            const month = document.getElementById('monthSelector').value;
+            const year = document.getElementById('yearSelector').value;
+            const btn = document.getElementById('changePeriodBtn');
+            const originalText = btn.innerHTML;
+            
+            // Cambiar botón a estado de carga
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            // Recargar página con nuevos parámetros
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('month', month);
+            currentUrl.searchParams.set('year', year);
+            
+            window.location.href = currentUrl.toString();
+        }
+        
+        // Mostrar periodo actual en el título si no es el mes actual
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedMonth = urlParams.get('month');
+            const selectedYear = urlParams.get('year');
+            
+            if (selectedMonth && selectedYear) {
+                const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                              'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                const monthName = months[parseInt(selectedMonth)];
+                
+                // Actualizar selectores
+                document.getElementById('monthSelector').value = selectedMonth;
+                document.getElementById('yearSelector').value = selectedYear;
+                
+                // Actualizar título si no es el mes actual
+                const currentMonth = new Date().getMonth() + 1;
+                const currentYear = new Date().getFullYear();
+                
+                if (selectedMonth != currentMonth || selectedYear != currentYear) {
+                    const titleElement = document.querySelector('h4');
+                    if (titleElement) {
+                        const originalTitle = titleElement.innerHTML;
+                        titleElement.innerHTML = originalTitle + ` <span style="color: #ff6b35; font-weight: normal; font-size: 14px;">(Viendo: ${monthName} ${selectedYear})</span>`;
+                    }
+                }
+            }
+        });
     </script>
 @endsection

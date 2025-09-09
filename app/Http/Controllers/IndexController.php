@@ -150,12 +150,16 @@ class IndexController extends Controller
 		return view('home.institution', compact('provinces', 'totalInstitutions'));
 	}
 
-	public function actionIndexAdmin()
+	public function actionIndexAdmin(Request $request)
 	{
-		// Mes actual en texto (como lo guardas en BD) + año actual
+		// Permitir cambiar mes y año via parámetros GET
+		$selectedMonth = $request->get('month', date('m'));
+		$selectedYear = $request->get('year', date('Y'));
+		
+		// Mes en texto (como lo guardas en BD) + año
 		$monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-		$monthName = $monthsEs[(int)date('m') - 1];
-		$year      = date('Y');
+		$monthName = $monthsEs[(int)$selectedMonth - 1];
+		$year = $selectedYear;
 
 		// Usuario logueado (para filtros de Supervisor)
 		$tUser = \App\Models\TUser::find(\Illuminate\Support\Facades\Session::get('idUser'));
@@ -250,8 +254,8 @@ class IndexController extends Controller
 			$listTWater = $q2->orderBy('twater.updated_at', 'desc')->get();
 		}
 
-		// Datos para el mapa de calor
-		$mapData = $this->getMapData();
+		// Datos para el mapa de calor (usando el mes/año seleccionado)
+		$mapData = $this->getMapData($monthName, $year);
 
 		return view('index/indexadmin', compact('listTWater', 'mapData', 'tUser'));
 	}
@@ -558,11 +562,14 @@ class IndexController extends Controller
         return Excel::download(new WithReportingExport($rows, $title), $filename);
     }
 
-    private function getMapData()
+    private function getMapData($monthName = null, $year = null)
     {
-        $monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
-        $monthName = $monthsEs[(int)date('m') - 1];
-        $year = (int)date('Y');
+        // Si no se proporcionan parámetros, usar mes y año actual
+        if (!$monthName || !$year) {
+            $monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+            $monthName = $monthsEs[(int)date('m') - 1];
+            $year = (int)date('Y');
+        }
 
         // Obtener solo instituciones que tienen coordenadas (no NULL)
         $institutions = TInstitution::with(['tdistrict.tprovince', 'tugel'])
