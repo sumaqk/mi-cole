@@ -340,6 +340,9 @@
                                 <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa">
                                     <i class="fa fa-camera"></i> Capturar Mapa
                                 </button>
+                                <button id="testAutoBtn" class="btn btn-warning btn-sm" onclick="testAutomaticCapture()" title="Test de captura automática">
+                                    <i class="fa fa-cogs"></i> Test Auto
+                                </button>
                                 <a href="{{ route('map.history') }}" class="btn btn-info btn-sm" title="Ver historial de mapas capturados">
                                     <i class="fa fa-history"></i> Historial
                                 </a>
@@ -588,7 +591,7 @@
         var globalMap = null;
         
         // Función para capturar mapa con dom-to-image
-        function captureMapScreenshot() {
+        function captureMapScreenshot(isAutomatic = false) {
             const captureBtn = document.getElementById('captureMapBtn');
             const originalText = captureBtn.innerHTML;
             
@@ -625,6 +628,9 @@
                 const formData = new FormData();
                 formData.append('map_screenshot', blob, 'mapa_captura.png');
                 formData.append('_token', '{{ csrf_token() }}');
+                if (isAutomatic) {
+                    formData.append('is_automatic', 'true');
+                }
                 
                 // Enviar al servidor
                 fetch('{{ route("map.capture") }}', {
@@ -634,7 +640,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('✅ Mapa capturado exitosamente!\n\nArchivo: ' + data.filename);
+                        const captureType = isAutomatic ? 'automática' : 'manual';
+                        alert('✅ Mapa capturado exitosamente (' + captureType + ')!\n\nArchivo: ' + data.filename);
                     } else {
                         alert('Error: ' + data.message);
                     }
@@ -653,6 +660,43 @@
                 alert('Error al capturar el mapa: ' + error.message);
                 captureBtn.innerHTML = originalText;
                 captureBtn.disabled = false;
+            });
+        }
+        
+        // Función para test de captura automática
+        function testAutomaticCapture() {
+            const testBtn = document.getElementById('testAutoBtn');
+            const originalText = testBtn.innerHTML;
+            
+            // Cambiar botón a estado de carga
+            testBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Probando...';
+            testBtn.disabled = true;
+            
+            // Llamar al endpoint de test automático
+            fetch('{{ route("map.auto-capture-test") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.action === 'trigger_frontend_capture') {
+                    alert('✅ Test automático iniciado!\n\nAhora se ejecutará la captura marcada como automática...');
+                    // Ejecutar la función de captura pero marcándola como automática
+                    captureMapScreenshot(true);
+                } else {
+                    alert('Error en test automático: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al ejecutar test automático');
+            })
+            .finally(() => {
+                testBtn.innerHTML = originalText;
+                testBtn.disabled = false;
             });
         }
     </script>

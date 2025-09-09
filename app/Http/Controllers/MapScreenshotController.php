@@ -69,6 +69,10 @@ class MapScreenshotController extends Controller
             // Guardar archivo directamente en public/img/mapa
             $file->move($publicMapaDir, $filename);
             
+            // Determinar si es captura automática basado en el parámetro
+            $isAutomatic = $request->has('is_automatic') && $request->get('is_automatic') === 'true';
+            $description = $isAutomatic ? 'Captura automática de test' : 'Captura desde el dashboard';
+            
             // Guardar registro en base de datos
             $screenshot = TMapScreenshot::create([
                 'filename' => $filename,
@@ -77,12 +81,13 @@ class MapScreenshotController extends Controller
                 'year' => $now->year,
                 'month' => $now->month,
                 'month_name' => TMapScreenshot::getSpanishMonthName($now->month),
-                'is_automatic' => false,
-                'description' => 'Captura desde el dashboard',
+                'is_automatic' => $isAutomatic,
+                'description' => $description,
                 'metadata' => [
                     'user_agent' => $request->userAgent(),
                     'ip' => $request->ip(),
-                    'timestamp' => $now->toDateTimeString()
+                    'timestamp' => $now->toDateTimeString(),
+                    'type' => $isAutomatic ? 'automatic_test' : 'manual'
                 ]
             ]);
             
@@ -245,12 +250,13 @@ class MapScreenshotController extends Controller
      */
     public function automaticCapture()
     {
-        if (!TMapScreenshot::isLastDayOfMonth()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hoy no es el último día del mes'
-            ]);
-        }
+        // Para testing, comentamos la validación de último día
+        // if (!TMapScreenshot::isLastDayOfMonth()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Hoy no es el último día del mes'
+        //     ]);
+        // }
         
         try {
             $now = Carbon::now();
@@ -268,12 +274,12 @@ class MapScreenshotController extends Controller
                 ]);
             }
             
-            // Aquí implementarías la lógica para generar la captura automáticamente
-            // Por ejemplo, usando Puppeteer o similar
-            
+            // Solo devolver la señal para que el frontend haga la captura marcándola como automática
             return response()->json([
                 'success' => true,
-                'message' => 'Captura automática programada'
+                'message' => 'Ejecutando test de captura automática',
+                'action' => 'trigger_frontend_capture',
+                'mark_as_automatic' => true
             ]);
             
         } catch (\Exception $e) {
