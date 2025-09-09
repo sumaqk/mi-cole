@@ -108,6 +108,12 @@
             font-family: 'Arial', sans-serif;
             letter-spacing: 0.5px;
         }
+        
+        /* Efectos para el mapa SVG de Apurímac */
+        .apurimac-map-overlay {
+            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3)) 
+                   drop-shadow(-1px -1px 3px rgba(255, 255, 255, 0.2));
+        }
     </style>
 @endsection
 
@@ -529,8 +535,9 @@
             // Agregar el SVG de Apurímac como overlay (coordenadas originales)
             var apurimacBounds = [[-12.59, -71.85], [-15.41111,-74.16]];
             var apurimacOverlay = L.imageOverlay('{{ asset("img/mapa/mapa.svg") }}', apurimacBounds, {
-                opacity: 0.3,
-                interactive: false
+                opacity: 0.4, // Aumentar un poco la opacidad para que se vea mejor con los efectos
+                interactive: false,
+                className: 'apurimac-map-overlay' // Clase CSS para aplicar efectos
             }).addTo(map);
             
             // Ajustar el mapa para que encaje perfectamente en el contenedor
