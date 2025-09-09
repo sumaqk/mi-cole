@@ -294,27 +294,27 @@
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #FF0000; border-radius: 50%; margin-right: 10px;"></span>
-                                    <strong>🔴 CRÍTICO:</strong>&nbsp;&lt; 0.3 mg/L - Riesgo microbiológico muy alto
+                                    <strong>CRÍTICO:</strong>&nbsp;&lt; 0.3 mg/L - Riesgo microbiológico muy alto
                                 </span>
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #FFFF00; border-radius: 50%; margin-right: 10px; border: 1px solid #ccc;"></span>
-                                    <strong>🟡 DEFICIENTE:</strong>&nbsp;0.3 - 0.5 mg/L - Requiere acciones correctivas
+                                    <strong>DEFICIENTE:</strong>&nbsp;0.3 - 0.5 mg/L - Requiere acciones correctivas
                                 </span>
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #00FF00; border-radius: 50%; margin-right: 10px;"></span>
-                                    <strong>🟢 ÓPTIMO:</strong>&nbsp;0.5 - 2.0 mg/L - Cumple normativa peruana
+                                    <strong>ÓPTIMO:</strong>&nbsp;0.5 - 2.0 mg/L - Cumple normativa peruana
                                 </span>
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #0000FF; border-radius: 50%; margin-right: 10px;"></span>
-                                    <strong>🔵 ALTO:</strong>&nbsp;2.0 - 5.0 mg/L - Monitorear sabor/olor
+                                    <strong>ALTO:</strong>&nbsp;2.0 - 5.0 mg/L - Monitorear sabor/olor
                                 </span>
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #800080; border-radius: 50%; margin-right: 10px;"></span>
-                                    <strong>🟣 EXCESIVO:</strong>&nbsp;&gt; 5.0 mg/L - Incumple DS 031-2010-SA
+                                    <strong>EXCESIVO:</strong>&nbsp;&gt; 5.0 mg/L - Incumple DS 031-2010-SA
                                 </span>
                                 <span style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #808080; border-radius: 50%; margin-right: 10px;"></span>
-                                    <strong>⚪ SIN DATOS:</strong>&nbsp;No hay registros del mes actual
+                                    <strong>SIN DATOS:</strong>&nbsp;No hay registros del mes actual
                                 </span>
                             </div>
                         </div>
@@ -421,6 +421,13 @@
             // Agregar capa base de OpenStreetMap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Agregar el SVG de Apurímac como overlay
+            var apurimacBounds = [[-12.59, -71.85], [-15.41111,-74.16]];
+            var apurimacOverlay = L.imageOverlay('{{ asset("img/mapa/mapa.svg") }}', apurimacBounds, {
+                opacity: 0.3,
+                interactive: false
             }).addTo(map);
             
             // Datos del servidor (base de datos)

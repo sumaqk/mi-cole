@@ -91,7 +91,16 @@
 			<section class="sidebar">
 				<div class="user-panel">
 					<div class="pull-left image" style="background-color: #ffffff;border-radius: 10px;box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5) inset;padding: 1px;overflow: hidden;">
-						<img src="{{asset('img/'.(($tConfigurationFmMdl!=null && $tConfigurationFmMdl->blackLogoMinimalExtension!='') ? ('logo/'.$tConfigurationFmMdl->idConfiguration.'-blackLogoMinimal.'.$tConfigurationFmMdl->blackLogoMinimalExtension) : 'general/logoMinimoNegro.png'))}}?x={{$tConfigurationFmMdl!=null ? str_replace(':', '-', str_replace(' ', '_', $tConfigurationFmMdl->updated_at)) : config('var.CACHE_LAST_UPDATE')}}" alt="">
+						@php
+							$logoPath = 'general/logoMinimoNegro.png';
+							if($tConfigurationFmMdl!=null && $tConfigurationFmMdl->blackLogoMinimalExtension!='') {
+								$customLogoPath = 'logo/'.$tConfigurationFmMdl->idConfiguration.'-blackLogoMinimal.'.$tConfigurationFmMdl->blackLogoMinimalExtension;
+								if(file_exists(public_path('img/'.$customLogoPath))) {
+									$logoPath = $customLogoPath;
+								}
+							}
+						@endphp
+						<img src="{{asset('img/'.$logoPath)}}?x={{$tConfigurationFmMdl!=null ? str_replace(':', '-', str_replace(' ', '_', $tConfigurationFmMdl->updated_at)) : config('var.CACHE_LAST_UPDATE')}}" alt="">
 					</div>
 					<div class="pull-left info">
 						<p>{{mb_substr(Session::get('fullName', 'Anónimo'), 0, 12)}}</p>
