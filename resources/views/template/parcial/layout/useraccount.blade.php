@@ -1,11 +1,15 @@
 <li class="dropdown user user-menu">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-		<img src="{{asset('img/avatar/'.Session::get('idUser').'.'.Session::get('avatarExtension').'?x='.str_replace(' ', '_', str_replace(':', '-', Session::get('lastUpdate'))))}}" class="user-image" style="background-color: #ffffff;" alt="">
+		@php
+			$userAvatar = 'avatar/'.Session::get('idUser').'.'.Session::get('avatarExtension');
+			$avatarPath = file_exists(public_path('img/'.$userAvatar)) ? $userAvatar : 'avatar/user.png';
+		@endphp
+		<img src="{{asset('img/'.$avatarPath.'?x='.str_replace(' ', '_', str_replace(':', '-', Session::get('lastUpdate'))))}}" class="user-image" style="background-color: #ffffff;" alt="">
 		<span class="hidden-xs">{{mb_substr(Session::get('fullName', 'Anónimo'), 0, 12)}}</span>
 	</a>
 	<ul class="dropdown-menu">
 		<li class="user-header">
-			<img src="{{asset('img/avatar/'.Session::get('idUser').'.'.Session::get('avatarExtension').'?x='.str_replace(' ', '_', str_replace(':', '-', Session::get('lastUpdate'))))}}" class="img-circle" style="background-color: #ffffff;" alt="">
+			<img src="{{asset('img/'.$avatarPath.'?x='.str_replace(' ', '_', str_replace(':', '-', Session::get('lastUpdate'))))}}" class="img-circle" style="background-color: #ffffff;" alt="">
 			<p>
 				{{mb_substr(Session::get('fullName', 'Anónimo'), 0, 12)}}
 				<small>{{Session::get('mainRole', 'Acceso público')}}</small>
