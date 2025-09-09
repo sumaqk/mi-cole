@@ -70,8 +70,6 @@ Route::post('map/capture', [MapScreenshotController::class, 'capture'])->middlew
 Route::get('map/history', [MapScreenshotController::class, 'history'])->middleware('GenericMiddleware:index/indexadmin')->name('map.history');
 Route::delete('map/delete/{id}', [MapScreenshotController::class, 'delete'])->middleware('GenericMiddleware:index/indexadmin')->name('map.delete');
 Route::get('map/export-excel', [MapScreenshotController::class, 'exportWithMap'])->middleware('GenericMiddleware:index/indexadmin')->name('map.export-excel');
-Route::post('map/auto-capture-test', [MapScreenshotController::class, 'automaticCapture'])->middleware('GenericMiddleware:index/indexadmin')->name('map.auto-capture-test');
-Route::get('map/automatic-capture', [MapScreenshotController::class, 'automaticCapture'])->name('map.automatic-capture');
 
 Route::get('general/privacy', [GeneralController::class, 'actionPrivacy'])->middleware('GenericMiddleware:general/privacy');
 Route::get('general/accesserror', [GeneralController::class, 'actionAccessError'])->middleware('GenericMiddleware:general/accesserror');
