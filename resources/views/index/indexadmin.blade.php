@@ -47,6 +47,55 @@
             color: #fff;
             text-align: center
         }
+        
+        /* Estilos para el mapa de calor */
+        #heatMap {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+        
+        #heatMap:hover {
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+            border-color: #007bff;
+        }
+        
+        /* Efecto de resplandor para marcadores del mapa */
+        .leaflet-marker-icon {
+            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+        
+        .leaflet-marker-icon:hover {
+            filter: drop-shadow(0 0 8px rgba(0, 123, 255, 0.6));
+            transform: scale(1.1);
+        }
+        
+        /* Estilos para marcadores personalizados */
+        .custom-marker {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+        
+        /* Animación de pulsación para marcadores */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+        
+        /* Estilo de la leyenda mejorado */
+        .legend-item {
+            transition: all 0.2s ease;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        
+        .legend-item:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+            transform: translateX(2px);
+        }
     </style>
 @endsection
 
@@ -283,37 +332,50 @@
             <div class="row" style="margin-top: 20px;">
                 <div class="col-sm-12">
                     <div class="stat-card">
-                        <h4 style="margin: 0 0 15px 0; color: #495057;">
-                            <i class="fa fa-map-marker"></i> Mapa de Calor - Calidad del Agua por Institución
-                        </h4>
-                        <div id="heatMap" style="height: 500px; border: 1px solid #ddd; border-radius: 5px;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0; color: #495057; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); font-weight: 600;">
+                                <i class="fa fa-map-marker" style="color: #007bff; text-shadow: 0 0 5px rgba(0,123,255,0.3);"></i> Mapa de Calor - Calidad del Agua por Institución
+                            </h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button id="captureMapBtn" class="btn btn-success btn-sm" onclick="captureMapScreenshot()" title="Capturar screenshot del mapa (html2canvas)">
+                                    <i class="fa fa-camera"></i> Capturar Mapa
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="captureMapWithNativeAPI()" title="Captura perfecta usando API del navegador">
+                                    <i class="fa fa-desktop"></i> Captura Nativa
+                                </button>
+                                <a href="{{ route('map.history') }}" class="btn btn-info btn-sm" title="Ver historial de mapas capturados">
+                                    <i class="fa fa-history"></i> Historial
+                                </a>
+                            </div>
+                        </div>
+                        <div id="heatMap" style="height: 70vh; min-height: 600px; border: 1px solid #ddd; border-radius: 5px;"></div>
                         
                         <!-- Leyenda -->
                         <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
                             <h5 style="margin: 0 0 15px 0;">Leyenda de Calidad del Agua (MCR - mg/L):</h5>
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px;">
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #FF0000; border-radius: 50%; margin-right: 10px;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #FF0000; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);"></span>
                                     <strong>CRÍTICO:</strong>&nbsp;&lt; 0.3 mg/L - Riesgo microbiológico muy alto
                                 </span>
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #FFFF00; border-radius: 50%; margin-right: 10px; border: 1px solid #ccc;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #FF8C00; border-radius: 50%; margin-right: 10px; border: 1px solid #ccc; box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);"></span>
                                     <strong>DEFICIENTE:</strong>&nbsp;0.3 - 0.5 mg/L - Requiere acciones correctivas
                                 </span>
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #00FF00; border-radius: 50%; margin-right: 10px;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #00FF00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);"></span>
                                     <strong>ÓPTIMO:</strong>&nbsp;0.5 - 2.0 mg/L - Cumple normativa peruana
                                 </span>
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #0000FF; border-radius: 50%; margin-right: 10px;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #0000FF; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(0, 0, 255, 0.4);"></span>
                                     <strong>ALTO:</strong>&nbsp;2.0 - 5.0 mg/L - Monitorear sabor/olor
                                 </span>
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #800080; border-radius: 50%; margin-right: 10px;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #800080; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(128, 0, 128, 0.4);"></span>
                                     <strong>EXCESIVO:</strong>&nbsp;&gt; 5.0 mg/L - Incumple DS 031-2010-SA
                                 </span>
-                                <span style="display: flex; align-items: center; font-size: 13px;">
-                                    <span style="width: 18px; height: 18px; background-color: #808080; border-radius: 50%; margin-right: 10px;"></span>
+                                <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
+                                    <span style="width: 18px; height: 18px; background-color: #808080; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(128, 128, 128, 0.4);"></span>
                                     <strong>SIN DATOS:</strong>&nbsp;No hay registros del mes actual
                                 </span>
                             </div>
@@ -353,6 +415,9 @@
     <!-- Leaflet CSS y JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- html2canvas para capturar screenshots -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('plugin/adminlte/bower_components/chart.js/Chart.js') }}"></script>
@@ -415,20 +480,51 @@
             var mapContainer = document.getElementById('heatMap');
             if (!mapContainer) return;
 
-            // Inicializar mapa centrado en Apurímac
-            var map = L.map('heatMap').setView([-13.8, -72.8], 9);
+            // Inicializar mapa centrado en Apurímac con zoom más cercano
+            var map = L.map('heatMap').setView([-13.8, -72.8], 8);
+            globalMap = map; // Asignar a variable global
             
-            // Agregar capa base de OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            // Definir diferentes tipos de mapas disponibles
+            var baseMaps = {
+                "🗺️ OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }),
+                "🛰️ Satélite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics'
+                }),
+                "🌍 Terreno": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenTopoMap (CC-BY-SA)'
+                }),
+                "🌙 Modo Oscuro": L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                    attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors'
+                }),
+                "🎨 Acuarela": L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+                    subdomains: 'abcd',
+                    attribution: '© Stamen Design © OpenStreetMap contributors'
+                }),
+                "📍 CartoDB": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap contributors © CARTO',
+                    subdomains: 'abcd'
+                })
+            };
             
-            // Agregar el SVG de Apurímac como overlay
+            // Agregar capa base por defecto (OpenStreetMap)
+            baseMaps["🗺️ OpenStreetMap"].addTo(map);
+            
+            // Agregar control de capas para cambiar tipos de mapa
+            L.control.layers(baseMaps).addTo(map);
+            
+            // Agregar el SVG de Apurímac como overlay (coordenadas originales)
             var apurimacBounds = [[-12.59, -71.85], [-15.41111,-74.16]];
             var apurimacOverlay = L.imageOverlay('{{ asset("img/mapa/mapa.svg") }}', apurimacBounds, {
                 opacity: 0.3,
                 interactive: false
             }).addTo(map);
+            
+            // Ajustar el mapa para que encaje perfectamente en el contenedor
+            map.fitBounds(apurimacBounds, {
+                padding: [20, 20] // Un poco de margen alrededor
+            });
             
             // Datos del servidor (base de datos)
             var mapData = @json($mapData ?? []);
@@ -436,14 +532,33 @@
             // Agregar marcadores para cada institución
             mapData.forEach(function(inst) {
                         
-                        // Crear marcador circular con color según estado
+                        // Crear marcador circular con color según estado y efectos visuales
                         var marker = L.circleMarker([inst.lat, inst.lng], {
-                            color: inst.color,
+                            color: '#ffffff',
                             fillColor: inst.color,
-                            fillOpacity: 0.8,
-                            radius: 10,
-                            weight: 2
+                            fillOpacity: 0.9,
+                            radius: 12,
+                            weight: 3,
+                            opacity: 1,
+                            className: 'custom-marker'
                         }).addTo(map);
+                        
+                        // Agregar efecto de pulsación
+                        marker.on('mouseover', function(e) {
+                            e.target.setStyle({
+                                radius: 16,
+                                fillOpacity: 1,
+                                weight: 4
+                            });
+                        });
+                        
+                        marker.on('mouseout', function(e) {
+                            e.target.setStyle({
+                                radius: 12,
+                                fillOpacity: 0.9,
+                                weight: 3
+                            });
+                        });
                         
                         // Popup con información detallada
                         marker.bindPopup(`
@@ -471,5 +586,150 @@
                     });
         })();
         @endif
+
+        // Variable global para el mapa
+        var globalMap = null;
+        
+        // Función para capturar SOLO el mapa (no las cards)
+        function captureMapScreenshot() {
+            const captureBtn = document.getElementById('captureMapBtn');
+            const originalText = captureBtn.innerHTML;
+            
+            // Cambiar botón a estado de carga
+            captureBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Capturando...';
+            captureBtn.disabled = true;
+            
+            // Obtener SOLO el contenedor del mapa (no toda la card)
+            const mapContainer = document.getElementById('heatMap');
+            
+            if (!mapContainer) {
+                alert('Error: No se encontró el mapa');
+                captureBtn.innerHTML = originalText;
+                captureBtn.disabled = false;
+                return;
+            }
+            
+            // Verificar que el mapa tenga contenido
+            const hasMapContent = mapContainer.querySelector('.leaflet-map-pane');
+            if (!hasMapContent) {
+                alert('Error: El mapa aún no está completamente cargado. Espera unos segundos e intenta de nuevo.');
+                captureBtn.innerHTML = originalText;
+                captureBtn.disabled = false;
+                return;
+            }
+            
+            // Esperar un poco para que se carguen todos los tiles
+            setTimeout(() => {
+                // Configuración simple para capturar mejor el mapa
+                html2canvas(mapContainer, {
+                    useCORS: false,
+                    allowTaint: true,
+                    scale: 1.5,
+                    backgroundColor: '#ffffff',
+                    logging: true,
+                    ignoreElements: (element) => {
+                        // Ignorar controles de zoom y otros elementos problemáticos
+                        return element.classList.contains('leaflet-control-zoom') ||
+                               element.classList.contains('leaflet-control-layers') ||
+                               element.classList.contains('leaflet-attribution-flag');
+                    },
+                    windowWidth: mapContainer.scrollWidth,
+                    windowHeight: mapContainer.scrollHeight,
+                    // No usar onclone para evitar problemas
+                }).then(canvas => {
+                    // Convertir a blob y enviar al servidor
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('map_screenshot', blob, `mapa_${new Date().getTime()}.png`);
+                        formData.append('_token', '{{ csrf_token() }}');
+                        
+                        fetch('{{ route("map.capture") }}', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('¡Mapa capturado exitosamente! Se guardó como: ' + data.filename);
+                            } else {
+                                alert('Error al guardar la captura: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al procesar la captura');
+                        })
+                        .finally(() => {
+                            // Restaurar botón
+                            captureBtn.innerHTML = originalText;
+                            captureBtn.disabled = false;
+                        });
+                    }, 'image/png', 0.9);
+                }).catch(error => {
+                    console.error('Error capturing map:', error);
+                    alert('Error al capturar el mapa: ' + error.message);
+                    
+                    // Restaurar botón
+                    captureBtn.innerHTML = originalText;
+                    captureBtn.disabled = false;
+                });
+            }, 1500); // Esperar 1.5 segundos para que se carguen los tiles
+        }
+
+        // Función alternativa usando la API nativa del navegador (mejor para mapas)
+        function captureMapWithNativeAPI() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                alert('Tu navegador no soporta captura de pantalla nativa. Usa el botón "Capturar Mapa" normal.');
+                return;
+            }
+            
+            alert('Se abrirá el selector de captura de pantalla del navegador. Selecciona la pestaña del mapa para una captura perfecta.');
+            
+            navigator.mediaDevices.getDisplayMedia({
+                video: {
+                    mediaSource: 'screen'
+                }
+            }).then(stream => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                
+                video.addEventListener('loadedmetadata', () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    ctx.drawImage(video, 0, 0);
+                    
+                    // Detener la captura
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Convertir y enviar
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        formData.append('map_screenshot', blob, `mapa_nativo_${new Date().getTime()}.png`);
+                        formData.append('_token', '{{ csrf_token() }}');
+                        
+                        fetch('{{ route("map.capture") }}', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('¡Captura nativa exitosa! Se guardó como: ' + data.filename);
+                            } else {
+                                alert('Error al guardar: ' + data.message);
+                            }
+                        });
+                    }, 'image/png', 0.9);
+                });
+            }).catch(err => {
+                console.log('Error:', err);
+                alert('Captura cancelada o no permitida');
+            });
+        }
     </script>
 @endsection

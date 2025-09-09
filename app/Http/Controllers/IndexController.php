@@ -607,7 +607,7 @@ class IndexController extends Controller
                     $status = 'CRÍTICO';
                     $description = 'Por debajo del mínimo absoluto - Riesgo microbiológico muy alto';
                 } elseif ($average >= 0.3 && $average < 0.5) {
-                    $color = '#FFFF00'; // 🟡 Amarillo - DEFICIENTE
+                    $color = '#FF8C00'; // 🟠 Naranja - DEFICIENTE
                     $status = 'DEFICIENTE';
                     $description = 'Entre mínimo absoluto y obligatorio - Requiere acciones correctivas';
                 } elseif ($average >= 0.5 && $average <= 2.0) {

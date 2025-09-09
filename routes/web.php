@@ -12,6 +12,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\InstitutionController;
 use App\Http\Controllers\UgelController;
 use App\Http\Controllers\ContenidoWebController;
+use App\Http\Controllers\MapScreenshotController;
 
 Route::get('archivos/{path}', function ($path) {
     $file = public_path('archivos/' . $path);
@@ -61,8 +62,14 @@ Route::get(
 )->middleware('GenericMiddleware:water/export-withreporting')
  ->name('water.exportWithReporting');
 
-Route::get('index/indexadmin/{year?}/{month?}', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
+Route::get('index/indexadmin/{year?}/{month?}', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin')->name('index.admin');
 Route::post('index/indexadmin', [IndexController::class, 'actionIndexAdmin'])->middleware('GenericMiddleware:index/indexadmin');
+
+// Rutas para captura y manejo de mapas
+Route::post('map/capture', [MapScreenshotController::class, 'capture'])->middleware('GenericMiddleware:index/indexadmin')->name('map.capture');
+Route::get('map/history', [MapScreenshotController::class, 'history'])->middleware('GenericMiddleware:index/indexadmin')->name('map.history');
+Route::get('map/export-excel', [MapScreenshotController::class, 'exportWithMap'])->middleware('GenericMiddleware:index/indexadmin')->name('map.export-excel');
+Route::get('map/automatic-capture', [MapScreenshotController::class, 'automaticCapture'])->name('map.automatic-capture');
 
 Route::get('general/privacy', [GeneralController::class, 'actionPrivacy'])->middleware('GenericMiddleware:general/privacy');
 Route::get('general/accesserror', [GeneralController::class, 'actionAccessError'])->middleware('GenericMiddleware:general/accesserror');
