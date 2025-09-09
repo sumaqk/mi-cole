@@ -179,7 +179,14 @@
                                         <div style="text-align: left; flex: 1;">
                                             <small class="text-muted">
                                                 <strong>Capturado:</strong> {{ $screenshot->capture_date->format('d/m/Y H:i') }}<br>
-                                                <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}
+                                                <strong>Tipo:</strong> {{ $screenshot->is_automatic ? 'Automática' : 'Manual' }}<br>
+                                                <strong>Colaboración:</strong> 
+                                                <a href="https://leafletjs.com/" target="_blank" rel="noopener" style="color: #28a745; text-decoration: none;">
+                                                    <i class="fa fa-external-link" style="font-size: 10px;"></i> Leaflet
+                                                </a> y 
+                                                <a href="https://github.com/hectorfd" target="_blank" rel="noopener" style="color: #007bff; text-decoration: none;">
+                                                    <i class="fa fa-external-link" style="font-size: 10px;"></i> HectorFD
+                                                </a>
                                             </small>
                                         </div>
                                         <a href="{{ asset($screenshot->filepath) }}" 

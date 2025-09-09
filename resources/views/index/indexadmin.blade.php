@@ -112,6 +112,18 @@
             letter-spacing: 0.5px;
         }
         
+        /* Marca de agua para capturas */
+        .watermark {
+            pointer-events: none; /* No interfiere con el mapa */
+            user-select: none; /* No se puede seleccionar */
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+        
+        #heatMap:hover .watermark {
+            opacity: 0.6; /* Se hace más transparente al hacer hover en el mapa */
+        }
+        
         /* Efectos para el mapa SVG de Apurímac */
         .apurimac-map-overlay {
             filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3)) 
@@ -369,7 +381,12 @@
                                 </a>
                             </div>
                         </div>
-                        <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px;"></div>
+                        <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px; position: relative;">
+                            <!-- Marca de agua para capturas -->
+                            <div class="watermark" style="position: absolute; bottom: 8px; right: 8px; z-index: 2000; background: rgba(255,255,255,0.9); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: #555; font-family: Arial, sans-serif; border: 1px solid rgba(200,200,200,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.15); white-space: nowrap;">
+                                Fuente: Mi Cole Con Agua Segura
+                            </div>
+                        </div>
                         
                         <!-- Leyenda -->
                         <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
