@@ -152,14 +152,26 @@ class IndexController extends Controller
 
 	public function actionIndexAdmin(Request $request)
 	{
-		// Permitir cambiar mes y año via parámetros GET
+		// Permitir cambiar mes, año y semana via parámetros GET
 		$selectedMonth = $request->get('month', date('m'));
 		$selectedYear = $request->get('year', date('Y'));
+		$selectedWeek = $request->get('week', null);
 		
 		// Mes en texto (como lo guardas en BD) + año
 		$monthsEs = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 		$monthName = $monthsEs[(int)$selectedMonth - 1];
 		$year = $selectedYear;
+		
+		// Calcular semana actual del mes si no se especifica
+		if (!$selectedWeek) {
+			$today = date('Y-m-d');
+			$firstOfMonth = date('Y-m-01', strtotime($today));
+			$currentWeek = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+			if ($currentWeek < 1) $currentWeek = 1;
+			if ($currentWeek > 5) $currentWeek = 5;
+		} else {
+			$currentWeek = (int) $selectedWeek;
+		}
 
 		// Usuario logueado (para filtros de Supervisor)
 		$tUser = \App\Models\TUser::find(\Illuminate\Support\Facades\Session::get('idUser'));
@@ -254,8 +266,8 @@ class IndexController extends Controller
 			$listTWater = $q2->orderBy('twater.updated_at', 'desc')->get();
 		}
 
-		// Datos para el mapa de calor (usando el mes/año seleccionado)
-		$mapData = $this->getMapData($monthName, $year);
+		// Datos para el mapa de calor (usando el mes/año/semana seleccionados)
+		$mapData = $this->getMapData($monthName, $year, $currentWeek);
 
 		return view('index/indexadmin', compact('listTWater', 'mapData', 'tUser'));
 	}
@@ -562,13 +574,21 @@ class IndexController extends Controller
         return Excel::download(new WithReportingExport($rows, $title), $filename);
     }
 
-    private function getMapData($monthName = null, $year = null)
+    private function getMapData($monthName = null, $year = null, $week = null)
     {
-        // Si no se proporcionan parámetros, usar mes y año actual
+        // Si no se proporcionan parámetros, usar mes, año y semana actual
         if (!$monthName || !$year) {
             $monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
             $monthName = $monthsEs[(int)date('m') - 1];
             $year = (int)date('Y');
+        }
+        
+        if (!$week) {
+            $today = date('Y-m-d');
+            $firstOfMonth = date('Y-m-01', strtotime($today));
+            $week = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+            if ($week < 1) $week = 1;
+            if ($week > 5) $week = 5;
         }
 
         // Obtener solo instituciones que tienen coordenadas (no NULL)
@@ -586,42 +606,37 @@ class IndexController extends Controller
                               ->orderBy('updated_at', 'desc')
                               ->first();
             
-            $average = 0;
+            $weekValue = 0;
             $hasData = false;
             
             if ($waterData) {
-                $sum = 0;
-                $count = 0;
-                for ($i = 1; $i <= 5; $i++) {
-                    $field = "resultW{$i}";
-                    if ($waterData->$field != -1) {
-                        $sum += $waterData->$field;
-                        $count++;
-                        $hasData = true;
-                    }
+                // Obtener el valor específico de la semana seleccionada
+                $field = "resultW{$week}";
+                if (isset($waterData->$field) && $waterData->$field != -1) {
+                    $weekValue = (float) $waterData->$field;
+                    $hasData = true;
                 }
-                $average = $count > 0 ? round($sum / $count, 2) : 0;
             }
 
             // Determinar color según rangos específicos de MCR
             $color = '#808080'; // Gris por defecto (sin datos)
             $status = 'Sin datos';
-            $description = 'No hay registros del mes actual';
+            $description = "No hay registros de la semana {$week}";
             
-            if ($hasData && $average > 0) {
-                if ($average < 0.3) {
+            if ($hasData && $weekValue > 0) {
+                if ($weekValue < 0.3) {
                     $color = '#FF0000'; // 🔴 Rojo - CRÍTICO
                     $status = 'CRÍTICO';
                     $description = 'Por debajo del mínimo absoluto - Riesgo microbiológico muy alto';
-                } elseif ($average >= 0.3 && $average < 0.5) {
+                } elseif ($weekValue >= 0.3 && $weekValue < 0.5) {
                     $color = '#FF8C00'; // 🟠 Naranja - DEFICIENTE
                     $status = 'DEFICIENTE';
                     $description = 'Entre mínimo absoluto y obligatorio - Requiere acciones correctivas';
-                } elseif ($average >= 0.5 && $average <= 2.0) {
+                } elseif ($weekValue >= 0.5 && $weekValue <= 2.0) {
                     $color = '#00FF00'; // 🟢 Verde - ÓPTIMO
                     $status = 'ÓPTIMO';
                     $description = 'Rango operacional ideal - Cumple normativa peruana';
-                } elseif ($average > 2.0 && $average <= 5.0) {
+                } elseif ($weekValue > 2.0 && $weekValue <= 5.0) {
                     $color = '#0000FF'; // 🔵 Azul - ALTO
                     $status = 'ALTO';
                     $description = 'Nivel alto pero dentro de norma - Monitorear sabor/olor';
@@ -636,7 +651,8 @@ class IndexController extends Controller
                 'name' => $institution->name,
                 'lat' => (float)$institution->latitude,
                 'lng' => (float)$institution->longitude,
-                'average' => $average,
+                'weekValue' => $weekValue,
+                'week' => $week,
                 'status' => $status,
                 'color' => $color,
                 'description' => $description,

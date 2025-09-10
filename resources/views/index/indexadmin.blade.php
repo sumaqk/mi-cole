@@ -152,9 +152,21 @@
         ];
         $selectedMonth = request('month', date('m'));
         $selectedYear = request('year', date('Y'));
+        $selectedWeek = request('week', null);
         $currentMonthNum = (int) $selectedMonth;
         $currentYear = (int) $selectedYear;
         $currentMonthName = $monthsEs[$currentMonthNum - 1];
+        
+        // Calcular semana actual del mes si no se especifica
+        if (!$selectedWeek) {
+            $today = date('Y-m-d');
+            $firstOfMonth = date('Y-m-01', strtotime($today));
+            $currentWeek = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+            if ($currentWeek < 1) $currentWeek = 1;
+            if ($currentWeek > 5) $currentWeek = 5;
+        } else {
+            $currentWeek = (int) $selectedWeek;
+        }
 
         $allRows = collect($listTWater ?? []);
 
@@ -226,9 +238,9 @@
 
             <div class="row" style="margin-bottom:10px">
                 <div class="col-sm-12">
-                    <h3 style="margin:10px 0 6px;">Datos del mes actual: <strong>{{ $currentMonthName }}
-                            {{ $currentYear }}</strong></h3>
-                    <div style="color:#6b7280">Sistema “Mi Cole con Agua”</div>
+                    <h3 style="margin:10px 0 6px;">Datos del periodo: <strong>{{ $currentMonthName }}
+                            {{ $currentYear }} - Semana {{ $currentWeek }}</strong></h3>
+                    <div style="color:#6b7280">Sistema "Mi Cole con Agua" (mostrando datos reales por semana)</div>
                 </div>
             </div>
 
@@ -369,7 +381,7 @@
                     <div class="stat-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <h4 style="margin: 0; color: #495057; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); font-weight: 600;">
-                                <i class="fa fa-map-marker" style="color: #007bff; text-shadow: 0 0 5px rgba(0,123,255,0.3);"></i> Mapa de Calor - Calidad del Agua por Institución
+                                <i class="fa fa-map-marker" style="color: #007bff; text-shadow: 0 0 5px rgba(0,123,255,0.3);"></i> Mapa de Calor
                             </h4>
                             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                 <!-- Selector de fecha para cambiar periodo -->
@@ -394,8 +406,15 @@
                                             <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
                                         @endfor
                                     </select>
+                                    <select id="weekSelector" class="form-control" style="width: 100px; height: 30px; font-size: 12px;">
+                                        <option value="1" {{ $currentWeek == 1 ? 'selected' : '' }}>Semana 1</option>
+                                        <option value="2" {{ $currentWeek == 2 ? 'selected' : '' }}>Semana 2</option>
+                                        <option value="3" {{ $currentWeek == 3 ? 'selected' : '' }}>Semana 3</option>
+                                        <option value="4" {{ $currentWeek == 4 ? 'selected' : '' }}>Semana 4</option>
+                                        <option value="5" {{ $currentWeek == 5 ? 'selected' : '' }}>Semana 5</option>
+                                    </select>
                                     <button id="changePeriodBtn" class="btn btn-primary btn-sm" onclick="changePeriod()" title="Cambiar a este periodo">
-                                        <i class="fa fa-refresh"></i>
+                                        <i class="fa fa-paper-plane"> Visualizar Resultados</i>
                                     </button>
                                 </div>
                                 
@@ -443,7 +462,7 @@
                                 </span>
                                 <span class="legend-item" style="display: flex; align-items: center; font-size: 13px;">
                                     <span style="width: 18px; height: 18px; background-color: #808080; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(128, 128, 128, 0.4);"></span>
-                                    <strong>SIN DATOS:</strong>&nbsp;No hay registros del mes actual
+                                    <strong>SIN DATOS:</strong>&nbsp;No hay registros para la semana seleccionada
                                 </span>
                             </div>
                         </div>
@@ -725,7 +744,7 @@
                                     <tr><td><b>Prestador:</b></td><td>${inst.lender}</td></tr>
                                     <tr><td><b>Distrito:</b></td><td>${inst.district}</td></tr>
                                     <tr><td><b>Provincia:</b></td><td>${inst.province}</td></tr>
-                                    <tr><td><b>MCR Promedio:</b></td><td>${inst.average} mg/L</td></tr>
+                                    <tr><td><b>MCR Semana ${inst.week}:</b></td><td>${inst.weekValue > 0 ? inst.weekValue : 'Sin dato'} ${inst.weekValue > 0 ? 'mg/L' : ''}</td></tr>
                                 </table>
                                 <div style="padding: 8px; background-color: ${inst.color}20; border-left: 4px solid ${inst.color}; border-radius: 3px;">
                                     <div style="color: ${inst.color}; font-weight: bold; font-size: 13px; margin-bottom: 5px;">
@@ -814,13 +833,15 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const dataMonth = urlParams.get('month') || '{{ $currentMonthNum }}';
                 const dataYear = urlParams.get('year') || '{{ $currentYear }}';
+                const dataWeek = urlParams.get('week') || '{{ $currentWeek }}';
                 const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                               'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
                 const dataMonthName = months[parseInt(dataMonth)];
                 
                 formData.append('data_period_month', dataMonth);
                 formData.append('data_period_year', dataYear);
-                formData.append('data_period_name', dataMonthName);
+                formData.append('data_period_week', dataWeek);
+                formData.append('data_period_name', dataMonthName + ' - Semana ' + dataWeek);
                 
                 if (isAutomatic) {
                     formData.append('is_automatic', 'true');
@@ -911,13 +932,14 @@
             const urlParams = new URLSearchParams(window.location.search);
             const dataMonth = urlParams.get('month') || '{{ $currentMonthNum }}';
             const dataYear = urlParams.get('year') || '{{ $currentYear }}';
+            const dataWeek = urlParams.get('week') || '{{ $currentWeek }}';
             const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                           'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             const dataMonthName = months[parseInt(dataMonth)];
             
             // Actualizar contenido del modal
             document.getElementById('filenameText').textContent = filename;
-            document.getElementById('dataPeriodText').textContent = dataMonthName + ' ' + dataYear;
+            document.getElementById('dataPeriodText').textContent = dataMonthName + ' ' + dataYear + ', Semana ' + dataWeek;
             
             // Mostrar modal
             $('#captureSuccessModal').modal('show');
@@ -927,6 +949,7 @@
         function changePeriod() {
             const month = document.getElementById('monthSelector').value;
             const year = document.getElementById('yearSelector').value;
+            const week = document.getElementById('weekSelector').value;
             const btn = document.getElementById('changePeriodBtn');
             const originalText = btn.innerHTML;
             
@@ -938,6 +961,7 @@
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('month', month);
             currentUrl.searchParams.set('year', year);
+            currentUrl.searchParams.set('week', week);
             
             window.location.href = currentUrl.toString();
         }
@@ -947,6 +971,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const selectedMonth = urlParams.get('month');
             const selectedYear = urlParams.get('year');
+            const selectedWeek = urlParams.get('week');
             
             if (selectedMonth && selectedYear) {
                 const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
@@ -956,16 +981,20 @@
                 // Actualizar selectores
                 document.getElementById('monthSelector').value = selectedMonth;
                 document.getElementById('yearSelector').value = selectedYear;
+                if (selectedWeek) {
+                    document.getElementById('weekSelector').value = selectedWeek;
+                }
                 
-                // Actualizar título si no es el mes actual
+                // Actualizar título si no es el mes actual o mostrar semana seleccionada
                 const currentMonth = new Date().getMonth() + 1;
                 const currentYear = new Date().getFullYear();
+                const currentWeekDisplay = selectedWeek || '{{ $currentWeek }}';
                 
-                if (selectedMonth != currentMonth || selectedYear != currentYear) {
-                    const titleElement = document.querySelector('h4');
-                    if (titleElement) {
-                        const originalTitle = titleElement.innerHTML;
-                        titleElement.innerHTML = originalTitle + ` <span style="color: #ff6b35; font-weight: normal; font-size: 14px;">(Viendo: ${monthName} ${selectedYear})</span>`;
+                const titleElement = document.querySelector('h4');
+                if (titleElement) {
+                    const originalTitle = titleElement.innerHTML;
+                    if (selectedMonth != currentMonth || selectedYear != currentYear || selectedWeek) {
+                        titleElement.innerHTML = originalTitle + ` <span style="color: #ff6b35; font-weight: normal; font-size: 14px;">(Viendo: ${monthName} ${selectedYear}, Semana ${currentWeekDisplay})</span>`;
                     }
                 }
             }
