@@ -126,8 +126,13 @@
         
         /* Efectos para el mapa SVG de Apurímac */
         .apurimac-map-overlay {
-            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3)) 
+            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3))
                    drop-shadow(-1px -1px 3px rgba(255, 255, 255, 0.2));
+        }
+
+        /* Ocultar atribución automática de Leaflet */
+        .leaflet-control-attribution {
+            display: none !important;
         }
     </style>
 @endsection
@@ -432,7 +437,7 @@
                         <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px; position: relative;">
                             <!-- Marca de agua para capturas -->
                             <div class="watermark" style="position: absolute; bottom: 8px; right: 8px; z-index: 2000; background: rgba(255,255,255,0.9); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: #555; font-family: Arial, sans-serif; border: 1px solid rgba(200,200,200,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.15); white-space: nowrap;">
-                                Fuente: Mi Cole Con Agua Segura
+                                Fuente: Mi Cole Con Agua Segura - Mapas: <a href="https://leafletjs.com/" target="_blank" style="color: #007bff; text-decoration: none;">Leaflet</a>
                             </div>
                         </div>
                         
@@ -571,6 +576,10 @@
     <!-- Leaflet CSS y JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet Fullscreen Plugin -->
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
     
     <!-- dom-to-image para capturar screenshots -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
@@ -668,6 +677,14 @@
             
             // Agregar control de capas para cambiar tipos de mapa
             L.control.layers(baseMaps).addTo(map);
+
+            // Agregar control de pantalla completa
+            map.addControl(new L.Control.Fullscreen({
+                title: {
+                    'false': 'Ver en pantalla completa',
+                    'true': 'Salir de pantalla completa'
+                }
+            }));
             
             // Agregar el SVG de Apurímac como overlay (coordenadas originales)
             var apurimacBounds = [[-12.59, -71.85], [-15.41111,-74.16]];
