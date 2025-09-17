@@ -48,6 +48,7 @@ Route::get('index/home/ruta-agua-abancay', [IndexController::class, 'actionRutaA
 
 Route::get('index/home/institution', [InstitutionController::class, 'actionGetInstitutionsByUgel'])->name('home.institution');
 Route::get('/get-districts', [UserController::class, 'getDistrictsByProvince'])->name('getDistricts');
+Route::get('api/public/map-data', [InstitutionController::class, 'getPublicMapData'])->name('api.public.map-data');
 
 Route::get('water/insert', [WaterController::class, 'actionInsert'])->middleware('GenericMiddleware:water/insert');
 Route::get(

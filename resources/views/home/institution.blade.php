@@ -544,21 +544,106 @@
         color: #4facfe;
     }
 
+    /* Estilos para el mapa de calor */
+    #heatMap {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden;
+    }
+
+    #heatMap:hover {
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+        border-color: #007bff;
+    }
+
+    /* Efecto de resplandor para marcadores del mapa */
+    .leaflet-marker-icon {
+        filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+        transition: all 0.3s ease;
+    }
+
+    .leaflet-marker-icon:hover {
+        filter: drop-shadow(0 0 8px rgba(0, 123, 255, 0.6));
+        transform: scale(1.1);
+    }
+
+    /* Estilos para marcadores personalizados */
+    .custom-marker {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        transition: all 0.3s ease;
+    }
+
+    /* Animación de pulsación para marcadores */
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+    }
+
+    /* Estilo de la leyenda mejorado */
+    .legend-item {
+        transition: all 0.2s ease;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+    .legend-item:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+        transform: translateX(2px);
+    }
+
+    /* Estilos para etiquetas de provincias */
+    .provincia-label {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .provincia-label div {
+        font-family: 'Arial', sans-serif;
+        letter-spacing: 0.5px;
+    }
+
+    /* Efectos para el mapa SVG de Apurímac */
+    .apurimac-map-overlay {
+        filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3))
+               drop-shadow(-1px -1px 3px rgba(255, 255, 255, 0.2));
+    }
+
+    .heat-map-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        margin: 30px 0;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .heat-map-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .filter-btn {
             padding: 10px 15px;
             font-size: 14px;
         }
-        
+
         .group-title {
             font-size: 1.4rem;
         }
-        
+
         .counter-number {
             font-size: 3rem;
         }
-        
+
         .institution-grid {
             grid-template-columns: 1fr;
             padding: 20px;
@@ -613,6 +698,131 @@
                     onclick="changeGroupBy('province')">
                 <i class="fas fa-globe-americas mr-2"></i>Provincias
             </button>
+        </div>
+    </div>
+
+    <!-- Mapa de Calor Público -->
+    @php
+        use Illuminate\Support\Carbon;
+
+        $monthsEs = [
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Setiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre',
+        ];
+        $selectedMonth = request('month', date('m'));
+        $selectedYear = request('year', date('Y'));
+        $selectedWeek = request('week', null);
+        $currentMonthNum = (int) $selectedMonth;
+        $currentYear = (int) $selectedYear;
+        $currentMonthName = $monthsEs[$currentMonthNum - 1];
+
+        // Calcular semana actual del mes si no se especifica
+        if (!$selectedWeek) {
+            $today = date('Y-m-d');
+            $firstOfMonth = date('Y-m-01', strtotime($today));
+            $currentWeek = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+            if ($currentWeek < 1) $currentWeek = 1;
+            if ($currentWeek > 5) $currentWeek = 5;
+        } else {
+            $currentWeek = (int) $selectedWeek;
+        }
+    @endphp
+
+    <div class="heat-map-card">
+        <div style="background: linear-gradient(135deg, #4facfe, #00f2fe); padding: 25px; border-radius: 20px 20px 0 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <h4 style="margin: 0; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); font-weight: 600;">
+                    <i class="fa fa-map-marker" style="color: white; text-shadow: 0 0 5px rgba(255,255,255,0.3);"></i> Mapa de Calor - Calidad del Agua
+                </h4>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <!-- Selector de fecha para cambiar periodo -->
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <label style="font-size: 12px; color: white; white-space: nowrap;">📅 Periodo:</label>
+                        <select id="monthSelector" class="form-control" style="width: 100px; height: 30px; font-size: 12px;">
+                            <option value="1" {{ $currentMonthNum == 1 ? 'selected' : '' }}>Enero</option>
+                            <option value="2" {{ $currentMonthNum == 2 ? 'selected' : '' }}>Febrero</option>
+                            <option value="3" {{ $currentMonthNum == 3 ? 'selected' : '' }}>Marzo</option>
+                            <option value="4" {{ $currentMonthNum == 4 ? 'selected' : '' }}>Abril</option>
+                            <option value="5" {{ $currentMonthNum == 5 ? 'selected' : '' }}>Mayo</option>
+                            <option value="6" {{ $currentMonthNum == 6 ? 'selected' : '' }}>Junio</option>
+                            <option value="7" {{ $currentMonthNum == 7 ? 'selected' : '' }}>Julio</option>
+                            <option value="8" {{ $currentMonthNum == 8 ? 'selected' : '' }}>Agosto</option>
+                            <option value="9" {{ $currentMonthNum == 9 ? 'selected' : '' }}>Setiembre</option>
+                            <option value="10" {{ $currentMonthNum == 10 ? 'selected' : '' }}>Octubre</option>
+                            <option value="11" {{ $currentMonthNum == 11 ? 'selected' : '' }}>Noviembre</option>
+                            <option value="12" {{ $currentMonthNum == 12 ? 'selected' : '' }}>Diciembre</option>
+                        </select>
+                        <select id="yearSelector" class="form-control" style="width: 80px; height: 30px; font-size: 12px;">
+                            @for($y = date('Y'); $y >= 2020; $y--)
+                                <option value="{{ $y }}" {{ $currentYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                        <select id="weekSelector" class="form-control" style="width: 100px; height: 30px; font-size: 12px;">
+                            <option value="1" {{ $currentWeek == 1 ? 'selected' : '' }}>Semana 1</option>
+                            <option value="2" {{ $currentWeek == 2 ? 'selected' : '' }}>Semana 2</option>
+                            <option value="3" {{ $currentWeek == 3 ? 'selected' : '' }}>Semana 3</option>
+                            <option value="4" {{ $currentWeek == 4 ? 'selected' : '' }}>Semana 4</option>
+                            <option value="5" {{ $currentWeek == 5 ? 'selected' : '' }}>Semana 5</option>
+                        </select>
+                        <button id="changePeriodBtn" class="btn btn-light btn-sm" onclick="changePeriod()" title="Cambiar a este periodo">
+                            <i class="fa fa-paper-plane"></i> Visualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; color: rgba(255,255,255,0.9); font-size: 14px;">
+                Visualizando datos de: <strong>{{ $currentMonthName }} {{ $currentYear }} - Semana {{ $currentWeek }}</strong>
+            </div>
+        </div>
+
+        <div style="padding: 20px;">
+            <div id="heatMap" style="height: 70vh; min-height: 640px; border: 1px solid #ddd; border-radius: 5px; position: relative;">
+                <!-- Marca de agua -->
+                <div style="position: absolute; bottom: 8px; right: 8px; z-index: 2000; background: rgba(255,255,255,0.9); padding: 3px 8px; border-radius: 4px; font-size: 10px; color: #555; font-family: Arial, sans-serif; border: 1px solid rgba(200,200,200,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.15); white-space: nowrap;">
+                    Fuente: Mi Cole Con Agua Segura
+                </div>
+            </div>
+
+            <!-- Leyenda -->
+            <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                <h6 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Leyenda - Calidad del Agua (MCR - mg/L):</h6>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 5px;">
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #FF0000; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(255, 0, 0, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #dc2626;">CRÍTICO:</strong>&nbsp;&lt; 0.3 - Riesgo muy alto
+                    </span>
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #FF8C00; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(255, 140, 0, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #ea580c;">DEFICIENTE:</strong>&nbsp;0.3-0.5 - Requiere acciones
+                    </span>
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #00FF00; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(0, 255, 0, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #16a34a;">ÓPTIMO:</strong>&nbsp;0.5-2.0 - Cumple normativa
+                    </span>
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #0000FF; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(0, 0, 255, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #2563eb;">ALTO:</strong>&nbsp;2.0-5.0 - Monitorear sabor
+                    </span>
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #800080; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(128, 0, 128, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #7c2d92;">EXCESIVO:</strong>&nbsp;&gt; 5.0 - Incumple DS 031
+                    </span>
+                    <span class="legend-item" style="display: flex; align-items: center; font-size: 11px; padding: 4px;">
+                        <span style="width: 12px; height: 12px; background-color: #808080; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 4px rgba(128, 128, 128, 0.4); flex-shrink: 0;"></span>
+                        <strong style="color: #6b7280;">SIN DATOS:</strong>&nbsp;No hay registros
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -771,9 +981,37 @@
     </div>
 </div>
 
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     function changeGroupBy(type) {
         window.location.href = `{{ route('home.institution') }}?group_by=${type}`;
+    }
+
+    // Función para cambiar periodo del mapa
+    function changePeriod() {
+        const month = document.getElementById('monthSelector').value;
+        const year = document.getElementById('yearSelector').value;
+        const week = document.getElementById('weekSelector').value;
+        const btn = document.getElementById('changePeriodBtn');
+        const originalText = btn.innerHTML;
+
+        // Cambiar botón a estado de carga
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        // Recargar página con nuevos parámetros
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('month', month);
+        currentUrl.searchParams.set('year', year);
+        currentUrl.searchParams.set('week', week);
+
+        window.location.href = currentUrl.toString();
     }
     $(document).ready(function() {
         $('.group-header').on('click', function() {
@@ -852,6 +1090,170 @@
         }
 
         setInterval(createWaterParticle, 500);
+
+        // Mapa de Calor con Leaflet - Público
+        (function() {
+            var mapContainer = document.getElementById('heatMap');
+            if (!mapContainer) return;
+
+            // Inicializar mapa centrado en Apurímac con zoom más cercano
+            var map = L.map('heatMap').setView([-14.00, -72.9], 9);
+            globalMap = map; // Asignar a variable global
+
+            // Definir diferentes tipos de mapas disponibles
+            var baseMaps = {
+                "🗺️ OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }),
+                "🛰️ Satélite": L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri &mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics'
+                }),
+                "🌍 Terreno": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenTopoMap (CC-BY-SA)'
+                }),
+                "🌙 Modo Oscuro": L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                    attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors'
+                }),
+                "📍 CartoDB": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap contributors © CARTO',
+                    subdomains: 'abcd'
+                })
+            };
+
+            // Agregar capa base por defecto (OpenStreetMap)
+            baseMaps["🗺️ OpenStreetMap"].addTo(map);
+
+            // Agregar control de capas para cambiar tipos de mapa
+            L.control.layers(baseMaps).addTo(map);
+
+            // Agregar el SVG de Apurímac como overlay (coordenadas originales)
+            var apurimacBounds = [[-12.59, -71.85], [-15.41111,-74.16]];
+            var apurimacOverlay = L.imageOverlay('{{ asset("img/mapa/mapa.svg") }}', apurimacBounds, {
+                opacity: 0.4,
+                interactive: false,
+                className: 'apurimac-map-overlay'
+            }).addTo(map);
+
+            // Obtener datos del mapa desde el endpoint público
+            var mapData = [];
+
+            // Cargar datos del mapa desde el endpoint
+            fetch('{{ route("api.public.map-data") }}?' + new URLSearchParams({
+                month: '{{ $currentMonthNum }}',
+                year: '{{ $currentYear }}',
+                week: '{{ $currentWeek }}'
+            }))
+            .then(response => response.json())
+            .then(data => {
+                mapData = data;
+                loadMapMarkers();
+            })
+            .catch(error => {
+                console.error('Error cargando datos del mapa:', error);
+                loadMapMarkers(); // Cargar sin datos
+            });
+
+            // Coordenadas aproximadas de las provincias de Apurímac
+            var provincias = [
+                { name: 'ABANCAY', lat: -13.6333, lng: -72.8831, size: 'large' },
+                { name: 'ANDAHUAYLAS', lat: -13.6564, lng: -73.3867, size: 'large' },
+                { name: 'ANTABAMBA', lat: -14.3667, lng: -72.8833, size: 'medium' },
+                { name: 'AYMARAES', lat: -14.2000, lng: -73.2167, size: 'medium' },
+                { name: 'CHINCHEROS', lat: -13.4167, lng: -73.5167, size: 'medium' },
+                { name: 'COTABAMBAS', lat: -14.0333, lng: -72.0500, size: 'medium' },
+                { name: 'GRAU', lat: -14.0833, lng: -72.6667, size: 'medium' }
+            ];
+
+            // Función para cargar marcadores en el mapa
+            function loadMapMarkers() {
+                // Agregar marcadores para cada institución
+                if (mapData && mapData.length > 0) {
+                    mapData.forEach(function(inst) {
+                        // Definir z-index y tamaño según el color (grises al fondo y más pequeños)
+                        var isGray = inst.color === '#808080';
+                        var zIndex = isGray ? 100 : 500;
+                        var radius = isGray ? 9 : 12;
+                        var opacity = isGray ? 0.7 : 0.9;
+
+                        // Crear marcador circular con color según estado y efectos visuales
+                        var marker = L.circleMarker([inst.lat, inst.lng], {
+                            color: '#ffffff',
+                            fillColor: inst.color,
+                            fillOpacity: opacity,
+                            radius: radius,
+                            weight: isGray ? 2 : 3,
+                            opacity: 1,
+                            className: 'custom-marker',
+                            zIndexOffset: zIndex
+                        }).addTo(map);
+
+                        // Agregar efecto de pulsación
+                        marker.on('mouseover', function(e) {
+                            var hoverRadius = isGray ? 12 : 16;
+                            e.target.setStyle({
+                                radius: hoverRadius,
+                                fillOpacity: 1,
+                                weight: isGray ? 3 : 4
+                            });
+                        });
+
+                        marker.on('mouseout', function(e) {
+                            e.target.setStyle({
+                                radius: radius,
+                                fillOpacity: opacity,
+                                weight: isGray ? 2 : 3
+                            });
+                        });
+
+                        // Popup con información detallada
+                        marker.bindPopup(`
+                            <div style="font-family: Arial, sans-serif;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">${inst.name}</h4>
+                                <table style="font-size: 12px; width: 100%; margin-bottom: 10px;">
+                                    <tr><td><b>UGEL:</b></td><td>${inst.ugel}</td></tr>
+                                    <tr><td><b>Prestador:</b></td><td>${inst.lender}</td></tr>
+                                    <tr><td><b>Distrito:</b></td><td>${inst.district}</td></tr>
+                                    <tr><td><b>Provincia:</b></td><td>${inst.province}</td></tr>
+                                    <tr><td><b>MCR Semana ${inst.week}:</b></td><td>${inst.weekValue > 0 ? inst.weekValue : 'Sin dato'} ${inst.weekValue > 0 ? 'mg/L' : ''}</td></tr>
+                                </table>
+                                <div style="padding: 8px; background-color: ${inst.color}20; border-left: 4px solid ${inst.color}; border-radius: 3px;">
+                                    <div style="color: ${inst.color}; font-weight: bold; font-size: 13px; margin-bottom: 5px;">
+                                        ${inst.status}
+                                    </div>
+                                    <div style="font-size: 11px; color: #555; line-height: 1.3;">
+                                        ${inst.description}
+                                    </div>
+                                </div>
+                            </div>
+                        `, {
+                            maxWidth: 300
+                        });
+                    });
+                }
+            }
+
+            // Agregar etiquetas de provincias
+            provincias.forEach(function(provincia) {
+                var fontSize = provincia.size === 'large' ? '14px' : '12px';
+                var fontWeight = provincia.size === 'large' ? 'bold' : '600';
+
+                var divIcon = L.divIcon({
+                    className: 'provincia-label',
+                    html: '<div style="color: #2c3e50; font-size: ' + fontSize + '; font-weight: ' + fontWeight + '; text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.8), 1px -1px 2px rgba(255,255,255,0.8), -1px 1px 2px rgba(255,255,255,0.8); text-align: center; white-space: nowrap; pointer-events: none;">' + provincia.name + '</div>',
+                    iconSize: [100, 20],
+                    iconAnchor: [50, 10]
+                });
+
+                L.marker([provincia.lat, provincia.lng], {
+                    icon: divIcon,
+                    interactive: false,
+                    zIndexOffset: 1000
+                }).addTo(map);
+            });
+        })();
+
+        // Variable global para el mapa
+        var globalMap = null;
 
         $('.filter-btn').on('mouseenter', function() {
             $(this).css('box-shadow', '0 0 20px rgba(79, 172, 254, 0.5)');

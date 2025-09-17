@@ -17,6 +17,7 @@ use App\Models\TConfiguration;
 use App\Models\TProvince;
 use App\Models\TDistrict;
 use App\Models\TUgel;
+use App\Models\TWater;
 use App\Export\InstitutionDataExport;
 
 class InstitutionController extends Controller
@@ -334,7 +335,14 @@ class InstitutionController extends Controller
 	{
 		try {
 			$groupBy = $request->get('group_by', 'ugel');
-			
+
+			// Obtener datos del mapa para el público
+			$mapData = $this->getMapData(
+				$request->get('month'),
+				$request->get('year'),
+				$request->get('week')
+			);
+
 			if ($groupBy === 'district') {
 				$districts = TDistrict::with([
 					'tInstitution' => function($query) {
@@ -350,7 +358,7 @@ class InstitutionController extends Controller
 				->get();
 
 				$institutionsSinDistrito = collect([]);
-				
+
 				return view('home/institution', [
 					'groupBy' => 'district',
 					'districts' => $districts,
@@ -358,9 +366,10 @@ class InstitutionController extends Controller
 					'provinces' => collect([]),
 					'institutionsSinUgel' => $institutionsSinDistrito,
 					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'mapData' => $mapData,
 					'tConfigurationFmMdl' => TConfiguration::first()
 				]);
-				
+
 			} elseif ($groupBy === 'province') {
 				$provinces = TProvince::with([
 					'tDistrict.tInstitution' => function($query) {
@@ -381,16 +390,17 @@ class InstitutionController extends Controller
 					'districts' => collect([]),
 					'institutionsSinUgel' => collect([]),
 					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'mapData' => $mapData,
 					'tConfigurationFmMdl' => TConfiguration::first()
 				]);
-				
+
 			} else {
 				$ugels = TUgel::with([
 					'tInstitution' => function($query) {
 						$query->where('status', 'Activo')
 						->with(['tDistrict.tProvince']);
 					},
-					'tProvince', 
+					'tProvince',
 					'tDistrict'
 				])
 				->where('is_active', true)
@@ -410,6 +420,7 @@ class InstitutionController extends Controller
 					'provinces' => collect([]),
 					'institutionsSinUgel' => $institutionsSinUgel,
 					'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+					'mapData' => $mapData,
 					'tConfigurationFmMdl' => TConfiguration::first()
 				]);
 			}
@@ -422,8 +433,119 @@ class InstitutionController extends Controller
 				'provinces' => collect([]),
 				'institutionsSinUgel' => collect([]),
 				'totalInstitutions' => 0,
+				'mapData' => [],
 				'tConfigurationFmMdl' => null
 			]);
 		}
+	}
+
+	/**
+	 * Generar datos para el mapa de calor público
+	 */
+	private function getMapData($monthParam = null, $yearParam = null, $weekParam = null)
+	{
+		// Si no se proporcionan parámetros, usar mes, año y semana actual
+		$monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+
+		$monthName = $monthParam ? $monthsEs[(int)$monthParam - 1] : $monthsEs[(int)date('m') - 1];
+		$year = $yearParam ? (int)$yearParam : (int)date('Y');
+
+		$week = $weekParam ? (int)$weekParam : null;
+		if (!$week) {
+			$today = date('Y-m-d');
+			$firstOfMonth = date('Y-m-01', strtotime($today));
+			$week = (int)date('W', strtotime($today)) - (int)date('W', strtotime($firstOfMonth)) + 1;
+			if ($week < 1) $week = 1;
+			if ($week > 5) $week = 5;
+		}
+
+		// Obtener solo instituciones que tienen coordenadas (no NULL)
+		$institutions = TInstitution::with(['tdistrict.tprovince', 'tugel'])
+			->whereNotNull('latitude')
+			->whereNotNull('longitude')
+			->where('status', 'Activo')
+			->get();
+
+		$mapData = [];
+		foreach ($institutions as $institution) {
+			// Buscar el último registro de agua para esta institución del mes/año especificado
+			$waterData = TWater::where('idInstitution', $institution->idInstitution)
+							  ->where('month', $monthName)
+							  ->whereYear('created_at', $year)
+							  ->orderBy('updated_at', 'desc')
+							  ->first();
+
+			$weekValue = 0;
+			$hasData = false;
+
+			if ($waterData) {
+				// Obtener el valor específico de la semana seleccionada
+				$field = "resultW{$week}";
+				if (isset($waterData->$field) && $waterData->$field != -1) {
+					$weekValue = (float) $waterData->$field;
+					$hasData = true;
+				}
+			}
+
+			// Determinar color según rangos específicos de MCR
+			$color = '#808080'; // Gris por defecto (sin datos)
+			$status = 'Sin datos';
+			$description = "No hay registros de la semana {$week}";
+
+			if ($hasData && $weekValue > 0) {
+				if ($weekValue < 0.3) {
+					$color = '#FF0000'; // Rojo: crítico
+					$status = 'Crítico';
+					$description = 'Riesgo microbiológico muy alto';
+				} elseif ($weekValue >= 0.3 && $weekValue < 0.5) {
+					$color = '#FF8C00'; // Naranja: deficiente
+					$status = 'Deficiente';
+					$description = 'Requiere acciones correctivas';
+				} elseif ($weekValue >= 0.5 && $weekValue <= 2.0) {
+					$color = '#00FF00'; // Verde: óptimo
+					$status = 'Óptimo';
+					$description = 'Cumple normativa peruana';
+				} elseif ($weekValue > 2.0 && $weekValue <= 5.0) {
+					$color = '#0000FF'; // Azul: alto
+					$status = 'Alto';
+					$description = 'Monitorear sabor/olor';
+				} else {
+					$color = '#800080'; // Púrpura: excesivo
+					$status = 'Excesivo';
+					$description = 'Incumple DS 031-2010-SA';
+				}
+			}
+
+			$mapData[] = [
+				'name' => $institution->name,
+				'lat' => (float) $institution->latitude,
+				'lng' => (float) $institution->longitude,
+				'ugel' => $institution->tugel->name ?? 'Sin UGEL',
+				'lender' => $institution->lender,
+				'district' => $institution->tdistrict->name ?? 'Sin distrito',
+				'province' => $institution->tdistrict->tprovince->name ?? 'Sin provincia',
+				'week' => $week,
+				'weekValue' => $weekValue,
+				'color' => $color,
+				'status' => $status,
+				'description' => $description
+			];
+		}
+
+		return $mapData;
+	}
+
+	/**
+	 * Endpoint público para obtener datos del mapa sin restricciones
+	 */
+	public function getPublicMapData(Request $request)
+	{
+		$mapData = $this->getMapData(
+			$request->get('month'),
+			$request->get('year'),
+			$request->get('week')
+		);
+
+		return response()->json($mapData);
 	}
 }
