@@ -44,3 +44,10 @@ function searchUser(text, url, event)
 		window.location.href=url+'?searchParameter='+text;
 	}
 }
+
+function deleteUserConfirm(idUser, fullName)
+{
+	if (confirm("¿Está seguro de eliminar al usuario: " + fullName + "?\n\nEsta acción no se puede deshacer y solo es posible si el usuario no tiene registros de agua.")) {
+		window.location.href = window.location.origin + '/user/delete/' + idUser;
+	}
+}

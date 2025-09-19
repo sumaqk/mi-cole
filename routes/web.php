@@ -96,6 +96,7 @@ Route::get('user/getall/{currentPage}', [UserController::class, 'actionGetAll'])
 Route::get('user/deleteinactive', [UserController::class, 'actionDeleteInactive'])->middleware('GenericMiddleware:user/deleteinactive');
 Route::post('user/filterbyfirstnamesurnameemail', [UserController::class, 'actionFilterByFirstNameSurNameEmail'])->middleware('GenericMiddleware:user/filterbyfirstnamesurnameemail');
 Route::get('user/export', [UserController::class, 'actionExport'])->middleware('GenericMiddleware:user/export');
+Route::get('user/delete/{idUser}', [UserController::class, 'actionDelete'])->middleware('GenericMiddleware:user/delete');
 
 Route::get('usernotification/read/{idUserNotification}', [UserNotificationController::class, 'actionRead'])->middleware('GenericMiddleware:usernotification/read');
 Route::post('usernotification/readall', [UserNotificationController::class, 'actionReadAll'])->middleware('GenericMiddleware:usernotification/readall');

@@ -109,6 +109,7 @@ class GenericMiddleware
 			['Súper usuario,Administrador', 'exception/getall', 'mControlPanel', 'miExceptionGetAll'],
 			['Súper usuario,Administrador', 'exception/changestatus', null, null],
 			['Súper usuario,Administrador', 'user/export', 'mUserModule', null],
+			['Súper usuario,Administrador', 'user/delete', 'mUserModule', null],
 			
 			['Normal', 'water/insert', 'mWater', null],
 			['Súper usuario,Administrador,Supervisor,Super Supervisor', 'water/getall', 'mWaterModule', 'miWaterModuleGetAll'],

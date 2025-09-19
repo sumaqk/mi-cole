@@ -18,6 +18,7 @@ use App\Export\NonReportingExport;
 use App\Export\WithReportingExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\TInstitution;
+use App\Models\TUgel;
 use App\Models\TWater;
 use Illuminate\Http\Request;
 
@@ -218,6 +219,13 @@ class IndexController extends Controller
 		if ($userRole === 'Supervisor' && ($userLevel === 'levelDistrict' || $userLevel === 'levelDistrit') && $userDistrict) {
 			$q->where('tdistrict.idDistrict', $userDistrict);
 		}
+		// HACK: Filtro por UGEL usando blockingReason
+		if (!empty($tUser->blockingReason)) {
+			$ugel = \App\Models\TUgel::find($tUser->blockingReason);
+			if ($ugel) {
+				$q->where('tinstitution.idUgel', $tUser->blockingReason);
+			}
+		}
 
 		$listTWater = $q->orderBy('twater.updated_at', 'desc')->get();
 
@@ -261,6 +269,13 @@ class IndexController extends Controller
 			}
 			if ($userRole === 'Supervisor' && ($userLevel === 'levelDistrict' || $userLevel === 'levelDistrit') && $userDistrict) {
 				$q2->where('tdistrict.idDistrict', $userDistrict);
+			}
+			// HACK: Filtro por UGEL usando blockingReason (fallback)
+			if (!empty($tUser->blockingReason)) {
+				$ugel = \App\Models\TUgel::find($tUser->blockingReason);
+				if ($ugel) {
+					$q2->where('tinstitution.idUgel', $tUser->blockingReason);
+				}
 			}
 
 			$listTWater = $q2->orderBy('twater.updated_at', 'desc')->get();

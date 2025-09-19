@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\TUser;
 use App\Models\TProvince;
 use App\Models\TDistrict;
+use App\Models\TInstitution;
+use App\Models\TUgel;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Export\UserDataExport;
 use App\Models\TInstitutionTUser;
@@ -204,7 +206,7 @@ class UserController extends Controller
 				$tUser->emailChangeCode = '';
 				$tUser->emailChangeExpirationDate = '1991-01-01';
 				$tUser->registerType = 'Plataforma';
-				$tUser->blockingReason = '';
+				$tUser->blockingReason = !empty(trim($request->input('selectUgel'))) ? trim($request->input('selectUgel')) : '';
 				$tUser->lastAccess = '1991-01-01';
 				$tUser->role = (($request->input('selectRole') != null && $request->input('selectRole') != '') ? implode(',', $request->input('selectRole')) : '');
 				$tUser->status = 'Activo';
@@ -218,6 +220,20 @@ class UserController extends Controller
 
 				copy(public_path() . '/img/avatar/user.png', public_path() . '/img/avatar/' . ($tUser->idUser) . '.png');
 
+				// Procesar asignación de instituciones si se seleccionaron
+				if ($request->input('selectInstitution') && is_array($request->input('selectInstitution'))) {
+					foreach ($request->input('selectInstitution') as $idInstitution) {
+						if (!empty(trim($idInstitution))) {
+							$tInstitutionTUser = new TInstitutionTUser();
+							$tInstitutionTUser->idInstitutionTUser = uniqid();
+							$tInstitutionTUser->idInstitution = trim($idInstitution);
+							$tInstitutionTUser->idUser = $tUser->idUser;
+							$tInstitutionTUser->status = 'Activo';
+							$tInstitutionTUser->save();
+						}
+					}
+				}
+
 				DB::commit();
 
 				return PlatformHelper::redirectCorrect(['Operación ralizada correctamente.'], 'user/insertasadmin');
@@ -229,8 +245,10 @@ class UserController extends Controller
 		}
 
 		$provinces = TProvince::all();  // Obtener todas las provincias
+		$institutions = TInstitution::orderBy('name', 'asc')->get();  // Obtener todas las instituciones
+		$ugels = TUgel::where('is_active', true)->orderBy('name', 'asc')->get();  // Obtener UGELs activas
 
-		return view('user/insertasadmin', compact('provinces'));
+		return view('user/insertasadmin', compact('provinces', 'institutions', 'ugels'));
 	}
 
 	public function getDistrictsByProvince(Request $request)
@@ -674,6 +692,54 @@ class UserController extends Controller
 			
 		} catch (\Exception $e) {
 			return PlatformHelper::redirectError('Error al exportar: ' . $e->getMessage(), 'user/getall/1');
+		}
+	}
+
+	public function actionDelete($idUser)
+	{
+		try {
+			DB::beginTransaction();
+
+			$tUser = TUser::find($idUser);
+
+			if ($tUser == null) {
+				DB::rollBack();
+				return PlatformHelper::redirectError(['Usuario no encontrado.'], 'user/getall/1');
+			}
+
+			// Verificar si el usuario tiene registros de agua
+			$waterCount = DB::table('twater')->where('idUser', $idUser)->count();
+
+			if ($waterCount > 0) {
+				DB::rollBack();
+				return PlatformHelper::redirectError(['No se puede eliminar el usuario porque tiene ' . $waterCount . ' registro(s) de agua. Por seguridad, estos usuarios no pueden ser eliminados.'], 'user/getall/1');
+			}
+
+			// Verificar si es súper usuario
+			if (strpos($tUser->role, 'Súper usuario') !== false) {
+				DB::rollBack();
+				return PlatformHelper::redirectError(['No se puede eliminar un súper usuario.'], 'user/getall/1');
+			}
+
+			// Eliminar relaciones con instituciones
+			TInstitutionTUser::where('idUser', $idUser)->delete();
+
+			// Eliminar avatar si existe
+			$avatarPath = public_path() . '/img/avatar/' . $tUser->idUser . '.' . $tUser->avatarExtension;
+			if (file_exists($avatarPath)) {
+				unlink($avatarPath);
+			}
+
+			// Eliminar usuario
+			$tUser->delete();
+
+			DB::commit();
+
+			return PlatformHelper::redirectCorrect(['Usuario eliminado correctamente.'], 'user/getall/1');
+
+		} catch (\Exception $e) {
+			DB::rollBack();
+			return PlatformHelper::catchException(__CLASS__, __FUNCTION__, $e->getMessage(), 'user/getall/1');
 		}
 	}
 }

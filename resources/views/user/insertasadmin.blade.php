@@ -73,6 +73,47 @@
                     </div>
                 </div>
 
+                <!-- Nueva opción para supervisar por UGEL -->
+                <div id="sectionUgel" class="row" style="margin-top: 15px; display: none;">
+                    <div class="col-md-6">
+                        <label for="selectUgel">O supervisar por UGEL</label>
+                        <select id="selectUgel" name="selectUgel" class="form-control" style="width: 100%;">
+                            <option value="">Seleccione una UGEL para supervisar</option>
+                            @foreach ($ugels as $ugel)
+                                <option value="{{ $ugel->idUgel }}">{{ $ugel->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="margin-top: 25px;">
+                            <small class="text-muted">
+                                <i class="fa fa-info-circle"></i>
+                                Alternativa: supervisar todas las instituciones de una UGEL específica.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 15px;">
+                    <div class="col-md-6">
+                        <label for="selectInstitution">Instituciones (Opcional)</label>
+                        <select id="selectInstitution" name="selectInstitution[]" class="form-control selectStatic" multiple
+                            style="width: 100%;">
+                            @foreach ($institutions as $institution)
+                                <option value="{{ $institution->idInstitution }}">{{ $institution->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="margin-top: 25px;">
+                            <small class="text-muted">
+                                <i class="fa fa-info-circle"></i>
+                                Puede asignar una o más instituciones al usuario. Esto es opcional.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
                 <hr>
                 <div class="row">
                     {!! csrf_field() !!}
@@ -92,8 +133,20 @@
         $(document).ready(function() {
             // Evento cuando el select de rol cambia
             $('#selectRole').change(function() {
+                var selectedRoles = $(this).val() || [];
+                var hasSupervisor = selectedRoles.includes('Supervisor');
+                var hasSuperSupervisor = selectedRoles.includes('Super Supervisor');
+
+                // Mostrar sección UGEL si es Supervisor o Super Supervisor
+                if (hasSupervisor || hasSuperSupervisor) {
+                    $('#sectionUgel').show();
+                } else {
+                    $('#sectionUgel').hide();
+                    $('#selectUgel').val('');
+                }
+
                 // Verificar si el rol de Supervisor está seleccionado (pero no Super Supervisor)
-                if ($(this).val().includes('Supervisor') && !$(this).val().includes('Super Supervisor')) {
+                if (hasSupervisor && !hasSuperSupervisor) {
                     $('#selectLevel').prop('disabled', false); // Habilitar select de nivel
                 } else {
                     // Si no es Supervisor regular, deshabilitar y limpiar nivel, provincia y distrito
