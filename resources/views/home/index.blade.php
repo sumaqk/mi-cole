@@ -56,471 +56,480 @@
         background: linear-gradient(45deg,
                 rgba(8, 141, 182, 0.1) 0%,
                 rgba(9, 64, 122, 0.2) 50%,
-                rgba(8, 141, 182, 0.1) 100%
-                );
-                mix-blend-mode: overlay;
+                rgba(8, 141, 182, 0.1) 100%);
+        mix-blend-mode: overlay;
+    }
+
+    .water-particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .elegant-container {
+        width: 100%;
+        margin: 20px auto;
+        background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+
+    .particle {
+        position: absolute;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+        border-radius: 50%;
+        animation: float 8s infinite ease-in-out;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 0;
         }
 
-        .water-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .elegant-container {
-            width: 100%;
-            margin: 20px auto;
-            background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            padding: 20px;
-            animation: fadeIn 0.5s ease-in-out;
+        10% {
+            opacity: 1;
         }
 
-
-        .particle {
-            position: absolute;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
-            border-radius: 50%;
-            animation: float 8s infinite ease-in-out;
+        90% {
+            opacity: 1;
         }
 
-        @keyframes float {
+        100% {
+            transform: translateY(-20px) rotate(360deg);
+            opacity: 0;
+        }
+    }
 
-            0%,
-            100% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
+    .water-waves {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 130%;
+        height: 70px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100'%3E%3Cpath d='M0,50 Q250,0 500,50 T1000,50 L1000,100 L0,100 Z' fill='rgba(8,141,182,0.4)'/%3E%3C/svg%3E");
+        background-size: 400px 100px;
+        animation: wave 6s ease-in-out infinite;
+    }
 
-            10% {
-                opacity: 1;
-            }
+    @keyframes wave {
 
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(-20px) rotate(360deg);
-                opacity: 0;
-            }
+        0%,
+        100% {
+            transform: translateX(0);
         }
 
-        .water-waves {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 130%;
-            height:70px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100'%3E%3Cpath d='M0,50 Q250,0 500,50 T1000,50 L1000,100 L0,100 Z' fill='rgba(8,141,182,0.4)'/%3E%3C/svg%3E");
-            background-size: 400px 100px;
-            animation: wave 6s ease-in-out infinite;
+        50% {
+            transform: translateX(-50px);
         }
+    }
 
-        @keyframes wave {
+    .liquid-transition {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(8, 141, 182, 0.9), transparent);
+        transform: translateX(-100%) skewX(-20deg);
+        opacity: 0;
+        pointer-events: none;
+    }
 
-            0%,
-            100% {
-                transform: translateX(0);
-            }
+    .liquid-transition.flowing {
+        animation: liquidFlow 1.5s ease-out forwards;
+    }
 
-            50% {
-                transform: translateX(-50px);
-            }
-        }
-
-        .liquid-transition {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(8, 141, 182, 0.9), transparent);
+    @keyframes liquidFlow {
+        0% {
             transform: translateX(-100%) skewX(-20deg);
             opacity: 0;
-            pointer-events: none;
         }
 
-        .liquid-transition.flowing {
-            animation: liquidFlow 1.5s ease-out forwards;
+        50% {
+            opacity: 1;
+            transform: translateX(0%) skewX(-10deg);
         }
 
-        @keyframes liquidFlow {
-            0% {
-                transform: translateX(-100%) skewX(-20deg);
-                opacity: 0;
-            }
+        100% {
+            transform: translateX(100%) skewX(0deg);
+            opacity: 0;
+        }
+    }
 
-            50% {
-                opacity: 1;
-                transform: translateX(0%) skewX(-10deg);
-            }
+    .slider-controls {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        z-index: 9999 !important;
+        pointer-events: auto !important;
+    }
 
-            100% {
-                transform: translateX(100%) skewX(0deg);
-                opacity: 0;
-            }
+    .control-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(8, 141, 182, 0.8);
+        pointer-events: auto !important;
+        z-index: 10000 !important;
+        position: relative;
+    }
+
+    .control-dot.active {
+        background: rgba(8, 141, 182, 1);
+        transform: scale(1.3);
+        box-shadow: 0 0 15px rgba(8, 141, 182, 0.8);
+    }
+
+    .nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        background: rgba(8, 141, 182, 0.8);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 9999 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto !important;
+    }
+
+    .nav-arrow:hover {
+        background: rgba(8, 141, 182, 1);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 0 20px rgba(8, 141, 182, 0.8);
+    }
+
+    .nav-arrow.prev {
+        left: 20px;
+    }
+
+    .nav-arrow.next {
+        right: 20px;
+    }
+
+    /* ANIMACIONES PARA LAS TARJETAS */
+    .animated-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 20px !important;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(145deg, #ffffff, #f0f8ff);
+        box-shadow: 0 8px 32px rgba(8, 141, 182, 0.1);
+    }
+
+    .animated-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(8, 141, 182, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .animated-card:hover::before {
+        left: 100%;
+    }
+
+    .animated-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(8, 141, 182, 0.25);
+    }
+
+    .card-icon {
+        transition: all 0.3s ease;
+        color: #088db6 !important;
+    }
+
+    .animated-card:hover .card-icon {
+        transform: scale(1.2) rotate(5deg);
+        color: #0a4b8a !important;
+    }
+
+    /* EFECTOS PARA FASCÍCULOS */
+    .fasciculo-card {
+        transition: all 0.4s ease;
+        border-radius: 25px !important;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(145deg, #ffffff, #f8fbff);
+        border: none !important;
+    }
+
+    .fasciculo-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(8, 141, 182, 0.1), rgba(9, 64, 122, 0.1));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .fasciculo-card:hover::after {
+        opacity: 1;
+    }
+
+    .fasciculo-card:hover {
+        transform: translateY(-15px) rotateY(5deg);
+        box-shadow: 0 25px 80px rgba(8, 141, 182, 0.3);
+    }
+
+    .fasciculo-card img {
+        transition: transform 0.5s ease;
+    }
+
+    .fasciculo-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .fasciculo-btn {
+        position: relative;
+        overflow: hidden;
+        border-radius: 25px !important;
+        background: linear-gradient(45deg, #088db6, #0a4b8a) !important;
+        border: none !important;
+        transition: all 0.3s ease;
+    }
+
+    .fasciculo-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .fasciculo-btn:hover::before {
+        left: 100%;
+    }
+
+    .fasciculo-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(8, 141, 182, 0.4);
+    }
+
+    /* EFECTOS PARA MATERIALES */
+    .material-item {
+        transition: all 0.4s ease;
+        position: relative;
+    }
+
+    .material-circle {
+        position: relative;
+        transition: all 0.4s ease;
+        background: linear-gradient(145deg, #ffffff, #f0f8ff);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+    }
+
+    .material-circle::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        background: linear-gradient(45deg, #088db6, #0a4b8a, #1e90ff);
+        border-radius: inherit;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .material-item:hover .material-circle::before {
+        opacity: 1;
+    }
+
+    .material-item:hover .material-circle {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .material-item:hover {
+        transform: translateY(-10px);
+    }
+
+    .material-overlay {
+        background: linear-gradient(135deg, rgba(8, 141, 182, 0.9), rgba(9, 64, 122, 0.8)) !important;
+        transition: all 0.3s ease;
+    }
+
+    .material-item:hover .material-overlay {
+        background: linear-gradient(135deg, rgba(8, 141, 182, 0.95), rgba(9, 64, 122, 0.9)) !important;
+    }
+
+    /* EFECTOS PARA MIEMBROS */
+    .member-card {
+        transition: all 0.4s ease;
+        border-radius: 20px !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .member-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(8, 141, 182, 0.1), rgba(9, 64, 122, 0.1));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .member-card:hover::before {
+        opacity: 1;
+    }
+
+    .member-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(8, 141, 182, 0.2);
+    }
+
+    .member-logo {
+        transition: all 0.3s ease;
+        filter: grayscale(0.3);
+    }
+
+    .member-card:hover .member-logo {
+        filter: grayscale(0) brightness(1.1);
+        transform: scale(1.05);
+    }
+
+    /* ANIMACIONES DE ENTRADA */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stagger-animation {
+        animation-delay: calc(var(--delay) * 0.1s);
+    }
+
+    /* TÍTULOS ANIMADOS */
+    .animated-title {
+        position: relative;
+        display: inline-block;
+    }
+
+    .animated-title::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(45deg, #088db6, #0a4b8a);
+        transition: all 0.5s ease;
+        transform: translateX(-50%);
+    }
+
+    .animated-title:hover::after {
+        width: 100%;
+    }
+
+    /* EFECTOS GLOBALES */
+    .section-modern {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .section-modern::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(8, 141, 182, 0.03) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
         }
 
-        .slider-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 9999 !important;
-            pointer-events: auto !important;
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
         }
 
         .control-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(8, 141, 182, 0.8);
-            pointer-events: auto !important;
-            z-index: 10000 !important;
-            position: relative;
-        }
-
-        .control-dot.active {
-            background: rgba(8, 141, 182, 1);
-            transform: scale(1.3);
-            box-shadow: 0 0 15px rgba(8, 141, 182, 0.8);
-        }
-
-        .nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background: rgba(8, 141, 182, 0.8);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 9999 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto !important;
-        }
-
-        .nav-arrow:hover {
-            background: rgba(8, 141, 182, 1);
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 0 20px rgba(8, 141, 182, 0.8);
-        }
-
-        .nav-arrow.prev {
-            left: 20px;
-        }
-
-        .nav-arrow.next {
-            right: 20px;
-        }
-
-        /* ANIMACIONES PARA LAS TARJETAS */
-        .animated-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 20px !important;
-            overflow: hidden;
-            position: relative;
-            background: linear-gradient(145deg, #ffffff, #f0f8ff);
-            box-shadow: 0 8px 32px rgba(8, 141, 182, 0.1);
-        }
-
-        .animated-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(8, 141, 182, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .animated-card:hover::before {
-            left: 100%;
+            width: 10px;
+            height: 10px;
         }
 
         .animated-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(8, 141, 182, 0.25);
-        }
-
-        .card-icon {
-            transition: all 0.3s ease;
-            color: #088db6 !important;
-        }
-
-        .animated-card:hover .card-icon {
-            transform: scale(1.2) rotate(5deg);
-            color: #0a4b8a !important;
-        }
-
-        /* EFECTOS PARA FASCÍCULOS */
-        .fasciculo-card {
-            transition: all 0.4s ease;
-            border-radius: 25px !important;
-            overflow: hidden;
-            position: relative;
-            background: linear-gradient(145deg, #ffffff, #f8fbff);
-            border: none !important;
-        }
-
-        .fasciculo-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(8, 141, 182, 0.1), rgba(9, 64, 122, 0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .fasciculo-card:hover::after {
-            opacity: 1;
+            transform: translateY(-5px) scale(1.01);
         }
 
         .fasciculo-card:hover {
-            transform: translateY(-15px) rotateY(5deg);
-            box-shadow: 0 25px 80px rgba(8, 141, 182, 0.3);
-        }
-
-        .fasciculo-card img {
-            transition: transform 0.5s ease;
-        }
-
-        .fasciculo-card:hover img {
-            transform: scale(1.1);
-        }
-
-        .fasciculo-btn {
-            position: relative;
-            overflow: hidden;
-            border-radius: 25px !important;
-            background: linear-gradient(45deg, #088db6, #0a4b8a) !important;
-            border: none !important;
-            transition: all 0.3s ease;
-        }
-
-        .fasciculo-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .fasciculo-btn:hover::before {
-            left: 100%;
-        }
-
-        .fasciculo-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(8, 141, 182, 0.4);
-        }
-
-        /* EFECTOS PARA MATERIALES */
-        .material-item {
-            transition: all 0.4s ease;
-            position: relative;
-        }
-
-        .material-circle {
-            position: relative;
-            transition: all 0.4s ease;
-            background: linear-gradient(145deg, #ffffff, #f0f8ff);
-            border: 3px solid transparent;
-            background-clip: padding-box;
-        }
-
-        .material-circle::before {
-            content: '';
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: linear-gradient(45deg, #088db6, #0a4b8a, #1e90ff);
-            border-radius: inherit;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .material-item:hover .material-circle::before {
-            opacity: 1;
-        }
-
-        .material-item:hover .material-circle {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .material-item:hover {
             transform: translateY(-10px);
         }
-
-        .material-overlay {
-            background: linear-gradient(135deg, rgba(8, 141, 182, 0.9), rgba(9, 64, 122, 0.8)) !important;
-            transition: all 0.3s ease;
-        }
-
-        .material-item:hover .material-overlay {
-            background: linear-gradient(135deg, rgba(8, 141, 182, 0.95), rgba(9, 64, 122, 0.9)) !important;
-        }
-
-        /* EFECTOS PARA MIEMBROS */
-        .member-card {
-            transition: all 0.4s ease;
-            border-radius: 20px !important;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .member-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(8, 141, 182, 0.1), rgba(9, 64, 122, 0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .member-card:hover::before {
-            opacity: 1;
-        }
-
-        .member-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(8, 141, 182, 0.2);
-        }
-
-        .member-logo {
-            transition: all 0.3s ease;
-            filter: grayscale(0.3);
-        }
-
-        .member-card:hover .member-logo {
-            filter: grayscale(0) brightness(1.1);
-            transform: scale(1.05);
-        }
-
-        /* ANIMACIONES DE ENTRADA */
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stagger-animation {
-            animation-delay: calc(var(--delay) * 0.1s);
-        }
-
-        /* TÍTULOS ANIMADOS */
-        .animated-title {
-            position: relative;
-            display: inline-block;
-        }
-
-        .animated-title::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(45deg, #088db6, #0a4b8a);
-            transition: all 0.5s ease;
-            transform: translateX(-50%);
-        }
-
-        .animated-title:hover::after {
-            width: 100%;
-        }
-
-        /* EFECTOS GLOBALES */
-        .section-modern {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .section-modern::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(8, 141, 182, 0.03) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .nav-arrow {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .control-dot {
-                width: 10px;
-                height: 10px;
-            }
-
-            .animated-card:hover {
-                transform: translateY(-5px) scale(1.01);
-            }
-
-            .fasciculo-card:hover {
-                transform: translateY(-10px);
-            }
-        }
+    }
 
 
-        .btn-hover-effect:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 35px rgba(8, 141, 182, 0.6);
-            background: linear-gradient(45deg, #0a4b8a, #088db6) !important;
-        }
+    .btn-hover-effect:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 35px rgba(8, 141, 182, 0.6);
+        background: linear-gradient(45deg, #0a4b8a, #088db6) !important;
+    }
+
+    .material-overlay {
+        pointer-events: none;
+    }
+
+    .material-overlay a {
+        pointer-events: auto;
+        cursor: pointer;
+    }
 </style>
 
 <!-- Slider con Efecto de Flujo de Agua -->
@@ -636,7 +645,8 @@
                         <i class="flaticon-030-crayons h1 font-weight-normal card-icon mb-3"></i>
                         <div class="pl-4">
                             <h4 style="color: #0a4b8a; font-weight: bold;">Otros Usos del Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla, sobre
+                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla,
+                                sobre
                                 los otros usos que tiene el agua.
                             <ul style="color: #666;">
                                 <li>1. El agua para la producción de alimentos.</li>
@@ -832,101 +842,105 @@
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 1;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100"
-                        src="{{ asset('home/img/guia-docente.png') }}" alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ asset('home/material agua/ANEXOS/guia-docente.pdf') }}" target="_blank"><i
-                                class="fas fa-eye"></i></a>
-                    </div>
+                    <a href="{{ asset('home/material agua/ANEXOS/guia-docente.pdf') }}" target="_blank">
+                        <img style="height: 15rem" class="img-fluid w-100"
+                            src="{{ asset('home/img/guia-docente.png') }}" alt="Guía Docente">
+                    </a>
                 </div>
                 <h4 style="color: #0a4b8a; font-weight: bold;">Cuidando la Vida</h4>
                 <i style="color: #666;">Guía para Docentes</i>
             </div>
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 2;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100" src="{{ asset('home/img/videos.jpg') }}"
-                        alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ route('home.gallery') }}"><i class="fas fa-eye"></i></a>
+                    <a href="{{ route('home.content') }}" target="_blank" title="Ver galería de videos"
+                        style="display: block; position: relative; z-index: 5;">
+                        <img style="height: 15rem; cursor: pointer;" class="img-fluid w-100"
+                            src="{{ asset('home/img/videos.jpg') }}" alt="Galería de videos">
+                    </a>
+
+                    <div class="material-overlay d-flex align-items-center justify-content-center w-100 h-100 position-absolute"
+                        style="top: 0; left: 0; z-index: 4; pointer-events: none; background: linear-gradient(135deg, rgba(8,141,182,0.6), rgba(9,64,122,0.4));">
                     </div>
                 </div>
                 <h4 style="color: #0a4b8a; font-weight: bold;">Videos</h4>
-                <i style="color: #666;"></i>
+                <i style="color: #666;">Galería audiovisual</i>
             </div>
+
+
+
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 3;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100" src="{{ asset('home/img/cuento.png') }}"
-                        alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ asset('home/material agua/ANEXOS/cuento-agua.pdf') }}" target="_blank"><i
-                                class="fas fa-eye"></i></a>
-                    </div>
+                    <a href="{{ asset('home/material agua/ANEXOS/cuento-agua.pdf') }}" target="_blank">
+                        <img style="height: 15rem" class="img-fluid w-100" src="{{ asset('home/img/cuento.png') }}"
+                            alt="Cuento El Agua en Peligro">
+                    </a>
                 </div>
                 <h4 style="color: #0a4b8a; font-weight: bold;">El Agua en Peligro</h4>
                 <i style="color: #666;">Cuento</i>
             </div>
+
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 4;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100" src="{{ asset('home/img/album.jpg') }}"
-                        alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ route('home.gallery') }}"><i class="fas fa-eye"></i></a>
-                    </div>
+
+                    <a href="{{ route('home.gallery') }}" title="Abrir álbum interactivo">
+                        <img style="height: 15rem" class="img-fluid w-100" src="{{ asset('home/img/album.jpg') }}"
+                            alt="Álbum Interactivo">
+                    </a>
                 </div>
                 <h4 style="color: #0a4b8a; font-weight: bold;">Aprendiendo a Valorar y Criar Nuestra Agua</h4>
                 <i style="color: #666;">Álbum Interactivo</i>
             </div>
 
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 5;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100"
-                        src="{{ asset('home/material agua/ANEXOS/rojer.png') }}" alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ asset('home/material agua/ANEXOS/Roger y la Magia del Agua.pdf') }}"
-                            target="_blank"><i class="fas fa-eye"></i></a>
-                    </div>
+
+                    <a href="{{ asset('home/material%20agua/ANEXOS/Roger%20y%20la%20Magia%20del%20Agua.pdf') }}"
+                        target="_blank" title="Leer cuento: Roger y la Magia del Agua">
+                        <img style="height: 15rem" class="img-fluid w-100"
+                            src="{{ asset('home/material%20agua/ANEXOS/rojer.png') }}"
+                            alt="Roger y la Magia del Agua">
+                    </a>
                 </div>
-                <h4 style="color: #0a4b8a; font-weight: bold;">Roger y la magia del agua</h4>
+                <h4 style="color: #0a4b8a; font-weight: bold;">Roger y la Magia del Agua</h4>
                 <i style="color: #666;">Cuento</i>
             </div>
+
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 6;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100"
-                        src="{{ asset('home/material agua/ANEXOS/micole.png') }}" alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ asset('home/material agua/ANEXOS/Mi Cole Con Agua Segura.pdf') }}"
-                            target="_blank"><i class="fas fa-eye"></i></a>
-                    </div>
+                    <a href="{{ asset('home/material%20agua/ANEXOS/Mi%20Cole%20Con%20Agua%20Segura.pdf') }}" 
+                    target="_blank" 
+                    title="Abrir: Mi Cole con Agua Segura">
+                        <img style="height: 15rem" 
+                            class="img-fluid w-100"
+                            src="{{ asset('home/material%20agua/ANEXOS/micole.png') }}" 
+                            alt="Mi Cole con Agua Segura">
+                    </a>
                 </div>
-                <h4 style="color: #0a4b8a; font-weight: bold;">Mi cole con Agua Segura</h4>
+                <h4 style="color: #0a4b8a; font-weight: bold;">Mi Cole con Agua Segura</h4>
                 <i style="color: #666;">Estrategia</i>
             </div>
+
+
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 7;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
-                    <img style="height: 15rem" class="img-fluid w-100"
-                        src="{{ asset('home/material agua/ANEXOS/guardianes.png') }}" alt="">
-                    <div
-                        class="material-overlay team-social d-flex align-items-center justify-content-center w-100 h-100 position-absolute">
-                        <a class="btn btn-outline-light text-center mr-2 px-0" style="width: 38px; height: 38px;"
-                            href="{{ asset('home/material agua/ANEXOS/Los Guardianes del Agua.pdf') }}"
-                            target="_blank"><i class="fas fa-eye"></i></a>
-                    </div>
+                    <a href="{{ asset('home/material%20agua/ANEXOS/Los%20Guardianes%20del%20Agua.pdf') }}" 
+                    target="_blank" 
+                    title="Leer cuento: Los Guardianes del Agua">
+                        <img style="height: 15rem" 
+                            class="img-fluid w-100"
+                            src="{{ asset('home/material%20agua/ANEXOS/guardianes.png') }}" 
+                            alt="Los Guardianes del Agua">
+                    </a>
                 </div>
                 <h4 style="color: #0a4b8a; font-weight: bold;">Los Guardianes del Agua</h4>
                 <i style="color: #666;">Cuento</i>
             </div>
+
         </div>
     </div>
 </div>
@@ -997,10 +1011,9 @@
                 style="--delay: 6; text-decoration: none;">
                 <div
                     class="member-card bg-light shadow-sm rounded p-3 d-flex flex-column justify-content-center h-100">
-                    <img class="member-logo img-fluid mx-auto mb-3" src="{{ asset('home/img/FED.jpg') }}"
+                    <img class="member-logo img-fluid mx-auto mb-3" src="{{ asset('home/img/MIDIS.jpg') }}"
                         style="height: 120px; width: auto;" alt="Image">
-                    <h5 style="color: #0a4b8a; font-weight: bold;">Fondo de Estímulo al Desempeño y Logro de Resultados
-                        Sociales</h5>
+                    <h5 style="color: #0a4b8a; font-weight: bold;">Ministerio de Desarrollo e Inclusión Social</h5>
                 </div>
             </a>
 
@@ -1014,8 +1027,7 @@
                 </div>
             </a>
 
-            <a href="#" class="col-md-6 col-lg-4 mb-4 fade-in-up"
-                style="--delay: 7; text-decoration: none;">
+            <a href="#" class="col-md-6 col-lg-4 mb-4 fade-in-up" style="--delay: 7; text-decoration: none;">
                 <div
                     class="member-card bg-light shadow-sm rounded p-3 d-flex flex-column justify-content-center h-100">
                     <img class="member-logo img-fluid mx-auto mb-3" src="{{ asset('home/img/galeria/andinas.jpg') }}"
@@ -1051,7 +1063,7 @@
                 prevBtn: !!this.prevBtn,
                 nextBtn: !!this.nextBtn
             });
-            
+
             this.createWaterParticles();
             this.addEventListeners();
             this.startAutoPlay();
@@ -1079,7 +1091,7 @@
 
         addEventListeners() {
             console.log('Configurando event listeners...');
-            
+
             this.dots.forEach((dot, index) => {
                 dot.addEventListener('click', () => {
                     console.log('Click en dot:', index);
