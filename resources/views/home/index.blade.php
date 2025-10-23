@@ -289,6 +289,7 @@
         background: linear-gradient(135deg, rgba(8, 141, 182, 0.1), rgba(9, 64, 122, 0.1));
         opacity: 0;
         transition: opacity 0.3s ease;
+        pointer-events: none;
     }
 
     .fasciculo-card:hover::after {
@@ -311,10 +312,17 @@
     .fasciculo-btn {
         position: relative;
         overflow: hidden;
-        border-radius: 25px !important;
-        background: linear-gradient(45deg, #088db6, #0a4b8a) !important;
+        border-radius: 30px !important;
+        background: linear-gradient(135deg, #088db6, #0a4b8a) !important;
         border: none !important;
         transition: all 0.3s ease;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        padding: 12px 35px !important;
+        text-decoration: none !important;
+        box-shadow: 0 4px 15px rgba(8, 141, 182, 0.3);
+        letter-spacing: 0.5px;
     }
 
     .fasciculo-btn::before {
@@ -326,6 +334,7 @@
         height: 100%;
         background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
         transition: left 0.5s ease;
+        pointer-events: none;
     }
 
     .fasciculo-btn:hover::before {
@@ -333,8 +342,14 @@
     }
 
     .fasciculo-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(8, 141, 182, 0.4);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 12px 35px rgba(8, 141, 182, 0.5);
+        background: linear-gradient(135deg, #0a4b8a, #1e90ff) !important;
+        color: #ffffff !important;
+    }
+
+    .fasciculo-btn:active {
+        transform: translateY(-2px) scale(1.02);
     }
 
     /* EFECTOS PARA MATERIALES */
@@ -530,6 +545,347 @@
         pointer-events: auto;
         cursor: pointer;
     }
+
+    /* CARRUSEL 3D INTERACTIVO */
+    .carousel-3d-wrapper {
+        position: relative;
+        width: 100%;
+        min-height: 600px;
+        margin: 60px 0;
+        overflow: visible;
+    }
+
+    .carousel-3d-container {
+        position: relative;
+        width: 100%;
+        height: 550px;
+        perspective: 2000px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-3d-card {
+        position: absolute;
+        width: 380px;
+        min-height: 450px;
+        background: linear-gradient(145deg, #ffffff, #f8fbff);
+        border-radius: 25px;
+        box-shadow: 0 20px 60px rgba(8, 141, 182, 0.2);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: pointer;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        overflow: hidden;
+    }
+
+    .carousel-3d-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(8, 141, 182, 0.05), rgba(9, 64, 122, 0.05));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .carousel-3d-card:hover::before {
+        opacity: 1;
+    }
+
+    /* Efecto de brillo en hover */
+    .carousel-3d-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.6s ease;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .carousel-3d-card:hover::after {
+        left: 100%;
+    }
+
+    .card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 3;
+    }
+
+    .card-content {
+        padding: 40px 30px;
+        position: relative;
+        z-index: 4;
+    }
+
+    .card-icon-3d {
+        font-size: 3.5rem;
+        color: #088db6;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .carousel-3d-card:hover .card-icon-3d {
+        transform: scale(1.15) rotate(5deg);
+        color: #0a4b8a;
+    }
+
+    .card-title-3d {
+        color: #0a4b8a;
+        font-weight: bold;
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .carousel-3d-card:hover .card-title-3d {
+        color: #088db6;
+    }
+
+    .card-text-3d {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .card-list-3d {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .card-list-3d li {
+        color: #666;
+        font-size: 0.9rem;
+        padding: 5px 0;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .card-list-3d li::before {
+        content: '●';
+        color: #088db6;
+        position: absolute;
+        left: 0;
+    }
+
+    /* Posiciones del carrusel */
+    .carousel-3d-card[data-position="center"] {
+        z-index: 100;
+        transform: translateX(0) translateZ(0) scale(1.1);
+        opacity: 1;
+        box-shadow: 0 25px 80px rgba(8, 141, 182, 0.35);
+        pointer-events: auto;
+    }
+
+    .carousel-3d-card[data-position="left-1"] {
+        z-index: 80;
+        transform: translateX(-420px) translateZ(-200px) scale(0.85);
+        opacity: 0.7;
+        pointer-events: auto;
+    }
+
+    .carousel-3d-card[data-position="right-1"] {
+        z-index: 80;
+        transform: translateX(420px) translateZ(-200px) scale(0.85);
+        opacity: 0.7;
+        pointer-events: auto;
+    }
+
+    .carousel-3d-card[data-position="left-2"] {
+        z-index: 60;
+        transform: translateX(-750px) translateZ(-350px) scale(0.65);
+        opacity: 0.4;
+        pointer-events: auto;
+    }
+
+    .carousel-3d-card[data-position="right-2"] {
+        z-index: 60;
+        transform: translateX(750px) translateZ(-350px) scale(0.65);
+        opacity: 0.4;
+        pointer-events: auto;
+    }
+
+    .carousel-3d-card[data-position="hidden"] {
+        z-index: 40;
+        transform: translateX(0) translateZ(-500px) scale(0.5);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Controles de navegación */
+    .carousel-3d-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #088db6, #0a4b8a);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(8, 141, 182, 0.4);
+    }
+
+    .carousel-3d-nav:hover {
+        background: linear-gradient(135deg, #0a4b8a, #1e90ff);
+        transform: translateY(-50%) scale(1.15);
+        box-shadow: 0 12px 35px rgba(8, 141, 182, 0.6);
+    }
+
+    .carousel-3d-nav:active {
+        transform: translateY(-50%) scale(1.05);
+    }
+
+    .prev-3d {
+        left: 20px;
+    }
+
+    .next-3d {
+        right: 20px;
+    }
+
+    /* Indicadores */
+    .carousel-3d-indicators {
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        z-index: 200;
+    }
+
+    .indicator-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(8, 141, 182, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(8, 141, 182, 0.5);
+    }
+
+    .indicator-dot:hover {
+        background: rgba(8, 141, 182, 0.6);
+        transform: scale(1.2);
+    }
+
+    .indicator-dot.active {
+        background: linear-gradient(135deg, #088db6, #0a4b8a);
+        transform: scale(1.3);
+        box-shadow: 0 0 15px rgba(8, 141, 182, 0.6);
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+        .carousel-3d-card[data-position="left-1"] {
+            transform: translateX(-400px) translateZ(-200px) scale(0.8);
+        }
+
+        .carousel-3d-card[data-position="right-1"] {
+            transform: translateX(400px) translateZ(-200px) scale(0.8);
+        }
+
+        .carousel-3d-card[data-position="left-2"] {
+            transform: translateX(-650px) translateZ(-350px) scale(0.6);
+        }
+
+        .carousel-3d-card[data-position="right-2"] {
+            transform: translateX(650px) translateZ(-350px) scale(0.6);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .carousel-3d-card {
+            width: 340px;
+            min-height: 420px;
+        }
+
+        .carousel-3d-card[data-position="left-1"] {
+            transform: translateX(-380px) translateZ(-200px) scale(0.75);
+        }
+
+        .carousel-3d-card[data-position="right-1"] {
+            transform: translateX(380px) translateZ(-200px) scale(0.75);
+        }
+
+        .carousel-3d-card[data-position="left-2"],
+        .carousel-3d-card[data-position="right-2"] {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .carousel-3d-container {
+            height: 500px;
+        }
+
+        .carousel-3d-card {
+            width: 300px;
+            min-height: 400px;
+        }
+
+        .carousel-3d-card[data-position="center"] {
+            transform: translateX(0) translateZ(0) scale(1);
+        }
+
+        .carousel-3d-card[data-position="left-1"],
+        .carousel-3d-card[data-position="right-1"] {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .carousel-3d-nav {
+            width: 45px;
+            height: 45px;
+            font-size: 22px;
+        }
+
+        .prev-3d {
+            left: 10px;
+        }
+
+        .next-3d {
+            right: 10px;
+        }
+
+        .card-content {
+            padding: 30px 20px;
+        }
+
+        .card-icon-3d {
+            font-size: 2.8rem;
+        }
+
+        .card-title-3d {
+            font-size: 1.2rem;
+        }
+    }
 </style>
 
 <!-- Slider con Efecto de Flujo de Agua -->
@@ -593,129 +949,132 @@
         </div>
     </div>
 </div>
-<!-- Sección Principal - Rediseñada -->
-<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-3 pt-3">
+<!-- Sección Carrusel 3D - Interactivo -->
+<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-5 pt-3">
     <div class="container pb-3">
-        <div class="text-center pb-4">
+        <div class="text-center pb-5">
             <h2 class="animated-title mb-4" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>
             <p style="color: #666; font-size: 1.1rem;">Descubre información fascinante sobre el agua y su importancia
             </p>
         </div>
-        <div class="row">
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 1;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-025-sandwich h1 font-weight-normal card-icon mb-3"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">Tensiones en Torno al Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla, sobre
-                                las
-                                tensiones que suelen presentarse en la sociedad en relación con el agua.
-                            <ul style="color: #666;">
-                                <li>1. Desperdicio.</li>
-                                <li>2. La contaminación.</li>
-                                <li>3. El cambio climático.</li>
+
+        <!-- Carrusel 3D Container -->
+        <div class="carousel-3d-wrapper">
+            <div class="carousel-3d-container" id="carousel3d">
+
+                <!-- Card 1 -->
+                <div class="carousel-3d-card" data-index="0">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-025-sandwich card-icon-3d"></i>
+                            <h4 class="card-title-3d">Tensiones en Torno al Agua</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre las tensiones que suelen presentarse en la sociedad en relación con el agua.</p>
+                            <ul class="card-list-3d">
+                                <li>Desperdicio</li>
+                                <li>La contaminación</li>
+                                <li>El cambio climático</li>
                             </ul>
-                            </p>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="carousel-3d-card" data-index="1">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-022-drum card-icon-3d"></i>
+                            <h4 class="card-title-3d">El Agua para Consumo Humano</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre el agua para consumo humano.</p>
+                            <ul class="card-list-3d">
+                                <li>El agua potable</li>
+                                <li>El alcantarillado sanitario</li>
+                                <li>El tratamiento de las aguas residuales</li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="carousel-3d-card" data-index="2">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-030-crayons card-icon-3d"></i>
+                            <h4 class="card-title-3d">Otros Usos del Agua</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre los otros usos que tiene el agua.</p>
+                            <ul class="card-list-3d">
+                                <li>El agua para la producción de alimentos</li>
+                                <li>El agua para la generación de energía</li>
+                                <li>El agua para la recreación</li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="carousel-3d-card" data-index="3">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-017-toy-car card-icon-3d"></i>
+                            <h4 class="card-title-3d">Garantizando la Calidad del Agua</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre la forma en que podemos garantizar el acceso seguro y sostenible a un agua de calidad.</p>
+                            <ul class="card-list-3d">
+                                <li>Calidad y sostenibilidad de los sistemas</li>
+                                <li>Entidades encargadas del servicio</li>
+                                <li>Importancia de la tarifa de agua</li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="carousel-3d-card" data-index="4">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-047-backpack card-icon-3d"></i>
+                            <h4 class="card-title-3d">El Uso Responsable del Agua</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre la forma en que debemos tener un uso responsable del agua.</p>
+                            <ul class="card-list-3d">
+                                <li>El ahorro y cuidado del agua</li>
+                                <li>Deberes y derechos de los usuarios de agua</li>
+                                <li>Aprendiendo a criar nuestra agua</li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="carousel-3d-card" data-index="5">
+                    <a href="{{ route('home.content') }}" class="card-link">
+                        <div class="card-content">
+                            <i class="flaticon-050-fence card-icon-3d"></i>
+                            <h4 class="card-title-3d">Importancia del Agua</h4>
+                            <p class="card-text-3d">Aquí te contaremos, de manera clara y sencilla, sobre qué tan importante es el agua para el mundo y cada uno de nosotros.</p>
+                            <ul class="card-list-3d">
+                                <li>El agua en el Planeta</li>
+                                <li>El ciclo del agua</li>
+                                <li>Su importancia para la infancia</li>
+                            </ul>
+                        </div>
+                    </a>
+                </div>
+
             </div>
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 2;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-022-drum h1 font-weight-normal card-icon mb-3"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">El Agua para Consumo Humano</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla, sobre
-                                el agua para consumo humano.
-                            <ul style="color: #666;">
-                                <li>1. El agua potable.</li>
-                                <li>2. El alcantarillado sanitario.</li>
-                                <li>3. El tratamiento de las aguas residuales.</li>
-                            </ul>
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 3;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-030-crayons h1 font-weight-normal card-icon mb-3"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">Otros Usos del Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla,
-                                sobre
-                                los otros usos que tiene el agua.
-                            <ul style="color: #666;">
-                                <li>1. El agua para la producción de alimentos.</li>
-                                <li>2. El agua para la generación de energía.</li>
-                                <li>3. El agua para la recreación.</li>
-                            </ul>
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 4;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-017-toy-car h1 font-weight-normal card-icon mb-3"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">Garantizando la Calidad del Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla,
-                                sobre
-                                la forma en que podemos garantizar el acceso seguro y sostenible
-                                a un agua de calidad.
-                            <ul style="color: #666;">
-                                <li>1. Calidad y sostenibilidad de los sistemas.</li>
-                                <li>2. Entidades encargadas del servicio.</li>
-                                <li>3. Importancia de la tarifa de agua.</li>
-                            </ul>
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 5;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-047-backpack h1 font-weight-normal card-icon mb-3"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">El Uso Responsable del Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla,
-                                sobre
-                                la forma en que debemos tener un uso responsable del agua.
-                            <ul style="color: #666;">
-                                <li>1. El ahorro y cuidado del agua.</li>
-                                <li>2. Deberes y derechos de los usuarios de agua.</li>
-                                <li>3. Aprendiendo a criar nuestra agua.</li>
-                            </ul>
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1 fade-in-up" style="--delay: 6;">
-                <a href="{{ route('home.content') }}" style="text-decoration: none; color: inherit;">
-                    <div class="animated-card" style="padding: 30px;">
-                        <i class="flaticon-050-fence h1 font-weight-normal card-icon"></i>
-                        <div class="pl-4">
-                            <h4 style="color: #0a4b8a; font-weight: bold;">Importancia del Agua</h4>
-                            <p class="m-0" style="color: #666;">Aquí te contaremos, de manera clara y sencilla,
-                                sobre qué tan
-                                importante es el agua para el mundo y cada uno de nosotros.</p>
-                            <ul style="color: #666;">
-                                <li>1. El agua en el Planeta</li>
-                                <li>2. El ciclo del agua</li>
-                                <li>3. Su importancia para la infancia</li>
-                            </ul>
-                        </div>
-                    </div>
-                </a>
+
+            <!-- Controles de Navegación -->
+            <button class="carousel-3d-nav prev-3d" id="prevCarousel3d">‹</button>
+            <button class="carousel-3d-nav next-3d" id="nextCarousel3d">›</button>
+
+            <!-- Indicadores -->
+            <div class="carousel-3d-indicators" id="carousel3dIndicators">
+                <span class="indicator-dot active" data-slide="0"></span>
+                <span class="indicator-dot" data-slide="1"></span>
+                <span class="indicator-dot" data-slide="2"></span>
+                <span class="indicator-dot" data-slide="3"></span>
+                <span class="indicator-dot" data-slide="4"></span>
+                <span class="indicator-dot" data-slide="5"></span>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -924,8 +1283,6 @@
                 <h4 style="color: #0a4b8a; font-weight: bold;">Mi Cole con Agua Segura</h4>
                 <i style="color: #666;">Estrategia</i>
             </div>
-
-
             <div class="col-md-6 col-lg-3 text-center material-item mb-5 fade-in-up" style="--delay: 7;">
                 <div class="material-circle position-relative overflow-hidden mb-4" style="border-radius: 100%;">
                     <a href="{{ asset('home/material%20agua/ANEXOS/Los%20Guardianes%20del%20Agua.pdf') }}" 
@@ -940,7 +1297,6 @@
                 <h4 style="color: #0a4b8a; font-weight: bold;">Los Guardianes del Agua</h4>
                 <i style="color: #666;">Cuento</i>
             </div>
-
         </div>
     </div>
 </div>
@@ -1218,6 +1574,198 @@
             console.log('Inicializando slider (fallback)...');
             new WaterFlowSlider();
             document.body.classList.add('slider-initialized');
+        }
+    });
+
+    // CARRUSEL 3D CLASS
+    class Carousel3D {
+        constructor() {
+            this.container = document.getElementById('carousel3d');
+            this.cards = document.querySelectorAll('.carousel-3d-card');
+            this.prevBtn = document.getElementById('prevCarousel3d');
+            this.nextBtn = document.getElementById('nextCarousel3d');
+            this.indicators = document.querySelectorAll('.indicator-dot');
+            this.currentIndex = 0;
+            this.totalCards = this.cards.length;
+            this.isAnimating = false;
+            this.autoPlayInterval = null;
+
+            this.init();
+        }
+
+        init() {
+            console.log('Inicializando Carrusel 3D...');
+            this.updatePositions();
+            this.addEventListeners();
+            this.startAutoPlay();
+        }
+
+        addEventListeners() {
+            // Botones de navegación
+            this.prevBtn.addEventListener('click', () => {
+                if (!this.isAnimating) {
+                    this.prev();
+                }
+            });
+
+            this.nextBtn.addEventListener('click', () => {
+                if (!this.isAnimating) {
+                    this.next();
+                }
+            });
+
+            // Indicadores
+            this.indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    if (!this.isAnimating && index !== this.currentIndex) {
+                        this.goToSlide(index);
+                    }
+                });
+            });
+
+            // Click en las tarjetas
+            this.cards.forEach((card, index) => {
+                card.addEventListener('click', (e) => {
+                    const position = card.getAttribute('data-position');
+                    if (position !== 'center' && position !== 'hidden') {
+                        e.preventDefault();
+                        if (!this.isAnimating) {
+                            this.goToSlide(index);
+                        }
+                    }
+                });
+            });
+
+            // Pausar autoplay en hover
+            this.container.addEventListener('mouseenter', () => {
+                this.stopAutoPlay();
+            });
+
+            this.container.addEventListener('mouseleave', () => {
+                this.startAutoPlay();
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (!this.isAnimating) {
+                    if (e.key === 'ArrowLeft') {
+                        this.prev();
+                    } else if (e.key === 'ArrowRight') {
+                        this.next();
+                    }
+                }
+            });
+        }
+
+        getPosition(index) {
+            const diff = index - this.currentIndex;
+            const total = this.totalCards;
+
+            // Normalizar la diferencia para el camino más corto
+            let normalizedDiff = diff;
+            if (Math.abs(diff) > total / 2) {
+                normalizedDiff = diff > 0 ? diff - total : diff + total;
+            }
+
+            if (normalizedDiff === 0) return 'center';
+            if (normalizedDiff === 1 || normalizedDiff === -total + 1) return 'right-1';
+            if (normalizedDiff === -1 || normalizedDiff === total - 1) return 'left-1';
+            if (normalizedDiff === 2 || normalizedDiff === -total + 2) return 'right-2';
+            if (normalizedDiff === -2 || normalizedDiff === total - 2) return 'left-2';
+            return 'hidden';
+        }
+
+        updatePositions() {
+            this.cards.forEach((card, index) => {
+                const position = this.getPosition(index);
+                card.setAttribute('data-position', position);
+            });
+
+            // Actualizar indicadores
+            this.indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === this.currentIndex);
+            });
+        }
+
+        next() {
+            this.isAnimating = true;
+            this.currentIndex = (this.currentIndex + 1) % this.totalCards;
+            this.updatePositions();
+
+            setTimeout(() => {
+                this.isAnimating = false;
+            }, 800);
+        }
+
+        prev() {
+            this.isAnimating = true;
+            this.currentIndex = (this.currentIndex - 1 + this.totalCards) % this.totalCards;
+            this.updatePositions();
+
+            setTimeout(() => {
+                this.isAnimating = false;
+            }, 800);
+        }
+
+        goToSlide(targetIndex) {
+            if (targetIndex === this.currentIndex) return;
+
+            this.isAnimating = true;
+
+            // Calcular la dirección más corta
+            const diff = targetIndex - this.currentIndex;
+            const total = this.totalCards;
+
+            if (Math.abs(diff) <= total / 2) {
+                this.currentIndex = targetIndex;
+            } else {
+                if (diff > 0) {
+                    this.currentIndex = targetIndex;
+                } else {
+                    this.currentIndex = targetIndex;
+                }
+            }
+
+            this.updatePositions();
+
+            setTimeout(() => {
+                this.isAnimating = false;
+            }, 800);
+        }
+
+        startAutoPlay() {
+            this.stopAutoPlay();
+            this.autoPlayInterval = setInterval(() => {
+                if (!this.isAnimating) {
+                    this.next();
+                }
+            }, 5000);
+        }
+
+        stopAutoPlay() {
+            if (this.autoPlayInterval) {
+                clearInterval(this.autoPlayInterval);
+                this.autoPlayInterval = null;
+            }
+        }
+    }
+
+    // Inicializar Carrusel 3D
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousel3dContainer = document.getElementById('carousel3d');
+        if (carousel3dContainer) {
+            console.log('Inicializando Carrusel 3D...');
+            new Carousel3D();
+        }
+    });
+
+    // Fallback
+    window.addEventListener('load', function() {
+        const carousel3dContainer = document.getElementById('carousel3d');
+        if (carousel3dContainer && !carousel3dContainer.classList.contains('carousel-initialized')) {
+            console.log('Inicializando Carrusel 3D (fallback)...');
+            new Carousel3D();
+            carousel3dContainer.classList.add('carousel-initialized');
         }
     });
 </script>
