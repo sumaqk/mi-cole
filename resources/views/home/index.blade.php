@@ -71,12 +71,12 @@
 
     .elegant-container {
         width: 100%;
-        margin: 20px auto;
+        margin: 15px auto;
         background: linear-gradient(90deg, rgba(79, 172, 254, 0.4), rgba(0, 242, 254, 0.4));
         backdrop-filter: blur(10px);
         border-radius: 15px;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        padding: 20px;
+        padding: 15px;
         animation: fadeIn 0.5s ease-in-out;
     }
 
@@ -553,7 +553,7 @@
         position: relative;
         width: 100%;
         min-height: 600px;
-        margin: 60px 0;
+        margin: 20px 0 50px 0;
         overflow: visible;
     }
 
@@ -731,49 +731,80 @@
         pointer-events: none;
     }
 
-    /* Controles de navegación */
+    /* Controles de navegación - Diseño moderno */
     .carousel-3d-nav {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        width: 55px;
-        height: 55px;
-        background: linear-gradient(135deg, #088db6, #0a4b8a);
-        border: none;
-        border-radius: 50%;
-        color: white;
-        font-size: 28px;
+        width: 65px;
+        height: 65px;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        color: #088db6;
+        font-size: 32px;
+        font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         z-index: 200;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 25px rgba(8, 141, 182, 0.4);
+        box-shadow: 0 8px 32px rgba(8, 141, 182, 0.2),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+        overflow: hidden;
+    }
+
+    .carousel-3d-nav::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .carousel-3d-nav:hover::before {
+        left: 100%;
     }
 
     .carousel-3d-nav:hover {
-        background: linear-gradient(135deg, #0a4b8a, #1e90ff);
-        transform: translateY(-50%) scale(1.15);
-        box-shadow: 0 12px 35px rgba(8, 141, 182, 0.6);
+        background: rgba(8, 141, 182, 0.95);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        color: white;
+        transform: translateY(-50%) scale(1.1) rotate(-5deg);
+        box-shadow: 0 15px 45px rgba(8, 141, 182, 0.5),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.6);
     }
 
     .carousel-3d-nav:active {
-        transform: translateY(-50%) scale(1.05);
+        transform: translateY(-50%) scale(0.95);
     }
 
     .prev-3d {
-        left: 20px;
+        left: 25px;
     }
 
     .next-3d {
-        right: 20px;
+        right: 25px;
+    }
+
+    .prev-3d:hover {
+        transform: translateY(-50%) scale(1.1) rotate(5deg);
+    }
+
+    .next-3d:hover {
+        transform: translateY(-50%) scale(1.1) rotate(-5deg);
     }
 
     /* Indicadores */
     .carousel-3d-indicators {
         position: absolute;
-        bottom: -50px;
+        bottom: -30px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
@@ -843,6 +874,10 @@
     }
 
     @media (max-width: 768px) {
+        .carousel-3d-wrapper {
+            margin: 20px 0 40px 0;
+        }
+
         .carousel-3d-container {
             height: 500px;
         }
@@ -863,17 +898,18 @@
         }
 
         .carousel-3d-nav {
-            width: 45px;
-            height: 45px;
-            font-size: 22px;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            border-radius: 15px;
         }
 
         .prev-3d {
-            left: 10px;
+            left: 8px;
         }
 
         .next-3d {
-            right: 10px;
+            right: 8px;
         }
 
         .card-content {
@@ -952,10 +988,10 @@
     </div>
 </div>
 <!-- Sección Carrusel 3D - Interactivo -->
-<div class="container-fluid pt-5 section-modern elegant-container mb-0 mt-0 pb-5 pt-3">
-    <div class="container pb-3">
-        <div class="text-center pb-5">
-            <h2 class="animated-title mb-4" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>
+<div class="container-fluid pt-4 section-modern elegant-container mb-0 mt-0 pb-3 pt-3">
+    <div class="container pb-2">
+        <div class="text-center pb-3">
+            <h2 class="animated-title mb-3" style="color: #0a4b8a; font-weight: bold;">Explora Nuestro Contenido</h2>
             <p style="color: #666; font-size: 1.1rem;">Descubre información fascinante sobre el agua y su importancia
             </p>
         </div>
@@ -1063,8 +1099,8 @@
             </div>
 
             <!-- Controles de Navegación -->
-            <button class="carousel-3d-nav prev-3d" id="prevCarousel3d">‹</button>
-            <button class="carousel-3d-nav next-3d" id="nextCarousel3d">›</button>
+            <button class="carousel-3d-nav prev-3d" id="prevCarousel3d">◄</button>
+            <button class="carousel-3d-nav next-3d" id="nextCarousel3d">►</button>
 
             <!-- Indicadores -->
             <div class="carousel-3d-indicators" id="carousel3dIndicators">
@@ -1080,115 +1116,103 @@
     </div>
 </div>
 
-<!-- Fascículos - Rediseñados -->
-<div class="container-fluid pt-5 section-modern"
+<!-- Fascículos - Carrusel 3D -->
+<div class="container-fluid pt-4 section-modern"
     style="background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);">
-    <div class="container">
-        <div class="text-center pb-4">
+    <div class="container pb-2">
+        <div class="text-center pb-3">
             <p class="section-title px-5" style="color: #088db6; font-size: 1.2rem; font-weight: 600;"><span
                     class="px-2">Más Contenido</span></p>
-            <h1 class="mb-4 animated-title" style="color: #0a4b8a; font-weight: bold;">Fascículos</h1>
+            <h1 class="mb-3 animated-title" style="color: #0a4b8a; font-weight: bold;">Fascículos</h1>
         </div>
-        <div class="row">
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 1;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f1.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">Importancia del Agua</h4>
-                        <p class="card-text" style="color: #666;">Debes saber, que nuestro sistema solar está
-                            compuesto por 8
-                            planetas, de los cuales solo la tierra tiene abundante agua en
-                            estado líquido. Y eso es lo que ha permitido que aquí, nazca y
-                            florezca la vida.</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-1.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
+
+        <!-- Carrusel 3D Fascículos -->
+        <div class="carousel-3d-wrapper">
+            <div class="carousel-3d-container" id="carousel3dFasciculos">
+
+                <!-- Fascículo 1 -->
+                <div class="carousel-3d-card" data-index="0">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-1.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f1.png') }}" alt="Fascículo 1" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">Importancia del Agua</h4>
+                            <p class="card-text-3d">Debes saber, que nuestro sistema solar está compuesto por 8 planetas, de los cuales solo la tierra tiene abundante agua en estado líquido.</p>
+                        </div>
+                    </a>
                 </div>
+
+                <!-- Fascículo 2 -->
+                <div class="carousel-3d-card" data-index="1">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-2.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f2.png') }}" alt="Fascículo 2" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">El Agua para Consumo Humano</h4>
+                            <p class="card-text-3d">Debemos empezar aclarando que para tener agua potable y evitar la contaminación del medio ambiente, contamos con servicios de saneamiento.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Fascículo 3 -->
+                <div class="carousel-3d-card" data-index="2">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-3.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f3.png') }}" alt="Fascículo 3" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">Otros Usos del Agua</h4>
+                            <p class="card-text-3d">Además del agua para consumo humano, existen otros usos del agua. La actividad que más agua consume es el riego de cultivos.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Fascículo 4 -->
+                <div class="carousel-3d-card" data-index="3">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-4.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f4.png') }}" alt="Fascículo 4" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">Garantizando la Calidad del Agua</h4>
+                            <p class="card-text-3d">Ahora que ya sabes lo complejo que es mantener limpia el agua, debes saber que en nuestra región Apurímac los sistemas están en proceso de deterioro.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Fascículo 5 -->
+                <div class="carousel-3d-card" data-index="4">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-5.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f5.png') }}" alt="Fascículo 5" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">Tensiones en Torno al Agua</h4>
+                            <p class="card-text-3d">Antes de empezar, trata de calcular cuántos litros de agua consumes diariamente. Piensa en las distintas actividades que realizas.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Fascículo 6 -->
+                <div class="carousel-3d-card" data-index="5">
+                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-6.pdf') }}" target="_blank" class="card-link">
+                        <div class="card-content">
+                            <img src="{{ asset('home/img/fasiculos/f6.png') }}" alt="Fascículo 6" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+                            <h4 class="card-title-3d">El Uso Responsable del Agua</h4>
+                            <p class="card-text-3d">El 22 de marzo fue declarado Día Mundial del Agua. Esa fecha tiene el objetivo de recordar la gran importancia del agua en nuestras vidas.</p>
+                        </div>
+                    </a>
+                </div>
+
             </div>
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 2;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f2.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">El Agua para Consumo Humano
-                        </h4>
-                        <p class="card-text" style="color: #666;">Debemos empezar aclarando que para tener agua
-                            potable y evitar
-                            la contaminación del medio ambiente, en la actualidad contamos
-                            con un sistema grande que llamamos servicios de saneamiento.</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-2.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 3;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f3.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">Otros Usos del Agua</h4>
-                        <p class="card-text" style="color: #666;">Además del agua para consumo humano, existen otros
-                            usos del
-                            agua. Y la actividad que más agua consume en nuestro país, es la
-                            del riego de los cultivos para la producción de alimentos.</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-3.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 4;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f4.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">Garantizando la Calidad del
-                            Agua</h4>
-                        <p class="card-text" style="color: #666;">Ahora que ya sabes lo complejo que es mantener
-                            limpia el agua
-                            para consumo humano, y todos los servicios de saneamiento,
-                            debes saber que en nuestro país, y sobre todo en nuestra región
-                            Apurímac, dichos sistemas están en proceso de deterioro.</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-4.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 5;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f5.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">Tensiones en Torno al Agua
-                        </h4>
-                        <p class="card-text" style="color: #666;">Antes de empezar, trata de calcular cuántos litros
-                            de agua
-                            consumes tú diariamente. Piensa en las distintas actividades que
-                            realizas desde que te levantas hasta que te vas a dormir. ¿Pudiste
-                            sacar un cálculo?</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-5.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-5 fade-in-up" style="--delay: 6;">
-                <div class="fasciculo-card shadow-sm pb-2">
-                    <img class="card-img-top mb-2" src="{{ asset('home/img/fasiculos/f6.png') }}" alt="">
-                    <div class="card-body text-center">
-                        <h4 class="card-title" style="color: #0a4b8a; font-weight: bold;">El Uso Responsable del Agua
-                        </h4>
-                        <p class="card-text" style="color: #666;">Hace unos años, se declaró el 22 de marzo como Día
-                            Mundial del
-                            Agua. Esa fecha conmemorativa tiene el objetivo de recordar a todas
-                            las personas la gran importancia que tiene el agua en nuestras
-                            vidas y en general para todo el planeta.</p>
-                    </div>
-                    <a href="{{ asset('home/material agua/ANEXOS/fasiculos/fasciculo-6.pdf') }}"
-                        class="fasciculo-btn btn px-4 mx-auto mb-4 d-block" style="max-width: 200px;"
-                        target="_blank">Ver Más</a>
-                </div>
+
+            <!-- Controles de Navegación -->
+            <button class="carousel-3d-nav prev-3d" id="prevCarousel3dFasciculos">◄</button>
+            <button class="carousel-3d-nav next-3d" id="nextCarousel3dFasciculos">►</button>
+
+            <!-- Indicadores -->
+            <div class="carousel-3d-indicators" id="carousel3dFasciIndicators">
+                <span class="indicator-dot active" data-slide="0"></span>
+                <span class="indicator-dot" data-slide="1"></span>
+                <span class="indicator-dot" data-slide="2"></span>
+                <span class="indicator-dot" data-slide="3"></span>
+                <span class="indicator-dot" data-slide="4"></span>
+                <span class="indicator-dot" data-slide="5"></span>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -1581,12 +1605,15 @@
 
     // CARRUSEL 3D CLASS
     class Carousel3D {
-        constructor() {
-            this.container = document.getElementById('carousel3d');
-            this.cards = document.querySelectorAll('.carousel-3d-card');
-            this.prevBtn = document.getElementById('prevCarousel3d');
-            this.nextBtn = document.getElementById('nextCarousel3d');
-            this.indicators = document.querySelectorAll('.indicator-dot');
+        constructor(containerId, prevBtnId, nextBtnId, indicatorsId) {
+            this.container = document.getElementById(containerId);
+            if (!this.container) return;
+
+            this.cards = this.container.querySelectorAll('.carousel-3d-card');
+            this.prevBtn = document.getElementById(prevBtnId);
+            this.nextBtn = document.getElementById(nextBtnId);
+            this.indicatorsContainer = document.getElementById(indicatorsId);
+            this.indicators = this.indicatorsContainer ? this.indicatorsContainer.querySelectorAll('.indicator-dot') : [];
             this.currentIndex = 0;
             this.totalCards = this.cards.length;
             this.isAnimating = false;
@@ -1752,22 +1779,39 @@
         }
     }
 
-    // Inicializar Carrusel 3D
+    // Inicializar Carruseles 3D
     document.addEventListener('DOMContentLoaded', function() {
+        // Carrusel de Contenido
         const carousel3dContainer = document.getElementById('carousel3d');
         if (carousel3dContainer) {
-            console.log('Inicializando Carrusel 3D...');
-            new Carousel3D();
+            console.log('Inicializando Carrusel 3D de Contenido...');
+            new Carousel3D('carousel3d', 'prevCarousel3d', 'nextCarousel3d', 'carousel3dIndicators');
+        }
+
+        // Carrusel de Fascículos
+        const carousel3dFasciculos = document.getElementById('carousel3dFasciculos');
+        if (carousel3dFasciculos) {
+            console.log('Inicializando Carrusel 3D de Fascículos...');
+            new Carousel3D('carousel3dFasciculos', 'prevCarousel3dFasciculos', 'nextCarousel3dFasciculos', 'carousel3dFasciIndicators');
         }
     });
 
     // Fallback
     window.addEventListener('load', function() {
+        // Carrusel de Contenido
         const carousel3dContainer = document.getElementById('carousel3d');
         if (carousel3dContainer && !carousel3dContainer.classList.contains('carousel-initialized')) {
-            console.log('Inicializando Carrusel 3D (fallback)...');
-            new Carousel3D();
+            console.log('Inicializando Carrusel 3D de Contenido (fallback)...');
+            new Carousel3D('carousel3d', 'prevCarousel3d', 'nextCarousel3d', 'carousel3dIndicators');
             carousel3dContainer.classList.add('carousel-initialized');
+        }
+
+        // Carrusel de Fascículos
+        const carousel3dFasciculos = document.getElementById('carousel3dFasciculos');
+        if (carousel3dFasciculos && !carousel3dFasciculos.classList.contains('carousel-initialized')) {
+            console.log('Inicializando Carrusel 3D de Fascículos (fallback)...');
+            new Carousel3D('carousel3dFasciculos', 'prevCarousel3dFasciculos', 'nextCarousel3dFasciculos', 'carousel3dFasciIndicators');
+            carousel3dFasciculos.classList.add('carousel-initialized');
         }
     });
 </script>
