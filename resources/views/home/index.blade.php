@@ -189,6 +189,11 @@
         pointer-events: auto !important;
         z-index: 10000 !important;
         position: relative;
+        outline: none;
+    }
+
+    .control-dot:focus {
+        outline: none;
     }
 
     .control-dot.active {
@@ -215,12 +220,17 @@
         align-items: center;
         justify-content: center;
         pointer-events: auto !important;
+        outline: none;
     }
 
     .nav-arrow:hover {
         background: rgba(8, 141, 182, 1);
         transform: translateY(-50%) scale(1.1);
         box-shadow: 0 0 20px rgba(8, 141, 182, 0.8);
+    }
+
+    .nav-arrow:focus {
+        outline: none;
     }
 
     .nav-arrow.prev {
@@ -755,6 +765,14 @@
         box-shadow: 0 8px 32px rgba(8, 141, 182, 0.2),
                     inset 0 1px 2px rgba(255, 255, 255, 0.5);
         overflow: hidden;
+        outline: none;
+    }
+
+    .carousel-3d-nav:focus {
+        outline: none;
+        box-shadow: 0 8px 32px rgba(8, 141, 182, 0.3),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+                    0 0 0 3px rgba(79, 172, 254, 0.3);
     }
 
     .carousel-3d-nav::before {
@@ -820,11 +838,16 @@
         cursor: pointer;
         transition: all 0.3s ease;
         border: 2px solid rgba(8, 141, 182, 0.5);
+        outline: none;
     }
 
     .indicator-dot:hover {
         background: rgba(8, 141, 182, 0.6);
         transform: scale(1.2);
+    }
+
+    .indicator-dot:focus {
+        outline: none;
     }
 
     .indicator-dot.active {
