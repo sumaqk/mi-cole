@@ -629,6 +629,7 @@
 
             body {
                 padding-top: 120px;
+                overflow-x: hidden;
             }
         }
 
@@ -662,6 +663,7 @@
 
             body {
                 padding-top: 140px;
+                overflow-x: hidden;
             }
         }
 
@@ -675,6 +677,7 @@
         /* Espaciado para header fijo */
         body {
             padding-top: 100px;
+            overflow-x: hidden;
         }
 
         @-webkit-keyframes headerFadeIn {
