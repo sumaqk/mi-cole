@@ -4,7 +4,13 @@
       "Bash(php artisan *)",
       "Bash(npm --version)",
       "PowerShell(php artisan migrate:status 2>&1 | Select-Object -First 20)",
-      "PowerShell(php artisan migrate:status 2>&1 | Select-Object -First 15)"
+      "PowerShell(php artisan migrate:status 2>&1 | Select-Object -First 15)",
+      "PowerShell(New-Item *)",
+      "WebFetch(domain:riccardozanutta.com)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
     ]
   }
 }
