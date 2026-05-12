@@ -1,13 +1,16 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 use App\Models\TException;
 use App\Models\TInstitutionTUser;
 
-class TUser extends Model
+class TUser extends Authenticatable
 {
+    use HasApiTokens;
+
 	protected $table='tuser';
 	protected $primaryKey='idUser';
 	protected $keyType='string';

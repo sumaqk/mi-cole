@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(npm --version)",
+      "PowerShell(php artisan migrate:status 2>&1 | Select-Object -First 20)",
+      "PowerShell(php artisan migrate:status 2>&1 | Select-Object -First 15)"
+    ]
+  }
+}

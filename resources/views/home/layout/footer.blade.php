@@ -418,13 +418,12 @@
     <div class="footer-bottom">
         <div class="container-fluid">
             <p class="copyright-text">
-                &copy; 2025 <span class="highlight">Gobierno Regional de Apurímac</span>.
+                &copy; 2026 <span class="highlight">Gobierno Regional de Apurímac</span>.
                 Todos los derechos reservados - Desarrollado por <span class="highlight">Gerencia Regional de Desarrollo Social</span>. 
             </p>
         </div>
     </div>
 </div>
-
 <a href="#" class="back-to-top-modern" id="backToTop">
     <i class="fas fa-chevron-up"></i>
 </a>
