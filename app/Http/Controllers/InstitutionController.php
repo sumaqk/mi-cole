@@ -548,4 +548,35 @@ class InstitutionController extends Controller
 
 		return response()->json($mapData);
 	}
+
+	public function getPublicStats()
+	{
+		$totalInstitutions = TInstitution::where('status', 'Activo')->count();
+
+		$totalProvinces = TProvince::whereHas('tDistrict.tInstitution', function ($q) {
+			$q->where('status', 'Activo');
+		})->count();
+
+		$totalUgels = TUgel::where('is_active', true)->count();
+
+		$monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$currentMonth = $monthsEs[(int)date('m') - 1];
+		$currentYear  = (int)date('Y');
+
+		$withData = TWater::where('month', $currentMonth)
+			->whereYear('created_at', $currentYear)
+			->distinct('idInstitution')
+			->count('idInstitution');
+
+		$withDataPct = $totalInstitutions > 0
+			? (int)round($withData / $totalInstitutions * 100)
+			: 0;
+
+		return response()->json([
+			'total_institutions' => $totalInstitutions,
+			'total_provinces'    => $totalProvinces,
+			'total_ugels'        => $totalUgels,
+			'with_data_pct'      => $withDataPct,
+		]);
+	}
 }
