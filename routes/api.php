@@ -20,6 +20,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::prefix('public')->group(function () {
+    Route::get('stats', [InstitutionController::class, 'publicStats']);
     Route::get('map-data', [InstitutionController::class, 'publicMapData']);
     Route::get('institutions', [InstitutionController::class, 'publicInstitutions']);
     Route::get('contents', [ContenidoController::class, 'contents']);

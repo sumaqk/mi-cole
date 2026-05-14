@@ -201,6 +201,113 @@ class InstitutionController extends Controller
         return response()->json(['success' => true, 'data' => $provinces]);
     }
 
+    public function publicStats()
+    {
+        $currentMonth = $this->months[intval(date('m')) - 1];
+        $currentYear  = (int)date('Y');
+
+        $totalInstitutions = TInstitution::where('status', 'Activo')->count();
+
+        $institutionsThisMonth = TWater::whereYear('created_at', $currentYear)
+            ->where('month', $currentMonth)
+            ->count();
+
+        $coveragePct = $totalInstitutions > 0
+            ? round(($institutionsThisMonth / $totalInstitutions) * 100)
+            : 0;
+
+        $totalProvinces = DB::table('tinstitution')
+            ->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+            ->where('tinstitution.status', 'Activo')
+            ->distinct()
+            ->count('tdistrict.idProvince');
+
+        $totalUgels = DB::table('tugel')->where('is_active', true)->count();
+
+        // Tendencia vs mes anterior
+        $prevMonthIndex = intval(date('m')) - 2;
+        $prevYear = $currentYear;
+        if ($prevMonthIndex < 0) { $prevMonthIndex = 11; $prevYear--; }
+        $prevMonth       = $this->months[$prevMonthIndex];
+        $prevReported    = TWater::whereYear('created_at', $prevYear)->where('month', $prevMonth)->count();
+        $prevCoveragePct = $totalInstitutions > 0 ? round(($prevReported / $totalInstitutions) * 100) : 0;
+        $trendCoveragePct = $coveragePct - $prevCoveragePct;
+
+        // Instituciones que nunca han reportado
+        $reportedIds        = TWater::distinct()->pluck('idInstitution');
+        $neverReportedCount = TInstitution::where('status', 'Activo')
+            ->whereNotIn('idInstitution', $reportedIds)
+            ->count();
+
+        // UGEL con más registros este mes
+        $topUgelRow = DB::table('twater')
+            ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+            ->join('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+            ->whereYear('twater.created_at', $currentYear)
+            ->where('twater.month', $currentMonth)
+            ->select('tugel.name', DB::raw('COUNT(*) as total'))
+            ->groupBy('tugel.idUgel', 'tugel.name')
+            ->orderByDesc('total')
+            ->first();
+        $topUgel = $topUgelRow ? $topUgelRow->name : null;
+
+        // Análisis de cloro por institución — 5 bandas DS 031-2010-SA
+        $records = TWater::whereYear('created_at', $currentYear)
+            ->where('month', $currentMonth)
+            ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
+
+        $institutionAvgs = [];
+        $criticalCount   = 0; // < 0.3
+        $deficientCount  = 0; // 0.3 – 0.5
+        $optimalCount    = 0; // 0.5 – 2.0
+        $highCount       = 0; // 2.0 – 5.0
+        $excessiveCount  = 0; // > 5.0
+
+        foreach ($records as $r) {
+            $vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
+                ->filter(fn($v) => $v !== null && (float)$v >= 0)
+                ->map(fn($v) => (float)$v);
+            if ($vals->count() > 0) {
+                $avg = $vals->average();
+                $institutionAvgs[] = $avg;
+                if ($avg < 0.3)      $criticalCount++;
+                elseif ($avg < 0.5)  $deficientCount++;
+                elseif ($avg <= 2.0) $optimalCount++;
+                elseif ($avg <= 5.0) $highCount++;
+                else                  $excessiveCount++;
+            }
+        }
+
+        $totalWithData  = count($institutionAvgs);
+        $avgChlorine    = $totalWithData > 0
+            ? round(array_sum($institutionAvgs) / $totalWithData, 2)
+            : null;
+        $complianceRate = $totalWithData > 0
+            ? round(($optimalCount / $totalWithData) * 100)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'total_institutions'      => $totalInstitutions,
+                'institutions_this_month' => $institutionsThisMonth,
+                'coverage_pct'            => $coveragePct,
+                'total_provinces'         => $totalProvinces,
+                'total_ugels'             => $totalUgels,
+                'avg_chlorine'            => $avgChlorine,
+                'critical_count'          => $criticalCount,
+                'deficient_count'         => $deficientCount,
+                'optimal_count'           => $optimalCount,
+                'high_count'              => $highCount,
+                'excessive_count'         => $excessiveCount,
+                'compliance_rate'         => $complianceRate,
+                'never_reported_count'    => $neverReportedCount,
+                'trend_coverage_pct'      => $trendCoveragePct,
+                'top_ugel'                => $topUgel,
+            ],
+        ]);
+    }
+
     public function publicMapData(Request $request)
     {
         $mapData = $this->buildMapData(
