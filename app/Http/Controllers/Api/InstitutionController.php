@@ -287,24 +287,21 @@ class InstitutionController extends Controller
             : null;
 
         return response()->json([
-            'success' => true,
-            'data'    => [
-                'total_institutions'      => $totalInstitutions,
-                'institutions_this_month' => $institutionsThisMonth,
-                'coverage_pct'            => $coveragePct,
-                'total_provinces'         => $totalProvinces,
-                'total_ugels'             => $totalUgels,
-                'avg_chlorine'            => $avgChlorine,
-                'critical_count'          => $criticalCount,
-                'deficient_count'         => $deficientCount,
-                'optimal_count'           => $optimalCount,
-                'high_count'              => $highCount,
-                'excessive_count'         => $excessiveCount,
-                'compliance_rate'         => $complianceRate,
-                'never_reported_count'    => $neverReportedCount,
-                'trend_coverage_pct'      => $trendCoveragePct,
-                'top_ugel'                => $topUgel,
-            ],
+            'total_institutions'      => $totalInstitutions,
+            'institutions_this_month' => $institutionsThisMonth,
+            'coverage_pct'            => $coveragePct,
+            'total_provinces'         => $totalProvinces,
+            'total_ugels'             => $totalUgels,
+            'avg_chlorine'            => $avgChlorine,
+            'critical_count'          => $criticalCount,
+            'deficient_count'         => $deficientCount,
+            'optimal_count'           => $optimalCount,
+            'high_count'              => $highCount,
+            'excessive_count'         => $excessiveCount,
+            'compliance_rate'         => $complianceRate,
+            'never_reported_count'    => $neverReportedCount,
+            'trend_coverage_pct'      => $trendCoveragePct,
+            'top_ugel'                => $topUgel,
         ]);
     }
 

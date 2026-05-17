@@ -50,6 +50,8 @@ Route::get('index/home/institution', [InstitutionController::class, 'actionGetIn
 Route::get('/get-districts', [UserController::class, 'getDistrictsByProvince'])->name('getDistricts');
 Route::get('api/public/map-data',  [InstitutionController::class, 'getPublicMapData'])->name('api.public.map-data');
 Route::get('api/public/stats',     [InstitutionController::class, 'getPublicStats'])->name('api.public.stats');
+Route::get('api/public/ugel-chart',[InstitutionController::class, 'getPublicUgelChart'])->name('api.public.ugel-chart');
+Route::get('api/public/trend',     [InstitutionController::class, 'getPublicTrend'])->name('api.public.trend');
 
 Route::get('water/insert', [WaterController::class, 'actionInsert'])->middleware('GenericMiddleware:water/insert');
 Route::get(

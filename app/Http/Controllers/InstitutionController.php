@@ -549,34 +549,191 @@ class InstitutionController extends Controller
 		return response()->json($mapData);
 	}
 
-	public function getPublicStats()
+	public function getPublicStats(Request $request)
 	{
+		$months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$monthNum     = $request->has('month') ? max(1, min(12, (int)$request->get('month'))) : (int)date('m');
+		$currentMonth = $months[$monthNum - 1];
+		$currentYear  = $request->has('year') ? (int)$request->get('year') : (int)date('Y');
+
 		$totalInstitutions = TInstitution::where('status', 'Activo')->count();
 
-		$totalProvinces = TProvince::whereHas('tDistrict.tInstitution', function ($q) {
-			$q->where('status', 'Activo');
-		})->count();
-
-		$totalUgels = TUgel::where('is_active', true)->count();
-
-		$monthsEs = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
-		$currentMonth = $monthsEs[(int)date('m') - 1];
-		$currentYear  = (int)date('Y');
-
-		$withData = TWater::where('month', $currentMonth)
-			->whereYear('created_at', $currentYear)
+		$institutionsThisMonth = TWater::whereYear('created_at', $currentYear)
+			->where('month', $currentMonth)
 			->distinct('idInstitution')
 			->count('idInstitution');
 
-		$withDataPct = $totalInstitutions > 0
-			? (int)round($withData / $totalInstitutions * 100)
+		$coveragePct = $totalInstitutions > 0
+			? (int)round(($institutionsThisMonth / $totalInstitutions) * 100)
 			: 0;
 
+		$totalProvinces = DB::table('tinstitution')
+			->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+			->where('tinstitution.status', 'Activo')
+			->distinct()
+			->count('tdistrict.idProvince');
+
+		$totalUgels = DB::table('tugel')->where('is_active', true)->count();
+
+		// Tendencia vs mes anterior
+		$prevMonthIndex = (int)date('m') - 2;
+		$prevYear = $currentYear;
+		if ($prevMonthIndex < 0) { $prevMonthIndex = 11; $prevYear--; }
+		$prevMonth = $months[$prevMonthIndex];
+		$prevReported = TWater::whereYear('created_at', $prevYear)->where('month', $prevMonth)->distinct('idInstitution')->count('idInstitution');
+		$prevCoveragePct = $totalInstitutions > 0 ? (int)round(($prevReported / $totalInstitutions) * 100) : 0;
+		$trendCoveragePct = $coveragePct - $prevCoveragePct;
+
+		// Instituciones que nunca han reportado
+		$reportedIds = TWater::distinct()->pluck('idInstitution');
+		$neverReportedCount = TInstitution::where('status', 'Activo')
+			->whereNotIn('idInstitution', $reportedIds)
+			->count();
+
+		// UGEL más activa este mes
+		$topUgelRow = DB::table('twater')
+			->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+			->join('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+			->whereYear('twater.created_at', $currentYear)
+			->where('twater.month', $currentMonth)
+			->select('tugel.name', DB::raw('COUNT(DISTINCT twater.idInstitution) as total'))
+			->groupBy('tugel.idUgel', 'tugel.name')
+			->orderByDesc('total')
+			->first();
+		$topUgel = $topUgelRow ? $topUgelRow->name : null;
+
+		// Análisis de cloro — 5 bandas DS 031-2010-SA
+		$records = TWater::whereYear('created_at', $currentYear)
+			->where('month', $currentMonth)
+			->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
+
+		$institutionAvgs = [];
+		$criticalCount = 0; $deficientCount = 0; $optimalCount = 0; $highCount = 0; $excessiveCount = 0;
+
+		foreach ($records as $r) {
+			$vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
+				->filter(fn($v) => $v !== null && (float)$v >= 0)
+				->map(fn($v) => (float)$v);
+			if ($vals->count() > 0) {
+				$avg = $vals->average();
+				$institutionAvgs[] = $avg;
+				if ($avg < 0.3)      $criticalCount++;
+				elseif ($avg < 0.5)  $deficientCount++;
+				elseif ($avg <= 2.0) $optimalCount++;
+				elseif ($avg <= 5.0) $highCount++;
+				else                 $excessiveCount++;
+			}
+		}
+
+		$totalWithData = count($institutionAvgs);
+		$avgChlorine   = $totalWithData > 0 ? round(array_sum($institutionAvgs) / $totalWithData, 2) : null;
+		$complianceRate = $totalWithData > 0 ? (int)round(($optimalCount / $totalWithData) * 100) : null;
+
 		return response()->json([
-			'total_institutions' => $totalInstitutions,
-			'total_provinces'    => $totalProvinces,
-			'total_ugels'        => $totalUgels,
-			'with_data_pct'      => $withDataPct,
+			'total_institutions'      => $totalInstitutions,
+			'institutions_this_month' => $institutionsThisMonth,
+			'coverage_pct'            => $coveragePct,
+			'total_provinces'         => $totalProvinces,
+			'total_ugels'             => $totalUgels,
+			'avg_chlorine'            => $avgChlorine,
+			'critical_count'          => $criticalCount,
+			'deficient_count'         => $deficientCount,
+			'optimal_count'           => $optimalCount,
+			'high_count'              => $highCount,
+			'excessive_count'         => $excessiveCount,
+			'compliance_rate'         => $complianceRate,
+			'never_reported_count'    => $neverReportedCount,
+			'trend_coverage_pct'      => $trendCoveragePct,
+			'top_ugel'                => $topUgel,
+		]);
+	}
+
+	public function getPublicUgelChart(Request $request)
+	{
+		$months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$monthNum     = $request->has('month') ? max(1, min(12, (int)$request->get('month'))) : (int)date('m');
+		$currentMonth = $months[$monthNum - 1];
+		$currentYear  = $request->has('year') ? (int)$request->get('year') : (int)date('Y');
+
+		$ugels = TUgel::where('is_active', true)->orderBy('name')->get(['idUgel', 'name']);
+
+		$data = [];
+		foreach ($ugels as $ugel) {
+			$rows = DB::table('twater')
+				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+				->whereYear('twater.created_at', $currentYear)
+				->where('twater.month', $currentMonth)
+				->where('tinstitution.idUgel', $ugel->idUgel)
+				->select('twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
+				->get();
+
+			$weeks = [];
+			for ($w = 1; $w <= 5; $w++) {
+				$field = "resultW{$w}";
+				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
+				$weeks[] = [
+					'week'  => $w,
+					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+					'count' => $vals->count(),
+				];
+			}
+
+			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
+			if ($hasData) {
+				$data[] = ['name' => $ugel->name, 'weeks' => $weeks];
+			}
+		}
+
+		return response()->json([
+			'month' => $currentMonth,
+			'year'  => $currentYear,
+			'ugels' => $data,
+		]);
+	}
+
+	public function getPublicTrend()
+	{
+		$months      = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$monthLabels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];
+
+		$total = TInstitution::where('status', 'Activo')->count();
+
+		$monthly     = [];
+		$now         = new \DateTime();
+		for ($i = 23; $i >= 0; $i--) {
+			$dt       = (clone $now)->modify("-{$i} months");
+			$year     = (int)$dt->format('Y');
+			$monthNum = (int)$dt->format('m');
+			$monthName = $months[$monthNum - 1];
+			$label     = $monthLabels[$monthNum - 1] . ' ' . substr((string)$year, 2);
+
+			$reported = TWater::whereYear('created_at', $year)
+				->where('month', $monthName)
+				->distinct('idInstitution')
+				->count('idInstitution');
+
+			$monthly[] = [
+				'year'      => $year,
+				'month'     => $monthName,
+				'month_num' => $monthNum,
+				'reported'  => $reported,
+				'label'     => $label,
+			];
+		}
+
+		$yearly      = [];
+		$currentYear = (int)$now->format('Y');
+		for ($y = $currentYear - 4; $y <= $currentYear; $y++) {
+			$reported = TWater::whereYear('created_at', $y)
+				->distinct('idInstitution')
+				->count('idInstitution');
+			$yearly[] = ['year' => $y, 'reported' => $reported, 'total' => $total];
+		}
+
+		return response()->json([
+			'total'   => $total,
+			'monthly' => $monthly,
+			'yearly'  => $yearly,
 		]);
 	}
 }
