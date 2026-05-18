@@ -8,10 +8,12 @@ use App\Models\TDistrict;
 use App\Models\TInstitution;
 use App\Models\TInstitutionTUser;
 use App\Models\TProvince;
+use App\Models\TImage;
 use App\Models\TUgel;
 use App\Models\TWater;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InstitutionController extends Controller
 {
@@ -313,7 +315,7 @@ class InstitutionController extends Controller
             $request->get('week')
         );
 
-        return response()->json(['success' => true, 'data' => $mapData]);
+        return response()->json($mapData);
     }
 
     public function publicInstitutions(Request $request)
@@ -386,6 +388,8 @@ class InstitutionController extends Controller
             [$color, $status, $description] = $this->chlorineStatus($weekValue, $hasData, $week);
 
             $mapData[] = [
+                'id'          => (string)$inst->idInstitution,
+                'debug_test'  => 'v2',
                 'name'        => $inst->name,
                 'lat'         => (float)$inst->latitude,
                 'lng'         => (float)$inst->longitude,
@@ -414,5 +418,74 @@ class InstitutionController extends Controller
         if ($value <= 2.0) return ['#00FF00', 'Óptimo',     'Cumple normativa peruana'];
         if ($value <= 5.0) return ['#0000FF', 'Alto',       'Monitorear sabor/olor'];
         return ['#800080', 'Excesivo', 'Incumple DS 031-2010-SA'];
+    }
+
+    public function publicInstitutionGallery($id)
+    {
+        $institution = TInstitution::find($id);
+        if (!$institution) {
+            return response()->json(['photos' => []]);
+        }
+
+        $photos = [];
+        TImage::whereHas('tWater', fn($q) => $q->where('idInstitution', $id))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->each(function ($img) use (&$photos) {
+                foreach (['urlImage1', 'urlImage2', 'urlImage3'] as $field) {
+                    $url = $this->resolveUrl($img->$field);
+                    if ($url) {
+                        $photos[] = [
+                            'url'  => $url,
+                            'date' => $img->created_at?->toDateString(),
+                        ];
+                    }
+                }
+            });
+
+        return response()->json([
+            'institution' => $institution->name,
+            'photos'      => $photos,
+        ]);
+    }
+
+    public function publicGallery()
+    {
+        $grouped = TImage::with(['tWater.tInstitution'])
+            ->whereNotNull('urlImage1')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(fn($img) => optional(optional($img->tWater)->tInstitution)->name ?? 'Sin institución');
+
+        $institutions = $grouped->map(function ($images, $name) {
+            $photos = [];
+            foreach ($images as $img) {
+                foreach (['urlImage1', 'urlImage2', 'urlImage3'] as $field) {
+                    $path = $img->$field;
+                    if (!$path) continue;
+                    $url = $this->resolveUrl($path);
+                    if ($url) {
+                        $photos[] = [
+                            'url'  => $url,
+                            'date' => $img->created_at?->toDateString(),
+                        ];
+                    }
+                }
+            }
+            return ['name' => $name, 'images' => $photos];
+        })->values();
+
+        return response()->json(['institutions' => $institutions]);
+    }
+
+    private function resolveUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        // Devolver la ruta relativa tal cual; el frontend la prefija con API_BASE
+        // asset() no funciona en XAMPP porque APP_URL no incluye el subdirectorio /mi-cole/public
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '//')) {
+            return $path;
+        }
+        return ltrim($path, '/');
     }
 }

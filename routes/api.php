@@ -23,6 +23,8 @@ Route::prefix('public')->group(function () {
     Route::get('stats', [InstitutionController::class, 'publicStats']);
     Route::get('map-data', [InstitutionController::class, 'publicMapData']);
     Route::get('institutions', [InstitutionController::class, 'publicInstitutions']);
+    Route::get('gallery', [InstitutionController::class, 'publicGallery']);
+    Route::get('institutions/{id}/gallery', [InstitutionController::class, 'publicInstitutionGallery']);
     Route::get('contents', [ContenidoController::class, 'contents']);
     Route::get('contents/{id}', [ContenidoController::class, 'contentDetail']);
     Route::get('videos', [ContenidoController::class, 'videos']);
