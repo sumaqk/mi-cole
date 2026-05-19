@@ -29,7 +29,11 @@ Route::get('archivos/{path}', function ($path) {
 })->where('path', '.*')->name('archivos.public');
 
 Route::get('/', function () {
-    return redirect()->route('home.index');
+    $path = public_path('index.html');
+    if (!file_exists($path)) {
+        return redirect()->route('home.index');
+    }
+    return response(file_get_contents($path), 200)->header('Content-Type', 'text/html');
 })->name('home');
 
 Route::get('index/home', [IndexController::class, 'actionIndex'])->name('home.index');
@@ -164,5 +168,15 @@ Route::post('contenidoweb/contenido/update/{id}', [ContenidoWebController::class
 Route::delete('contenidoweb/contenido/delete/{id}', [ContenidoWebController::class, 'actionContenidoDelete'])->middleware('GenericMiddleware:contenidoweb/contenido/delete');
 Route::post('contenidoweb/contenido/toggle-status/{id}', [ContenidoWebController::class, 'actionContenidoToggleStatus'])->middleware('GenericMiddleware:contenidoweb/contenido/toggle-status');
 Route::post('contenidoweb/contenido/toggle-featured/{id}', [ContenidoWebController::class, 'actionContenidoToggleFeatured'])->middleware('GenericMiddleware:contenidoweb/contenido/toggle-featured');
+
+// React SPA — sirve index.html para cualquier ruta que no sea un archivo o ruta API existente
+Route::get('/{any}', function () {
+    $path = public_path('index.html');
+    if (!file_exists($path)) {
+        return response('Frontend no desplegado aún.', 503);
+    }
+    return response(file_get_contents($path), 200)
+        ->header('Content-Type', 'text/html');
+})->where('any', '^(?!api/).*$');
 
 ?>
