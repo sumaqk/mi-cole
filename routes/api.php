@@ -96,5 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [DashboardController::class, 'index']);
         Route::get('map-data', [DashboardController::class, 'mapData']);
+        Route::get('export-nonreporting', [DashboardController::class, 'exportNonReporting']);
+        Route::get('export-withreporting', [DashboardController::class, 'exportWithReporting']);
     });
 });

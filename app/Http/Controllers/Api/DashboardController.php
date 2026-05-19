@@ -7,8 +7,11 @@ use App\Models\TInstitution;
 use App\Models\TUgel;
 use App\Models\TUser;
 use App\Models\TWater;
+use App\Export\NonReportingExport;
+use App\Export\WithReportingExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardController extends Controller
 {
@@ -137,6 +140,122 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'data' => $mapData]);
     }
 
+    public function exportNonReporting(Request $request)
+    {
+        $scope     = $request->get('scope', 'month');
+        $monthsEs  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+        $monthName = $monthsEs[(int)$request->get('month', date('m')) - 1];
+        $year      = (int)$request->get('year', date('Y'));
+        $week      = (int)$request->get('week', max(1, min(5, (int)date('W') - (int)date('W', strtotime(date('Y-m-01'))) + 1)));
+
+        $tUser        = $request->user();
+        $userRole     = $tUser->role ?? null;
+        $userLevel    = $tUser->level ?? null;
+        $userProvince = $tUser->idProvince ?? null;
+        $userDistrict = $tUser->idDistrict ?? null;
+
+        $qInst = TInstitution::with(['tdistrict.tprovince', 'tugel']);
+        if ($userRole === 'Supervisor' && $userLevel === 'levelProvince' && $userProvince) {
+            $qInst->whereHas('tdistrict.tprovince', fn($q) => $q->where('idProvince', $userProvince));
+        }
+        if ($userRole === 'Supervisor' && in_array($userLevel, ['levelDistrict','levelDistrit']) && $userDistrict) {
+            $qInst->whereHas('tdistrict', fn($q) => $q->where('idDistrict', $userDistrict));
+        }
+        $instituciones = $qInst->get();
+        $ids    = $instituciones->pluck('idInstitution')->all();
+        $waters = TWater::whereIn('idInstitution', $ids)
+            ->where('month', $monthName)->whereYear('created_at', $year)
+            ->orderBy('updated_at', 'desc')->get()
+            ->unique('idInstitution')->keyBy('idInstitution');
+
+        $rows = [];
+        foreach ($instituciones as $inst) {
+            $w         = $waters->get($inst->idInstitution);
+            $sinMes    = true;
+            $sinSemana = true;
+            if ($w) {
+                $reportadas = 0;
+                for ($i = 1; $i <= 5; $i++) { $f = "resultW{$i}"; if (isset($w->$f) && $w->$f != -1) $reportadas++; }
+                $sinMes    = ($reportadas === 0);
+                $fw        = "resultW{$week}";
+                $sinSemana = !isset($w->$fw) || $w->$fw == -1;
+            }
+            if (($scope === 'week') ? $sinSemana : $sinMes) {
+                $rows[] = [
+                    $inst->tugel->name ?? 'Sin UGEL', $inst->name, $inst->lender,
+                    $inst->tdistrict->tprovince->name ?? '', $inst->tdistrict->name ?? '',
+                    $year, $monthName,
+                    $scope === 'week' ? $week : '-',
+                    $scope === 'week' ? 'Sin reporte en semana actual' : 'Sin reportes en el mes',
+                ];
+            }
+        }
+
+        $title    = $scope === 'week' ? "Semana {$week} — {$monthName} {$year}" : "Mes actual — {$monthName} {$year}";
+        $filename = $scope === 'week' ? "no_reportantes_semana_{$week}_{$monthName}_{$year}.xlsx" : "no_reportantes_mes_{$monthName}_{$year}.xlsx";
+
+        return Excel::download(new NonReportingExport($rows, $title), $filename);
+    }
+
+    public function exportWithReporting(Request $request)
+    {
+        $scope     = $request->get('scope', 'month');
+        $monthsEs  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+        $monthName = $monthsEs[(int)$request->get('month', date('m')) - 1];
+        $year      = (int)$request->get('year', date('Y'));
+        $week      = (int)$request->get('week', max(1, min(5, (int)date('W') - (int)date('W', strtotime(date('Y-m-01'))) + 1)));
+
+        $tUser        = $request->user();
+        $userRole     = $tUser->role ?? null;
+        $userLevel    = $tUser->level ?? null;
+        $userProvince = $tUser->idProvince ?? null;
+        $userDistrict = $tUser->idDistrict ?? null;
+
+        $qInst = TInstitution::with(['tdistrict.tprovince', 'tugel']);
+        if ($userRole === 'Supervisor' && $userLevel === 'levelProvince' && $userProvince) {
+            $qInst->whereHas('tdistrict.tprovince', fn($q) => $q->where('idProvince', $userProvince));
+        }
+        if ($userRole === 'Supervisor' && in_array($userLevel, ['levelDistrict','levelDistrit']) && $userDistrict) {
+            $qInst->whereHas('tdistrict', fn($q) => $q->where('idDistrict', $userDistrict));
+        }
+        $instituciones = $qInst->get();
+        $ids    = $instituciones->pluck('idInstitution')->all();
+        $waters = TWater::whereIn('idInstitution', $ids)
+            ->where('month', $monthName)->whereYear('created_at', $year)
+            ->orderBy('updated_at', 'desc')->get()
+            ->unique('idInstitution')->keyBy('idInstitution');
+
+        $rows = [];
+        foreach ($instituciones as $inst) {
+            $w = $waters->get($inst->idInstitution);
+            if (!$w) continue;
+            $reportadas = 0; $sumAll = 0; $countAll = 0;
+            for ($i = 1; $i <= 5; $i++) { $f = "resultW{$i}"; if (isset($w->$f) && $w->$f != -1) { $reportadas++; $sumAll += $w->$f; $countAll++; } }
+            $conMes    = ($reportadas > 0);
+            $fw        = "resultW{$week}";
+            $conSemana = isset($w->$fw) && $w->$fw != -1;
+            if (!(($scope === 'week') ? $conSemana : $conMes)) continue;
+            $promedio = $countAll > 0 ? round($sumAll / $countAll, 2) : 0;
+            $estado   = ($promedio < 0.5 || $promedio > 5) ? 'Inadecuado' : 'Bueno';
+            $rows[] = [
+                $inst->tugel->name ?? 'Sin UGEL', $inst->name, $inst->lender,
+                $inst->tdistrict->tprovince->name ?? '', $inst->tdistrict->name ?? '',
+                $year, $monthName,
+                $w->resultW1 != -1 ? number_format($w->resultW1, 1, '.') : '-',
+                $w->resultW2 != -1 ? number_format($w->resultW2, 1, '.') : '-',
+                $w->resultW3 != -1 ? number_format($w->resultW3, 1, '.') : '-',
+                $w->resultW4 != -1 ? number_format($w->resultW4, 1, '.') : '-',
+                $w->resultW5 != -1 ? number_format($w->resultW5, 1, '.') : '-',
+                number_format($promedio, 2, '.'), $estado,
+            ];
+        }
+
+        $title    = $scope === 'week' ? "Semana {$week} — {$monthName} {$year}" : "Mes actual — {$monthName} {$year}";
+        $filename = $scope === 'week' ? "con_reportes_semana_{$week}_{$monthName}_{$year}.xlsx" : "con_reportes_mes_{$monthName}_{$year}.xlsx";
+
+        return Excel::download(new WithReportingExport($rows, $title), $filename);
+    }
+
     private function applyRoleFilters($query, $role, $level, $province, $district, $ugelFilter): void
     {
         if (!empty($ugelFilter)) {
@@ -194,6 +313,7 @@ class DashboardController extends Controller
             [$color, $status, $description] = $this->chlorineStatus($weekValue, $hasData, $week);
 
             $mapData[] = [
+                'id'          => $inst->idInstitution,
                 'name'        => $inst->name,
                 'lat'         => (float)$inst->latitude,
                 'lng'         => (float)$inst->longitude,
