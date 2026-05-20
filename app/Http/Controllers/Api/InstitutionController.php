@@ -203,10 +203,18 @@ class InstitutionController extends Controller
         return response()->json(['success' => true, 'data' => $provinces]);
     }
 
-    public function publicStats()
+    public function publicStats(Request $request)
     {
-        $currentMonth = $this->months[intval(date('m')) - 1];
-        $currentYear  = (int)date('Y');
+        $monthParam   = (int)$request->get('month', (int)date('m'));
+        $yearParam    = (int)$request->get('year',  (int)date('Y'));
+        $weekParam    = (int)$request->get('week',  0); // 0 = todo el mes
+        // DEBUG — eliminar luego
+        if ($request->get('_debug')) {
+            return response()->json(['debug_week' => $weekParam, 'debug_month' => $monthParam, 'debug_year' => $yearParam]);
+        }
+
+        $currentMonth = $this->months[$monthParam - 1];
+        $currentYear  = $yearParam;
 
         $totalInstitutions = TInstitution::where('status', 'Activo')->count();
 
@@ -214,8 +222,19 @@ class InstitutionController extends Controller
             ->where('month', $currentMonth)
             ->count();
 
+        // Si hay semana específica, calcular reportaron y cobertura por esa semana
+        if ($weekParam > 0) {
+            $wField = "resultW{$weekParam}";
+            $institutionsReported = TWater::whereYear('created_at', $currentYear)
+                ->where('month', $currentMonth)
+                ->where($wField, '>', 0)
+                ->count();
+        } else {
+            $institutionsReported = $institutionsThisMonth;
+        }
+
         $coveragePct = $totalInstitutions > 0
-            ? round(($institutionsThisMonth / $totalInstitutions) * 100)
+            ? round(($institutionsReported / $totalInstitutions) * 100)
             : 0;
 
         $totalProvinces = DB::table('tinstitution')
@@ -227,7 +246,7 @@ class InstitutionController extends Controller
         $totalUgels = DB::table('tugel')->where('is_active', true)->count();
 
         // Tendencia vs mes anterior
-        $prevMonthIndex = intval(date('m')) - 2;
+        $prevMonthIndex = $monthParam - 2;
         $prevYear = $currentYear;
         if ($prevMonthIndex < 0) { $prevMonthIndex = 11; $prevYear--; }
         $prevMonth       = $this->months[$prevMonthIndex];
@@ -253,31 +272,41 @@ class InstitutionController extends Controller
             ->first();
         $topUgel = $topUgelRow ? $topUgelRow->name : null;
 
-        // Análisis de cloro por institución — 5 bandas DS 031-2010-SA
+        // Análisis de cloro — por semana específica o promedio mes
         $records = TWater::whereYear('created_at', $currentYear)
             ->where('month', $currentMonth)
             ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
 
         $institutionAvgs = [];
-        $criticalCount   = 0; // < 0.3
-        $deficientCount  = 0; // 0.3 – 0.5
-        $optimalCount    = 0; // 0.5 – 2.0
-        $highCount       = 0; // 2.0 – 5.0
-        $excessiveCount  = 0; // > 5.0
+        $criticalCount   = 0;
+        $deficientCount  = 0;
+        $optimalCount    = 0;
+        $highCount       = 0;
+        $excessiveCount  = 0;
 
         foreach ($records as $r) {
-            $vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
-                ->filter(fn($v) => $v !== null && (float)$v >= 0)
-                ->map(fn($v) => (float)$v);
-            if ($vals->count() > 0) {
+            if ($weekParam > 0) {
+                // Semana específica — solo valores reales (> 0)
+                $field = "resultW{$weekParam}";
+                $val   = isset($r->$field) && (float)$r->$field > 0
+                    ? (float)$r->$field : null;
+                if ($val === null) continue;
+                $avg = $val;
+            } else {
+                // Todo el mes — promedio de semanas con dato real (> 0)
+                $vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
+                    ->filter(fn($v) => $v !== null && (float)$v > 0)
+                    ->map(fn($v) => (float)$v);
+                if ($vals->count() === 0) continue;
                 $avg = $vals->average();
-                $institutionAvgs[] = $avg;
-                if ($avg < 0.3)      $criticalCount++;
-                elseif ($avg < 0.5)  $deficientCount++;
-                elseif ($avg <= 2.0) $optimalCount++;
-                elseif ($avg <= 5.0) $highCount++;
-                else                  $excessiveCount++;
             }
+
+            $institutionAvgs[] = $avg;
+            if ($avg < 0.3)      $criticalCount++;
+            elseif ($avg < 0.5)  $deficientCount++;
+            elseif ($avg <= 2.0) $optimalCount++;
+            elseif ($avg <= 5.0) $highCount++;
+            else                  $excessiveCount++;
         }
 
         $totalWithData  = count($institutionAvgs);
@@ -290,7 +319,7 @@ class InstitutionController extends Controller
 
         return response()->json([
             'total_institutions'      => $totalInstitutions,
-            'institutions_this_month' => $institutionsThisMonth,
+            'institutions_this_month' => $institutionsReported,
             'coverage_pct'            => $coveragePct,
             'total_provinces'         => $totalProvinces,
             'total_ugels'             => $totalUgels,
@@ -344,6 +373,106 @@ class InstitutionController extends Controller
             'groupBy'           => $groupBy,
             'data'              => $result,
             'totalInstitutions' => TInstitution::where('status', 'Activo')->count(),
+        ]);
+    }
+
+    public function publicUgelChart(Request $request)
+    {
+        $monthParam = (int)$request->get('month', (int)date('m'));
+        $yearParam  = (int)$request->get('year',  (int)date('Y'));
+
+        $monthName  = $this->months[$monthParam - 1];
+
+        $ugels = TUgel::where('is_active', true)->orderBy('name')->get();
+
+        $result = [];
+        foreach ($ugels as $ugel) {
+            $institutionIds = TInstitution::where('idUgel', $ugel->idUgel)
+                ->where('status', 'Activo')
+                ->pluck('idInstitution');
+
+            $records = TWater::whereIn('idInstitution', $institutionIds)
+                ->where('month', $monthName)
+                ->whereYear('created_at', $yearParam)
+                ->get(['resultW1','resultW2','resultW3','resultW4','resultW5']);
+
+            $weeks = [];
+            for ($w = 1; $w <= 5; $w++) {
+                $field  = "resultW{$w}";
+                $vals   = $records->filter(fn($r) => isset($r->$field) && (float)$r->$field > 0)
+                                  ->map(fn($r) => (float)$r->$field);
+                $weeks[] = [
+                    'week'  => $w,
+                    'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+                    'count' => $vals->count(),
+                ];
+            }
+
+            $result[] = [
+                'name'  => $ugel->name,
+                'weeks' => $weeks,
+            ];
+        }
+
+        return response()->json([
+            'month' => $monthName,
+            'year'  => $yearParam,
+            'ugels' => $result,
+        ]);
+    }
+
+    public function publicDistrictChart(Request $request)
+    {
+        $monthParam = (int)$request->get('month', (int)date('m'));
+        $yearParam  = (int)$request->get('year',  (int)date('Y'));
+        $ugelName   = $request->get('ugel', '');
+
+        $monthName  = $this->months[$monthParam - 1];
+
+        $ugel = TUgel::where('name', $ugelName)->first();
+        if (!$ugel) {
+            return response()->json(['month' => $monthName, 'year' => $yearParam, 'ugel' => $ugelName, 'districts' => []]);
+        }
+
+        $districts = TDistrict::whereHas('tInstitution', fn($q) =>
+            $q->where('idUgel', $ugel->idUgel)->where('status', 'Activo')
+        )->orderBy('name')->get();
+
+        $result = [];
+        foreach ($districts as $district) {
+            $institutionIds = TInstitution::where('idDistrict', $district->idDistrict)
+                ->where('idUgel', $ugel->idUgel)
+                ->where('status', 'Activo')
+                ->pluck('idInstitution');
+
+            $records = TWater::whereIn('idInstitution', $institutionIds)
+                ->where('month', $monthName)
+                ->whereYear('created_at', $yearParam)
+                ->get(['resultW1','resultW2','resultW3','resultW4','resultW5']);
+
+            $weeks = [];
+            for ($w = 1; $w <= 5; $w++) {
+                $field  = "resultW{$w}";
+                $vals   = $records->filter(fn($r) => isset($r->$field) && (float)$r->$field > 0)
+                                  ->map(fn($r) => (float)$r->$field);
+                $weeks[] = [
+                    'week'  => $w,
+                    'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+                    'count' => $vals->count(),
+                ];
+            }
+
+            $result[] = [
+                'name'  => $district->name,
+                'weeks' => $weeks,
+            ];
+        }
+
+        return response()->json([
+            'month'     => $monthName,
+            'year'      => $yearParam,
+            'ugel'      => $ugelName,
+            'districts' => $result,
         ]);
     }
 

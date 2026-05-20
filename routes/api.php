@@ -21,6 +21,8 @@ Route::prefix('auth')->group(function () {
 
 Route::prefix('public')->group(function () {
     Route::get('stats', [InstitutionController::class, 'publicStats']);
+    Route::get('ugel-chart', [InstitutionController::class, 'publicUgelChart']);
+    Route::get('district-chart', [InstitutionController::class, 'publicDistrictChart']);
     Route::get('map-data', [InstitutionController::class, 'publicMapData']);
     Route::get('institutions', [InstitutionController::class, 'publicInstitutions']);
     Route::get('gallery', [InstitutionController::class, 'publicGallery']);

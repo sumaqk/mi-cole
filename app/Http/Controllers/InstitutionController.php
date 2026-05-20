@@ -555,16 +555,26 @@ class InstitutionController extends Controller
 		$monthNum     = $request->has('month') ? max(1, min(12, (int)$request->get('month'))) : (int)date('m');
 		$currentMonth = $months[$monthNum - 1];
 		$currentYear  = $request->has('year') ? (int)$request->get('year') : (int)date('Y');
+		$weekParam    = $request->has('week') ? (int)$request->get('week') : 0;
 
 		$totalInstitutions = TInstitution::where('status', 'Activo')->count();
 
-		$institutionsThisMonth = TWater::whereYear('created_at', $currentYear)
-			->where('month', $currentMonth)
-			->distinct('idInstitution')
-			->count('idInstitution');
+		if ($weekParam > 0) {
+			$wField = "resultW{$weekParam}";
+			$institutionsReported = TWater::whereYear('created_at', $currentYear)
+				->where('month', $currentMonth)
+				->where($wField, '>', 0)
+				->distinct('idInstitution')
+				->count('idInstitution');
+		} else {
+			$institutionsReported = TWater::whereYear('created_at', $currentYear)
+				->where('month', $currentMonth)
+				->distinct('idInstitution')
+				->count('idInstitution');
+		}
 
 		$coveragePct = $totalInstitutions > 0
-			? (int)round(($institutionsThisMonth / $totalInstitutions) * 100)
+			? (int)round(($institutionsReported / $totalInstitutions) * 100)
 			: 0;
 
 		$totalProvinces = DB::table('tinstitution')
@@ -576,7 +586,7 @@ class InstitutionController extends Controller
 		$totalUgels = DB::table('tugel')->where('is_active', true)->count();
 
 		// Tendencia vs mes anterior
-		$prevMonthIndex = (int)date('m') - 2;
+		$prevMonthIndex = $monthNum - 2;
 		$prevYear = $currentYear;
 		if ($prevMonthIndex < 0) { $prevMonthIndex = 11; $prevYear--; }
 		$prevMonth = $months[$prevMonthIndex];
@@ -602,7 +612,7 @@ class InstitutionController extends Controller
 			->first();
 		$topUgel = $topUgelRow ? $topUgelRow->name : null;
 
-		// Análisis de cloro — 5 bandas DS 031-2010-SA
+		// Análisis de cloro — filtrado por semana si se especifica
 		$records = TWater::whereYear('created_at', $currentYear)
 			->where('month', $currentMonth)
 			->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
@@ -611,18 +621,24 @@ class InstitutionController extends Controller
 		$criticalCount = 0; $deficientCount = 0; $optimalCount = 0; $highCount = 0; $excessiveCount = 0;
 
 		foreach ($records as $r) {
-			$vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
-				->filter(fn($v) => $v !== null && (float)$v >= 0)
-				->map(fn($v) => (float)$v);
-			if ($vals->count() > 0) {
+			if ($weekParam > 0) {
+				$field = "resultW{$weekParam}";
+				$val   = isset($r->$field) && (float)$r->$field > 0 ? (float)$r->$field : null;
+				if ($val === null) continue;
+				$avg = $val;
+			} else {
+				$vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
+					->filter(fn($v) => $v !== null && (float)$v > 0)
+					->map(fn($v) => (float)$v);
+				if ($vals->count() === 0) continue;
 				$avg = $vals->average();
-				$institutionAvgs[] = $avg;
-				if ($avg < 0.3)      $criticalCount++;
-				elseif ($avg < 0.5)  $deficientCount++;
-				elseif ($avg <= 2.0) $optimalCount++;
-				elseif ($avg <= 5.0) $highCount++;
-				else                 $excessiveCount++;
 			}
+			$institutionAvgs[] = $avg;
+			if ($avg < 0.3)      $criticalCount++;
+			elseif ($avg < 0.5)  $deficientCount++;
+			elseif ($avg <= 2.0) $optimalCount++;
+			elseif ($avg <= 5.0) $highCount++;
+			else                 $excessiveCount++;
 		}
 
 		$totalWithData = count($institutionAvgs);
@@ -631,7 +647,7 @@ class InstitutionController extends Controller
 
 		return response()->json([
 			'total_institutions'      => $totalInstitutions,
-			'institutions_this_month' => $institutionsThisMonth,
+			'institutions_this_month' => $institutionsReported,
 			'coverage_pct'            => $coveragePct,
 			'total_provinces'         => $totalProvinces,
 			'total_ugels'             => $totalUgels,
@@ -688,6 +704,64 @@ class InstitutionController extends Controller
 			'month' => $currentMonth,
 			'year'  => $currentYear,
 			'ugels' => $data,
+		]);
+	}
+
+	public function getPublicDistrictChart(Request $request)
+	{
+		$months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$monthNum     = $request->has('month') ? max(1, min(12, (int)$request->get('month'))) : (int)date('m');
+		$currentMonth = $months[$monthNum - 1];
+		$currentYear  = $request->has('year') ? (int)$request->get('year') : (int)date('Y');
+		$ugelName     = trim($request->get('ugel', ''));
+
+		$ugel = TUgel::where('name', $ugelName)->first();
+		if (!$ugel) {
+			return response()->json([
+				'month'     => $currentMonth,
+				'year'      => $currentYear,
+				'ugel'      => $ugelName,
+				'districts' => [],
+			]);
+		}
+
+		$districts = TDistrict::whereHas('tInstitution', fn($q) => $q->where('idUgel', $ugel->idUgel))
+			->orderBy('name')
+			->get(['idDistrict', 'name']);
+
+		$data = [];
+		foreach ($districts as $district) {
+			$rows = DB::table('twater')
+				->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
+				->whereYear('twater.created_at', $currentYear)
+				->where('twater.month', $currentMonth)
+				->where('tinstitution.idUgel', $ugel->idUgel)
+				->where('tinstitution.idDistrict', $district->idDistrict)
+				->select('twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
+				->get();
+
+			$weeks = [];
+			for ($w = 1; $w <= 5; $w++) {
+				$field = "resultW{$w}";
+				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
+				$weeks[] = [
+					'week'  => $w,
+					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+					'count' => $vals->count(),
+				];
+			}
+
+			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
+			if ($hasData) {
+				$data[] = ['name' => $district->name, 'weeks' => $weeks];
+			}
+		}
+
+		return response()->json([
+			'month'     => $currentMonth,
+			'year'      => $currentYear,
+			'ugel'      => $ugelName,
+			'districts' => $data,
 		]);
 	}
 
