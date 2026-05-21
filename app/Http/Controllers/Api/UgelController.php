@@ -17,6 +17,7 @@ class UgelController extends Controller
         $perPage = $request->get('per_page', 15);
 
         $ugels = TUgel::with(['tProvince', 'tDistrict'])
+            ->withCount('tInstitution as institution_count')
             ->where('name', 'LIKE', '%' . $search . '%')
             ->orderByDesc('created_at')
             ->paginate($perPage);

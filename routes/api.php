@@ -85,8 +85,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('districts')->group(function () {
         Route::get('/', [DistrictController::class, 'index']);
+        Route::post('/', [DistrictController::class, 'store']);
         Route::get('provinces', [DistrictController::class, 'provinces']);
         Route::get('by-province/{idProvince}', [DistrictController::class, 'byProvince']);
+        Route::put('{id}', [DistrictController::class, 'update']);
+        Route::delete('{id}', [DistrictController::class, 'destroy']);
     });
 
     Route::prefix('admin')->group(function () {

@@ -234,22 +234,26 @@ class WaterController extends Controller
         $tUser = $request->user();
 
         if ($tUser->tinstitutiontuser()->exists()) {
-            $institution = $tUser->tinstitutiontuser()->first();
+            $rel          = $tUser->tinstitutiontuser()->with('tinstitution')->first();
+            $inst         = $rel->tinstitution;
             $currentMonth = $this->months[intval(date('m')) - 1];
             $currentWeek  = $this->currentWeek();
 
             $tWater = TWater::whereYear('created_at', date('Y'))
-                ->where('idInstitution', $institution->idInstitution)
+                ->where('idInstitution', $rel->idInstitution)
                 ->where('month', $currentMonth)
                 ->first();
 
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'currentMonth' => $currentMonth,
-                    'currentWeek'  => $currentWeek,
-                    'currentDate'  => date('d-m-Y'),
-                    'water'        => $tWater,
+                    'idInstitution' => $rel->idInstitution,
+                    'institution'   => $inst?->name,
+                    'lender'        => $inst?->lender,
+                    'currentMonth'  => $currentMonth,
+                    'currentWeek'   => $currentWeek,
+                    'currentDate'   => date('d-m-Y'),
+                    'water'         => $tWater,
                 ],
             ]);
         }
