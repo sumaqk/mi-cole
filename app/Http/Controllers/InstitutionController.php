@@ -765,6 +765,69 @@ class InstitutionController extends Controller
 		]);
 	}
 
+	public function getPublicInstitutionChart(Request $request)
+	{
+		$months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$monthNum     = $request->has('month') ? max(1, min(12, (int)$request->get('month'))) : (int)date('m');
+		$currentMonth = $months[$monthNum - 1];
+		$currentYear  = $request->has('year') ? (int)$request->get('year') : (int)date('Y');
+		$ugelName     = trim($request->get('ugel', ''));
+		$districtName = trim($request->get('district', ''));
+
+		$ugel     = TUgel::where('name', $ugelName)->first();
+		$district = TDistrict::where('name', $districtName)->first();
+
+		if (!$ugel || !$district) {
+			return response()->json([
+				'month'        => $currentMonth,
+				'year'         => $currentYear,
+				'ugel'         => $ugelName,
+				'district'     => $districtName,
+				'institutions' => [],
+			]);
+		}
+
+		$institutions = TInstitution::where('idUgel', $ugel->idUgel)
+			->where('idDistrict', $district->idDistrict)
+			->where('status', 'Activo')
+			->orderBy('name')
+			->get(['idInstitution', 'name']);
+
+		$data = [];
+		foreach ($institutions as $inst) {
+			$rows = DB::table('twater')
+				->whereYear('created_at', $currentYear)
+				->where('month', $currentMonth)
+				->where('idInstitution', $inst->idInstitution)
+				->select('resultW1','resultW2','resultW3','resultW4','resultW5')
+				->get();
+
+			$weeks = [];
+			for ($w = 1; $w <= 5; $w++) {
+				$field = "resultW{$w}";
+				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
+				$weeks[] = [
+					'week'  => $w,
+					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+					'count' => $vals->count(),
+				];
+			}
+
+			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
+			if ($hasData) {
+				$data[] = ['name' => $inst->name, 'weeks' => $weeks];
+			}
+		}
+
+		return response()->json([
+			'month'        => $currentMonth,
+			'year'         => $currentYear,
+			'ugel'         => $ugelName,
+			'district'     => $districtName,
+			'institutions' => $data,
+		]);
+	}
+
 	public function getPublicTrend()
 	{
 		$months      = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];

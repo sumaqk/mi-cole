@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\UgelController;
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\ContenidoController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\GeneralController;
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -34,6 +35,8 @@ Route::prefix('public')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('general/backup', [GeneralController::class, 'apiBackup']);
+
     Route::prefix('water')->group(function () {
         Route::get('/', [WaterController::class, 'index']);
         Route::post('/', [WaterController::class, 'store']);
@@ -43,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('institutions')->group(function () {
         Route::get('/', [InstitutionController::class, 'index']);
+        Route::get('export', [InstitutionController::class, 'exportAll']);
         Route::post('/', [InstitutionController::class, 'store']);
         Route::get('provinces', [InstitutionController::class, 'provinces']);
         Route::get('districts', [InstitutionController::class, 'districts']);
@@ -57,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'store']);
+        Route::get('export', [UserController::class, 'exportAll']);
         Route::get('search', [UserController::class, 'search']);
         Route::get('form-options', [UserController::class, 'formOptions']);
         Route::post('change-password', [UserController::class, 'changePassword']);
@@ -64,6 +69,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('{id}', [UserController::class, 'show']);
         Route::put('{id}', [UserController::class, 'update']);
         Route::delete('{id}', [UserController::class, 'destroy']);
+        Route::post('{id}/toggle-status', [UserController::class, 'toggleStatus']);
+        Route::post('{id}/reset-password', [UserController::class, 'adminResetPassword']);
     });
 
     Route::prefix('ugels')->group(function () {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Export\InstitutionFullExport;
+use App\Export\UserSheetExport;
 use App\Models\TDistrict;
 use App\Models\TInstitutionTUser;
 use App\Models\TProvince;
@@ -11,17 +13,21 @@ use App\Models\TUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
         $search  = $request->get('search', '');
-        $perPage = $request->get('per_page', 9);
+        $perPage = $request->get('per_page', 200);
 
-        $users = TUser::whereRaw("CONCAT(firstName, surName, email, registerType) LIKE ?", ['%' . $search . '%'])
-            ->orderByDesc('idUser')
-            ->paginate($perPage);
+        $query = TUser::with(['tInstitutionTUser.tInstitution'])
+            ->selectRaw('*, (SELECT COUNT(*) FROM twater WHERE twater.idUser = tuser.idUser) as water_count')
+            ->whereRaw("CONCAT(firstName, ' ', surName, ' ', email) LIKE ?", ['%' . $search . '%'])
+            ->orderBy('firstName');
+
+        $users = $query->paginate($perPage);
 
         return response()->json(['success' => true, 'data' => $users]);
     }
@@ -81,7 +87,6 @@ class UserController extends Controller
                     $rel->idInstitutionTUser = uniqid();
                     $rel->idInstitution      = $idInstitution;
                     $rel->idUser             = $tUser->idUser;
-                    $rel->status             = 'Activo';
                     $rel->save();
                 }
             }
@@ -122,10 +127,12 @@ class UserController extends Controller
             }
 
             if ($request->has('role')) {
-                $newRole = implode(',', (array)$request->role);
-                $tUser->role = str_contains($oldRole, 'Súper usuario')
+                $newRole  = implode(',', (array)$request->role);
+                $combined = str_contains($oldRole, 'Súper usuario')
                     ? ('Súper usuario' . ($newRole ? ',' . $newRole : ''))
                     : $newRole;
+                $unique = implode(',', array_unique(array_filter(array_map('trim', explode(',', $combined)))));
+                $tUser->role = $unique;
             }
 
             $tUser->save();
@@ -221,6 +228,31 @@ class UserController extends Controller
         }
     }
 
+    public function toggleStatus($id)
+    {
+        $user = TUser::find($id);
+        if (!$user) return response()->json(['success' => false, 'message' => 'Usuario no encontrado.'], 404);
+        // El rol Súper usuario no se puede cambiar, pero su estado sí puede ser gestionado por un admin
+
+        $user->status = $user->status === 'Activo' ? 'Bloqueado' : 'Activo';
+        $user->save();
+
+        return response()->json(['success' => true, 'data' => ['status' => $user->status]]);
+    }
+
+    public function adminResetPassword(Request $request, $id)
+    {
+        $request->validate(['password' => 'required|string|min:6']);
+
+        $user = TUser::find($id);
+        if (!$user) return response()->json(['success' => false, 'message' => 'Usuario no encontrado.'], 404);
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'Contraseña actualizada.']);
+    }
+
     public function search(Request $request)
     {
         $q = $request->get('q', '');
@@ -241,6 +273,55 @@ class UserController extends Controller
         ]);
 
         return response()->json(['success' => true, 'data' => $result]);
+    }
+
+    public function exportAll()
+    {
+        $users = TUser::with(['tInstitutionTUser.tInstitution'])
+            ->selectRaw('*, (SELECT COUNT(*) FROM twater WHERE twater.idUser = tuser.idUser) as water_count')
+            ->whereRaw("role NOT LIKE '%Súper usuario%'")
+            ->orderBy('firstName')
+            ->get();
+
+        $buildRow = function ($u, $n) {
+            $institution = $u->tInstitutionTUser->first()?->tInstitution?->name ?? '—';
+            $lastAccess  = (!$u->lastAccess || str_starts_with((string) $u->lastAccess, '1991'))
+                ? '—'
+                : \Carbon\Carbon::parse($u->lastAccess)->format('d/m/Y');
+            return [
+                $n,
+                trim($u->firstName . ' ' . $u->surName),
+                $u->email,
+                $u->role,
+                $institution,
+                (int) $u->water_count,
+                $lastAccess,
+                $u->status,
+            ];
+        };
+
+        $toRows = function ($collection) use ($buildRow) {
+            return $collection->values()->map(fn ($u, $i) => $buildRow($u, $i + 1))->toArray();
+        };
+
+        $activos    = $users->filter(fn ($u) => $u->status === 'Activo');
+        $bloqueados = $users->filter(fn ($u) => $u->status === 'Bloqueado');
+        $pendientes = $users->filter(fn ($u) => $u->status === 'Pendiente');
+        $sinReg     = $users->filter(fn ($u) => $u->water_count == 0);
+        $sinInst    = $users->filter(fn ($u) => $u->tInstitutionTUser->isEmpty());
+
+        $sheets = [
+            new UserSheetExport($toRows($users),      'Todos',            '1570ef'),
+            new UserSheetExport($toRows($activos),    'Activos',          '15803d'),
+            new UserSheetExport($toRows($bloqueados), 'Bloqueados',       'b91c1c'),
+            new UserSheetExport($toRows($pendientes), 'Pendientes',       'b45309'),
+            new UserSheetExport($toRows($sinReg),     'Sin registros',    'ea580c'),
+            new UserSheetExport($toRows($sinInst),    'Sin institución',  '7c3aed'),
+        ];
+
+        $filename = 'usuarios_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new InstitutionFullExport($sheets), $filename);
     }
 
     public function formOptions()

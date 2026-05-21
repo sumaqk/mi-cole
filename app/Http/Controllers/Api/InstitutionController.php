@@ -11,9 +11,12 @@ use App\Models\TProvince;
 use App\Models\TImage;
 use App\Models\TUgel;
 use App\Models\TWater;
+use App\Export\InstitutionFullExport;
+use App\Export\InstitutionSheetExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InstitutionController extends Controller
 {
@@ -21,13 +24,19 @@ class InstitutionController extends Controller
 
     public function index(Request $request)
     {
-        $search = $request->get('search', '');
-        $perPage = $request->get('per_page', 15);
+        $search    = $request->get('search', '');
+        $perPage   = $request->get('per_page', 15);
+        $available = $request->boolean('available');
 
-        $institutions = TInstitution::with(['tdistrict.tprovince', 'tugel'])
-            ->where('name', 'LIKE', '%' . $search . '%')
-            ->orderByDesc('created_at')
-            ->paginate($perPage);
+        $query = TInstitution::with(['tdistrict.tprovince', 'tugel'])
+            ->withCount(['tInstitutionTUser as user_count', 'tWater as water_count'])
+            ->where('name', 'LIKE', '%' . $search . '%');
+
+        if ($available) {
+            $query->whereDoesntHave('tInstitutionTUser')->where('status', 'Activo');
+        }
+
+        $institutions = $query->orderBy('name')->paginate($perPage);
 
         return response()->json(['success' => true, 'data' => $institutions]);
     }
@@ -201,6 +210,53 @@ class InstitutionController extends Controller
         $provinces = TProvince::orderBy('name')->get(['idProvince', 'name']);
 
         return response()->json(['success' => true, 'data' => $provinces]);
+    }
+
+    public function exportAll(Request $request)
+    {
+        $institutions = TInstitution::with(['tdistrict.tprovince', 'tugel'])
+            ->withCount(['tInstitutionTUser as user_count', 'tWater as water_count'])
+            ->orderBy('name')
+            ->get();
+
+        $toRow = function ($inst, int $n): array {
+            return [
+                $n,
+                $inst->name,
+                $inst->lender ?? '',
+                $inst->tdistrict->name                  ?? '',
+                $inst->tdistrict->tprovince->name       ?? '',
+                $inst->tugel->name                      ?? 'Sin UGEL',
+                $inst->latitude                         ?? '',
+                $inst->longitude                        ?? '',
+                ($inst->latitude && $inst->longitude)   ? 'Sí' : 'No',
+                $inst->user_count > 0                   ? 'Sí (' . $inst->user_count . ')' : 'No',
+                $inst->water_count,
+                $inst->status,
+            ];
+        };
+
+        $all        = $institutions;
+        $activas    = $all->filter(fn($i) => $i->status === 'Activo');
+        $inactivas  = $all->filter(fn($i) => $i->status !== 'Activo');
+        $sinReg     = $all->filter(fn($i) => $i->water_count == 0);
+        $sinUsuario = $all->filter(fn($i) => $i->user_count == 0);
+        $sinCoords  = $all->filter(fn($i) => !$i->latitude || !$i->longitude);
+
+        $buildRows = fn($collection) => $collection->values()->map(fn($i, $idx) => $toRow($i, $idx + 1))->all();
+
+        $sheets = [
+            new InstitutionSheetExport($buildRows($all),        'Todas',            '1570ef'),
+            new InstitutionSheetExport($buildRows($activas),    'Activas',          '15803d'),
+            new InstitutionSheetExport($buildRows($inactivas),  'Inactivas',        'b91c1c'),
+            new InstitutionSheetExport($buildRows($sinReg),     'Sin registros',    'ea580c'),
+            new InstitutionSheetExport($buildRows($sinUsuario), 'Sin usuario',      '7c3aed'),
+            new InstitutionSheetExport($buildRows($sinCoords),  'Sin coordenadas',  'b45309'),
+        ];
+
+        $filename = 'instituciones_' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(new InstitutionFullExport($sheets), $filename);
     }
 
     public function publicStats(Request $request)

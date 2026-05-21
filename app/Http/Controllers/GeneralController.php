@@ -27,6 +27,16 @@ class GeneralController extends Controller
 		return $responseFactory->download(storage_path().'/'.$fileName, $fileNameDownload)->deleteFileAfterSend(true);
 	}
 
+	public function apiBackup(ResponseFactory $responseFactory)
+	{
+		$fileName         = 'backup.sql';
+		$fileNameDownload = 'micole_backup_' . date('Y-m-d_H-i-s') . '.sql';
+
+		exec(config('var.COMMAND_BACKUP') . ' ' . config('var.DB_DATABASE') . ' --password=' . config('var.DB_PASSWORD') . ' --user=' . config('var.DB_USERNAME') . ' --single-transaction > ' . storage_path() . '/' . $fileName);
+
+		return $responseFactory->download(storage_path() . '/' . $fileName, $fileNameDownload)->deleteFileAfterSend(true);
+	}
+
 	public function actionSearch(Request $request)
 	{
 		$listData=[];
