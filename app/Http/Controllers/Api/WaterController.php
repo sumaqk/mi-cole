@@ -24,7 +24,11 @@ class WaterController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['result' => 'required|numeric|min:0']);
+        $request->validate([
+            'result'    => 'required|numeric|min:0|max:4',
+            'images'    => 'nullable|array|max:3',
+            'images.*'  => 'image|mimes:jpg,jpeg,png|max:4096',
+        ]);
 
         $tUser = TUser::with(['tinstitutiontuser.tinstitution'])->find($request->user()->idUser);
 
@@ -98,6 +102,72 @@ class WaterController extends Controller
         }
     }
 
+    public function updateWeek(Request $request)
+    {
+        $request->validate([
+            'result'    => 'required|numeric|min:0|max:4',
+            'images'    => 'nullable|array|max:3',
+            'images.*'  => 'image|mimes:jpg,jpeg,png|max:4096',
+        ]);
+
+        $tUser = TUser::with(['tinstitutiontuser'])->find($request->user()->idUser);
+
+        if (!$tUser || $tUser->tinstitutiontuser->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Sin institución asignada.'], 403);
+        }
+
+        $currentMonth  = $this->months[intval(date('m')) - 1];
+        $currentWeek   = $this->currentWeek();
+        $idInstitution = $tUser->tinstitutiontuser[0]->idInstitution;
+
+        $tWater = TWater::whereYear('created_at', date('Y'))
+            ->where('idInstitution', $idInstitution)
+            ->where('month', $currentMonth)
+            ->first();
+
+        if (!$tWater) {
+            return response()->json(['success' => false, 'message' => 'No hay registro para este mes.'], 404);
+        }
+
+        $field        = "resultW{$currentWeek}";
+        $currentValue = (float) $tWater->$field;
+
+        if ($currentValue == -1) {
+            return response()->json(['success' => false, 'message' => 'No hay registro para esta semana.'], 404);
+        }
+
+        if ($currentValue >= 0 && $currentValue <= 4) {
+            return response()->json(['success' => false, 'message' => 'El registro actual es válido y no puede editarse.'], 403);
+        }
+
+        $tWater->$field = $request->result;
+        $tWater->save();
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $key => $image) {
+                if ($key >= 3) break;
+                $filename     = uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('img/water'), $filename);
+                $imagePaths[] = 'img/water/' . $filename;
+            }
+            if (!empty($imagePaths)) {
+                $tImage             = new TImage();
+                $tImage->idImage    = uniqid();
+                $tImage->idWater    = $tWater->idWater;
+                $tImage->type       = 'correccion';
+                $tImage->urlImage1  = $imagePaths[0] ?? null;
+                $tImage->urlImage2  = $imagePaths[1] ?? null;
+                $tImage->urlImage3  = $imagePaths[2] ?? null;
+                $tImage->created_at = now();
+                $tImage->updated_at = now();
+                $tImage->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Registro corregido correctamente.', 'data' => $tWater]);
+    }
+
     public function index(Request $request)
     {
         $tUser = $request->user();
@@ -158,14 +228,31 @@ class WaterController extends Controller
         return response()->json(['success' => true, 'data' => $query]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
+        $year = (int) $request->get('year', date('Y'));
+
+        $availableYears = TWater::where('idInstitution', $id)
+            ->selectRaw('YEAR(created_at) as year')
+            ->groupBy('year')
+            ->orderBy('year', 'DESC')
+            ->pluck('year')
+            ->map(fn($y) => (int)$y)
+            ->toArray();
+
+        if (empty($availableYears)) {
+            $availableYears = [(int)date('Y')];
+        } elseif (!in_array((int)date('Y'), $availableYears)) {
+            array_unshift($availableYears, (int)date('Y'));
+        }
+
+        $startOfYear = \Carbon\Carbon::createFromDate($year, 1, 1)->startOfYear();
+        $endOfYear   = \Carbon\Carbon::createFromDate($year, 12, 31)->endOfYear();
 
         $data = TWater::select(['twater.month', 'twater.resultW1', 'twater.resultW2', 'twater.resultW3', 'twater.resultW4', 'twater.resultW5', 'twater.updated_at'])
             ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
             ->where('twater.idInstitution', $id)
-            ->whereBetween('twater.updated_at', [$sixMonthsAgo, now()->endOfMonth()])
+            ->whereBetween('twater.updated_at', [$startOfYear, $endOfYear])
             ->orderBy('twater.updated_at', 'ASC')
             ->get();
 
@@ -176,34 +263,30 @@ class WaterController extends Controller
 
         foreach ($data as $record) {
             $recordDate = \Carbon\Carbon::parse($record->updated_at);
-            if ($recordDate->gte($sixMonthsAgo)) {
-                $month = $this->months[(int)$recordDate->format('m') - 1];
-                $formattedData[$month] = [
-                    'resultW1' => max(0, $record->resultW1),
-                    'resultW2' => max(0, $record->resultW2),
-                    'resultW3' => max(0, $record->resultW3),
-                    'resultW4' => max(0, $record->resultW4),
-                    'resultW5' => max(0, $record->resultW5),
-                ];
-            }
+            $month = $this->months[(int)$recordDate->format('m') - 1];
+            $formattedData[$month] = [
+                'resultW1' => max(0, $record->resultW1),
+                'resultW2' => max(0, $record->resultW2),
+                'resultW3' => max(0, $record->resultW3),
+                'resultW4' => max(0, $record->resultW4),
+                'resultW5' => max(0, $record->resultW5),
+            ];
         }
 
-        $last6Months  = [];
-        $chartLabels  = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date       = now()->subMonths($i);
-            $monthLabel = $this->months[(int)$date->format('m') - 1];
-            $label      = "{$monthLabel} {$date->format('Y')}";
-            $last6Months[$label] = $formattedData[$monthLabel] ?? ['resultW1' => 0, 'resultW2' => 0, 'resultW3' => 0, 'resultW4' => 0, 'resultW5' => 0];
+        $chartLabels = [];
+        $yearData    = [];
+        foreach ($this->months as $month) {
+            $label = "{$month} {$year}";
             $chartLabels[] = $label;
+            $yearData[$label] = $formattedData[$month];
         }
 
         $chartData = [
-            'resultW1' => array_column($last6Months, 'resultW1'),
-            'resultW2' => array_column($last6Months, 'resultW2'),
-            'resultW3' => array_column($last6Months, 'resultW3'),
-            'resultW4' => array_column($last6Months, 'resultW4'),
-            'resultW5' => array_column($last6Months, 'resultW5'),
+            'resultW1' => array_column($yearData, 'resultW1'),
+            'resultW2' => array_column($yearData, 'resultW2'),
+            'resultW3' => array_column($yearData, 'resultW3'),
+            'resultW4' => array_column($yearData, 'resultW4'),
+            'resultW5' => array_column($yearData, 'resultW5'),
         ];
 
         $institution = TInstitution::select(['idInstitution', 'name', 'lender'])->find($id);
@@ -219,12 +302,13 @@ class WaterController extends Controller
             ->get();
 
         return response()->json([
-            'success'     => true,
-            'data'        => [
-                'institution' => $institution,
-                'chartLabels' => $chartLabels,
-                'chartData'   => $chartData,
-                'images'      => $images,
+            'success' => true,
+            'data'    => [
+                'institution'    => $institution,
+                'chartLabels'    => $chartLabels,
+                'chartData'      => $chartData,
+                'images'         => $images,
+                'availableYears' => array_values($availableYears),
             ],
         ]);
     }

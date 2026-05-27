@@ -201,7 +201,7 @@ class UserController extends Controller
 
     public function uploadAvatar(Request $request)
     {
-        $request->validate(['avatar' => 'required|image|mimes:png,jpg,jpeg|max:700']);
+        $request->validate(['avatar' => 'required|image|mimes:png,jpg,jpeg|max:8192']);
 
         $tUser = $request->user();
 

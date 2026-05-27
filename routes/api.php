@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [WaterController::class, 'index']);
         Route::post('/', [WaterController::class, 'store']);
         Route::get('current-status', [WaterController::class, 'currentStatus']);
+        Route::post('week', [WaterController::class, 'updateWeek']);
         Route::get('{id}', [WaterController::class, 'show']);
     });
 
@@ -93,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
+        Route::get('categories', [ContenidoController::class, 'adminCategories']);
         Route::get('contents', [ContenidoController::class, 'adminContentsIndex']);
         Route::post('contents', [ContenidoController::class, 'adminContentsStore']);
         Route::put('contents/{id}', [ContenidoController::class, 'adminContentsUpdate']);

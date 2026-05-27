@@ -51,6 +51,7 @@ class DashboardController extends Controller
                 'twater.month as mes',
                 'twater.resultW1', 'twater.resultW2', 'twater.resultW3', 'twater.resultW4', 'twater.resultW5',
                 'twater.created_at', 'twater.updated_at',
+                DB::raw('(SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = tinstitution.idInstitution AND (s.resultW1 > 0 OR s.resultW2 > 0 OR s.resultW3 > 0 OR s.resultW4 > 0 OR s.resultW5 > 0)) as last_reported_at'),
             ])
             ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
             ->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
@@ -80,6 +81,7 @@ class DashboardController extends Controller
                     'twater.month as mes',
                     'twater.resultW1', 'twater.resultW2', 'twater.resultW3', 'twater.resultW4', 'twater.resultW5',
                     'twater.created_at', 'twater.updated_at',
+                    DB::raw('(SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = tinstitution.idInstitution AND (s.resultW1 > 0 OR s.resultW2 > 0 OR s.resultW3 > 0 OR s.resultW4 > 0 OR s.resultW5 > 0)) as last_reported_at'),
                 ])
                 ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
                 ->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
