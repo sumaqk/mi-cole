@@ -26,10 +26,6 @@ class IndexController extends Controller
 {
 	public function actionIndex()
 	{
-		if (file_exists(public_path('index.html'))) {
-			return redirect()->route('home');
-		}
-
 		$modal = Cache::remember('active_modal', 60, function () {
 			return ModalSetting::where('is_active', true)
 				->where('start_date', '<=', now())
