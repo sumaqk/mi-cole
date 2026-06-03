@@ -16,6 +16,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.claude
 
 /storage/framework/laravel-excel/*
 !/storage/framework/laravel-excel/.gitkeep
