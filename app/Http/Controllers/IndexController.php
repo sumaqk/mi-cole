@@ -26,6 +26,9 @@ class IndexController extends Controller
 {
 	public function actionIndex()
 	{
+		if (file_exists(public_path('index.html'))) {
+			return redirect()->route('home');
+		}
 
 		$modal = Cache::remember('active_modal', 60, function () {
 			return ModalSetting::where('is_active', true)
@@ -34,7 +37,18 @@ class IndexController extends Controller
 				->first();
 		});
 
-		// Retorna la vista con los datos del modal
+		return view('home.index', compact('modal'));
+	}
+
+	public function actionIndexBlade()
+	{
+		$modal = Cache::remember('active_modal', 60, function () {
+			return ModalSetting::where('is_active', true)
+				->where('start_date', '<=', now())
+				->where('end_date', '>=', now())
+				->first();
+		});
+
 		return view('home.index', compact('modal'));
 	}
 

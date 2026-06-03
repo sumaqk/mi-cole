@@ -51,7 +51,7 @@ class DashboardController extends Controller
                 'twater.month as mes',
                 'twater.resultW1', 'twater.resultW2', 'twater.resultW3', 'twater.resultW4', 'twater.resultW5',
                 'twater.created_at', 'twater.updated_at',
-                DB::raw('(SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = tinstitution.idInstitution AND (s.resultW1 > 0 OR s.resultW2 > 0 OR s.resultW3 > 0 OR s.resultW4 > 0 OR s.resultW5 > 0)) as last_reported_at'),
+                DB::raw('(SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = tinstitution.idInstitution AND (s.resultW1 >= 0 OR s.resultW2 >= 0 OR s.resultW3 >= 0 OR s.resultW4 >= 0 OR s.resultW5 >= 0)) as last_reported_at'),
             ])
             ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
             ->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
@@ -64,37 +64,6 @@ class DashboardController extends Controller
         $this->applyRoleFilters($q, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
 
         $listTWater = $q->orderByDesc('twater.updated_at')->get();
-
-        if ($listTWater->isEmpty()) {
-            $prev      = now()->subMonth();
-            $prevMonth = $this->months[(int)$prev->format('m') - 1];
-            $prevYear  = (int)$prev->format('Y');
-
-            $q2 = DB::table('twater')
-                ->select([
-                    'tinstitution.idInstitution as id',
-                    'tinstitution.name as nombre',
-                    'tinstitution.lender as prestador',
-                    'tugel.name as ugel',
-                    'tdistrict.name as distrito',
-                    'tprovince.name as provincia',
-                    'twater.month as mes',
-                    'twater.resultW1', 'twater.resultW2', 'twater.resultW3', 'twater.resultW4', 'twater.resultW5',
-                    'twater.created_at', 'twater.updated_at',
-                    DB::raw('(SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = tinstitution.idInstitution AND (s.resultW1 > 0 OR s.resultW2 > 0 OR s.resultW3 > 0 OR s.resultW4 > 0 OR s.resultW5 > 0)) as last_reported_at'),
-                ])
-                ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
-                ->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
-                ->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
-                ->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
-                ->where('twater.month', $prevMonth)
-                ->whereYear('twater.created_at', $prevYear)
-                ->whereRaw('twater.updated_at = (SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = twater.idInstitution)');
-
-            $this->applyRoleFilters($q2, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
-
-            $listTWater = $q2->orderByDesc('twater.updated_at')->get();
-        }
 
         $mapData = $this->buildMapData($monthName, $year, $week, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
 

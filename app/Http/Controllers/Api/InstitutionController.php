@@ -259,32 +259,43 @@ class InstitutionController extends Controller
         return Excel::download(new InstitutionFullExport($sheets), $filename);
     }
 
+    private function getFilteredIds(?string $fp, ?string $fd, ?string $fu): ?\Illuminate\Support\Collection
+    {
+        if (!$fp && !$fd && !$fu) return null;
+        $q = TInstitution::where('status', 'Activo');
+        if ($fu)      $q->where('idUgel', $fu);
+        elseif ($fd)  $q->where('idDistrict', $fd);
+        elseif ($fp)  $q->whereHas('tdistrict', fn($sq) => $sq->where('idProvince', $fp));
+        return $q->pluck('idInstitution');
+    }
+
     public function publicStats(Request $request)
     {
         $monthParam   = (int)$request->get('month', (int)date('m'));
         $yearParam    = (int)$request->get('year',  (int)date('Y'));
-        $weekParam    = (int)$request->get('week',  0); // 0 = todo el mes
-        // DEBUG — eliminar luego
-        if ($request->get('_debug')) {
-            return response()->json(['debug_week' => $weekParam, 'debug_month' => $monthParam, 'debug_year' => $yearParam]);
-        }
+        $weekParam    = (int)$request->get('week',  0);
+
+        $fp = $request->get('filter_province') ?: null;
+        $fd = $request->get('filter_district') ?: null;
+        $fu = $request->get('filter_ugel')     ?: null;
+        $filteredIds = $this->getFilteredIds($fp, $fd, $fu);
 
         $currentMonth = $this->months[$monthParam - 1];
         $currentYear  = $yearParam;
 
-        $totalInstitutions = TInstitution::where('status', 'Activo')->count();
+        $instQ = TInstitution::where('status', 'Activo');
+        if ($filteredIds) $instQ->whereIn('idInstitution', $filteredIds);
+        $totalInstitutions = $instQ->count();
 
-        $institutionsThisMonth = TWater::whereYear('created_at', $currentYear)
-            ->where('month', $currentMonth)
-            ->count();
+        $waterQ = TWater::whereYear('created_at', $currentYear)->where('month', $currentMonth);
+        if ($filteredIds) $waterQ->whereIn('idInstitution', $filteredIds);
+        $institutionsThisMonth = $waterQ->count();
 
-        // Si hay semana específica, calcular reportaron y cobertura por esa semana
         if ($weekParam > 0) {
             $wField = "resultW{$weekParam}";
-            $institutionsReported = TWater::whereYear('created_at', $currentYear)
-                ->where('month', $currentMonth)
-                ->where($wField, '>', 0)
-                ->count();
+            $wQ = TWater::whereYear('created_at', $currentYear)->where('month', $currentMonth)->where($wField, '>=', 0);
+            if ($filteredIds) $wQ->whereIn('idInstitution', $filteredIds);
+            $institutionsReported = $wQ->count();
         } else {
             $institutionsReported = $institutionsThisMonth;
         }
@@ -293,45 +304,49 @@ class InstitutionController extends Controller
             ? round(($institutionsReported / $totalInstitutions) * 100)
             : 0;
 
-        $totalProvinces = DB::table('tinstitution')
+        $provQ = DB::table('tinstitution')
             ->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
-            ->where('tinstitution.status', 'Activo')
-            ->distinct()
-            ->count('tdistrict.idProvince');
+            ->where('tinstitution.status', 'Activo');
+        if ($filteredIds) $provQ->whereIn('tinstitution.idInstitution', $filteredIds);
+        $totalProvinces = $provQ->distinct()->count('tdistrict.idProvince');
 
-        $totalUgels = DB::table('tugel')->where('is_active', true)->count();
+        $ugelQ = DB::table('tugel')->where('is_active', true);
+        if ($filteredIds) {
+            $ugelIds = TInstitution::whereIn('idInstitution', $filteredIds)->distinct()->pluck('idUgel');
+            $ugelQ->whereIn('idUgel', $ugelIds);
+        }
+        $totalUgels = $ugelQ->count();
 
-        // Tendencia vs mes anterior
         $prevMonthIndex = $monthParam - 2;
         $prevYear = $currentYear;
         if ($prevMonthIndex < 0) { $prevMonthIndex = 11; $prevYear--; }
-        $prevMonth       = $this->months[$prevMonthIndex];
-        $prevReported    = TWater::whereYear('created_at', $prevYear)->where('month', $prevMonth)->count();
+        $prevMonth    = $this->months[$prevMonthIndex];
+        $prevQ        = TWater::whereYear('created_at', $prevYear)->where('month', $prevMonth);
+        if ($filteredIds) $prevQ->whereIn('idInstitution', $filteredIds);
+        $prevReported    = $prevQ->count();
         $prevCoveragePct = $totalInstitutions > 0 ? round(($prevReported / $totalInstitutions) * 100) : 0;
         $trendCoveragePct = $coveragePct - $prevCoveragePct;
 
-        // Instituciones que nunca han reportado
-        $reportedIds        = TWater::distinct()->pluck('idInstitution');
-        $neverReportedCount = TInstitution::where('status', 'Activo')
-            ->whereNotIn('idInstitution', $reportedIds)
-            ->count();
+        $reportedIds = TWater::distinct()->pluck('idInstitution');
+        $nvrQ = TInstitution::where('status', 'Activo')->whereNotIn('idInstitution', $reportedIds);
+        if ($filteredIds) $nvrQ->whereIn('idInstitution', $filteredIds);
+        $neverReportedCount = $nvrQ->count();
 
-        // UGEL con más registros este mes
-        $topUgelRow = DB::table('twater')
+        $topQ = DB::table('twater')
             ->join('tinstitution', 'twater.idInstitution', '=', 'tinstitution.idInstitution')
             ->join('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
             ->whereYear('twater.created_at', $currentYear)
-            ->where('twater.month', $currentMonth)
-            ->select('tugel.name', DB::raw('COUNT(*) as total'))
+            ->where('twater.month', $currentMonth);
+        if ($filteredIds) $topQ->whereIn('twater.idInstitution', $filteredIds);
+        $topUgelRow = $topQ->select('tugel.name', DB::raw('COUNT(*) as total'))
             ->groupBy('tugel.idUgel', 'tugel.name')
             ->orderByDesc('total')
             ->first();
         $topUgel = $topUgelRow ? $topUgelRow->name : null;
 
-        // Análisis de cloro — por semana específica o promedio mes
-        $records = TWater::whereYear('created_at', $currentYear)
-            ->where('month', $currentMonth)
-            ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
+        $recQ = TWater::whereYear('created_at', $currentYear)->where('month', $currentMonth);
+        if ($filteredIds) $recQ->whereIn('idInstitution', $filteredIds);
+        $records = $recQ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
 
         $institutionAvgs = [];
         $criticalCount   = 0;
@@ -437,14 +452,25 @@ class InstitutionController extends Controller
         $monthParam = (int)$request->get('month', (int)date('m'));
         $yearParam  = (int)$request->get('year',  (int)date('Y'));
 
+        $fp = $request->get('filter_province') ?: null;
+        $fd = $request->get('filter_district') ?: null;
+        $fu = $request->get('filter_ugel')     ?: null;
+        $filteredIds = $this->getFilteredIds($fp, $fd, $fu);
+
         $monthName  = $this->months[$monthParam - 1];
 
-        $ugels = TUgel::where('is_active', true)->orderBy('name')->get();
+        $ugelQ = TUgel::where('is_active', true)->orderBy('name');
+        if ($filteredIds) {
+            $ugelIds = TInstitution::whereIn('idInstitution', $filteredIds)->distinct()->pluck('idUgel');
+            $ugelQ->whereIn('idUgel', $ugelIds);
+        }
+        $ugels = $ugelQ->get();
 
         $result = [];
         foreach ($ugels as $ugel) {
             $institutionIds = TInstitution::where('idUgel', $ugel->idUgel)
                 ->where('status', 'Activo')
+                ->when($filteredIds, fn($q) => $q->whereIn('idInstitution', $filteredIds))
                 ->pluck('idInstitution');
 
             $records = TWater::whereIn('idInstitution', $institutionIds)
