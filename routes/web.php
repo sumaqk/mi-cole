@@ -31,7 +31,14 @@ Route::get('archivos/{path}', function ($path) {
 Route::get('/', function () {
     $path = public_path('index.html');
     if (!file_exists($path)) {
-        return redirect()->route('home.index');
+        // React no desplegado: mostrar Blade directo sin redirigir (evita bucle)
+        $modal = Cache::remember('active_modal', 60, fn() =>
+            App\Models\ModalSetting::where('is_active', true)
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+                ->first()
+        );
+        return view('home.index', compact('modal'));
     }
     return response(file_get_contents($path), 200)->header('Content-Type', 'text/html');
 })->name('home');

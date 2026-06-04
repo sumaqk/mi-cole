@@ -33,6 +33,27 @@ class ContenidoController extends Controller
         return response()->json(['success' => true, 'data' => $grouped]);
     }
 
+    public function serveFile(Request $request)
+    {
+        $path = $request->input('path', '');
+        $safe = ltrim(str_replace(['..', '\\'], '', $path), '/');
+        $file = public_path('archivos/' . $safe);
+        if (!$safe || !file_exists($file)) abort(404);
+        return response()->file($file);
+    }
+
+    public function checkFiles(Request $request)
+    {
+        $paths = $request->input('paths', []);
+        $result = [];
+        foreach ((array) $paths as $path) {
+            // prevent path traversal
+            $safe = ltrim(str_replace(['..', '\\'], '', $path), '/');
+            $result[$path] = file_exists(public_path('archivos/' . $safe));
+        }
+        return response()->json($result);
+    }
+
     public function contentDetail($id)
     {
         $content = DB::table('tcontent')->where('id', $id)->first();
@@ -106,7 +127,7 @@ class ContenidoController extends Controller
             'category'     => 'required|string|max:100',
             'excerpt'      => 'nullable|string|max:500',
             'content'      => 'nullable|string',
-            'content_file' => 'nullable|file|mimes:pdf,mp3,wav,doc,docx,txt|max:102400',
+            'content_file' => 'nullable|file|mimes:pdf,mp3,wav,doc,docx,txt,mp4,webm,avi,mov|max:512000',
             'thumbnail'    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'sort_order'   => 'nullable|integer',
             'published_at' => 'nullable|date',
@@ -161,7 +182,7 @@ class ContenidoController extends Controller
             'category'     => 'required|string|max:100',
             'excerpt'      => 'nullable|string|max:500',
             'content'      => 'nullable|string',
-            'content_file' => 'nullable|file|mimes:pdf,mp3,wav,doc,docx,txt|max:102400',
+            'content_file' => 'nullable|file|mimes:pdf,mp3,wav,doc,docx,txt,mp4,webm,avi,mov|max:512000',
             'thumbnail'    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 

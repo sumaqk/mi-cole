@@ -26,14 +26,7 @@ class IndexController extends Controller
 {
 	public function actionIndex()
 	{
-		$modal = Cache::remember('active_modal', 60, function () {
-			return ModalSetting::where('is_active', true)
-				->where('start_date', '<=', now())
-				->where('end_date', '>=', now())
-				->first();
-		});
-
-		return view('home.index', compact('modal'));
+		return redirect()->route('home');
 	}
 
 	public function actionIndexBlade()

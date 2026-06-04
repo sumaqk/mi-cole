@@ -31,6 +31,8 @@ Route::prefix('public')->group(function () {
     Route::get('contents', [ContenidoController::class, 'contents']);
     Route::get('contents/{id}', [ContenidoController::class, 'contentDetail']);
     Route::get('videos', [ContenidoController::class, 'videos']);
+    Route::post('check-files', [ContenidoController::class, 'checkFiles']);
+    Route::get('file', [ContenidoController::class, 'serveFile']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
