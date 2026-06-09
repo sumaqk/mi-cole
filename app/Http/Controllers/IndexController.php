@@ -574,7 +574,6 @@ class IndexController extends Controller
                         $w->resultW3 != -1 ? number_format($w->resultW3, 1, '.') : '-',
                         $w->resultW4 != -1 ? number_format($w->resultW4, 1, '.') : '-',
                         $w->resultW5 != -1 ? number_format($w->resultW5, 1, '.') : '-',
-                        number_format($promedio, 2, '.'),
                         $estado,
                     ];
                 }

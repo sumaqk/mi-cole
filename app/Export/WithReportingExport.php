@@ -23,7 +23,7 @@ class WithReportingExport implements FromArray, WithHeadings, WithColumnWidths, 
     {
         return [
             ["Instituciones con reporte — {$this->title}"],
-            ['UGEL','Institución','Prestador','Provincia','Distrito','Periodo año','Periodo mes','MCR S.1','MCR S.2','MCR S.3','MCR S.4','MCR S.5','Promedio','Estado'],
+            ['UGEL','Institución','Prestador','Provincia','Distrito','Periodo año','Periodo mes','MCR S.1','MCR S.2','MCR S.3','MCR S.4','MCR S.5','Estado'],
         ];
     }
 
@@ -37,15 +37,15 @@ class WithReportingExport implements FromArray, WithHeadings, WithColumnWidths, 
         return [
             'A' => 22, 'B' => 36, 'C' => 18, 'D' => 16, 'E' => 16,
             'F' => 12, 'G' => 14, 'H' => 10, 'I' => 10, 'J' => 10,
-            'K' => 10, 'L' => 10, 'M' => 12, 'N' => 16,
+            'K' => 10, 'L' => 10, 'M' => 16,
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->mergeCells('A1:N1');
+        $sheet->mergeCells('A1:M1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:M2')->getFont()->setBold(true);
         return [];
     }
 }
