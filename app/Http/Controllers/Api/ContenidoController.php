@@ -39,7 +39,9 @@ class ContenidoController extends Controller
         $safe = ltrim(str_replace(['..', '\\'], '', $path), '/');
         $file = public_path('archivos/' . $safe);
         if (!$safe || !file_exists($file)) abort(404);
-        return response()->file($file);
+        return response()->file($file, [
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
     }
 
     public function checkFiles(Request $request)
@@ -83,6 +85,19 @@ class ContenidoController extends Controller
         ])->values();
 
         return response()->json(['success' => true, 'data' => $grouped]);
+    }
+
+    public function videoDetail($id)
+    {
+        $video = DB::table('tvideo')->where('id', $id)->first();
+
+        if (!$video) {
+            return response()->json(['success' => false, 'message' => 'No encontrado.'], 404);
+        }
+
+        DB::table('tvideo')->where('id', $id)->increment('views_count');
+
+        return response()->json(['success' => true, 'data' => $video]);
     }
 
     // ─── ADMIN CATEGORÍAS ────────────────────────────────────────────────────

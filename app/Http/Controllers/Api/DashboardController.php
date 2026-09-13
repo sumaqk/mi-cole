@@ -59,7 +59,7 @@ class DashboardController extends Controller
             ->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
             ->where('twater.month', $monthName)
             ->whereYear('twater.created_at', $year)
-            ->whereRaw('twater.updated_at = (SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = twater.idInstitution)');
+            ->whereRaw('twater.updated_at = (SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = twater.idInstitution AND s.month = twater.month AND YEAR(s.created_at) = YEAR(twater.created_at))');
 
         $this->applyRoleFilters($q, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
 

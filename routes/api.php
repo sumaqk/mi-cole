@@ -28,9 +28,11 @@ Route::prefix('public')->group(function () {
     Route::get('institutions', [InstitutionController::class, 'publicInstitutions']);
     Route::get('gallery', [InstitutionController::class, 'publicGallery']);
     Route::get('institutions/{id}/gallery', [InstitutionController::class, 'publicInstitutionGallery']);
+    Route::get('institutions/{id}/records', [InstitutionController::class, 'publicInstitutionRecords']);
     Route::get('contents', [ContenidoController::class, 'contents']);
     Route::get('contents/{id}', [ContenidoController::class, 'contentDetail']);
     Route::get('videos', [ContenidoController::class, 'videos']);
+    Route::get('videos/{id}', [ContenidoController::class, 'videoDetail']);
     Route::post('check-files', [ContenidoController::class, 'checkFiles']);
     Route::get('file', [ContenidoController::class, 'serveFile']);
 });
