@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Export\InstitutionFullExport;
 use App\Export\UserSheetExport;
 use App\Models\TDistrict;
+use App\Models\TInstitution;
 use App\Models\TInstitutionTUser;
 use App\Models\TProvince;
 use App\Models\TUgel;
@@ -116,6 +117,8 @@ class UserController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+
             $oldRole      = $tUser->role;
             $tUser->firstName = trim($request->firstName);
             $tUser->surName   = trim($request->surName);
@@ -135,10 +138,36 @@ class UserController extends Controller
                 $tUser->role = $unique;
             }
 
+            // Solo se toca el vínculo si el cliente envía la clave; null desvincula
+            if ($request->exists('idInstitution')) {
+                TInstitutionTUser::where('idUser', $id)->delete();
+
+                if ($request->filled('idInstitution')) {
+                    $institution = TInstitution::find($request->idInstitution);
+                    if (!$institution) {
+                        DB::rollBack();
+                        return response()->json(['success' => false, 'message' => 'Institución no encontrada.'], 404);
+                    }
+
+                    $rel                     = new TInstitutionTUser();
+                    $rel->idInstitutionTUser = uniqid();
+                    $rel->idInstitution      = $institution->idInstitution;
+                    $rel->idUser             = $tUser->idUser;
+                    $rel->save();
+
+                    $district           = TDistrict::find($institution->idDistrict);
+                    $tUser->idDistrict  = $institution->idDistrict;
+                    $tUser->idProvince  = $district?->idProvince;
+                }
+            }
+
             $tUser->save();
 
-            return response()->json(['success' => true, 'data' => $tUser]);
+            DB::commit();
+
+            return response()->json(['success' => true, 'data' => $tUser->load('tInstitutionTUser.tInstitution')]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }

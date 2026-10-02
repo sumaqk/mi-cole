@@ -7,7 +7,9 @@ use App\Models\TInstitution;
 use App\Models\TUgel;
 use App\Models\TUser;
 use App\Models\TWater;
+use App\Export\DataExport;
 use App\Export\NonReportingExport;
+use App\Export\WaterDetailedExport;
 use App\Export\WithReportingExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -225,6 +227,158 @@ class DashboardController extends Controller
         $filename = $scope === 'week' ? "con_reportes_semana_{$week}_{$monthName}_{$year}.xlsx" : "con_reportes_mes_{$monthName}_{$year}.xlsx";
 
         return Excel::download(new WithReportingExport($rows, $title), $filename);
+    }
+
+    public function exportGeneral(Request $request)
+    {
+        $scope     = $request->get('scope', 'month');
+        $monthName = $this->months[(int)$request->get('month', date('m')) - 1];
+        $year      = (int)$request->get('year', date('Y'));
+
+        $q = TWater::with(['tinstitution.tdistrict.tprovince', 'tinstitution.tugel']);
+        $this->scopeByUser($q, $request->user(), 'tinstitution.');
+        if ($scope !== 'all') $q->whereYear('created_at', $year);
+        if ($scope === 'month') $q->where('month', $monthName);
+
+        $data = [[
+            'UGEL', 'Institución', 'Prestador', 'Provincia', 'Distrito', 'Periodo año', 'Periodo mes',
+            'MCR S. 1', 'MCR S. 2', 'MCR S. 3', 'MCR S. 4', 'MCR S. 5', 'Promedio', 'Última medición', 'Estado',
+        ]];
+
+        foreach ($q->orderByDesc('created_at')->get() as $w) {
+            $inst = $w->tinstitution;
+            if (!$inst) continue;
+            $values = [];
+            for ($i = 1; $i <= 5; $i++) { $f = "resultW{$i}"; if ($w->$f > -1) $values[] = (float)$w->$f; }
+            $promedio = $values ? round(array_sum($values) / count($values), 2) : null;
+            $ultima   = $values ? end($values) : null;
+            $data[] = [
+                $inst->tugel->name ?? 'Sin UGEL', $inst->name, $inst->lender,
+                $inst->tdistrict->tprovince->name ?? '', $inst->tdistrict->name ?? '',
+                substr($w->created_at, 0, 4), $w->month,
+                $w->resultW1 != -1 ? number_format($w->resultW1, 1, '.') : '-',
+                $w->resultW2 != -1 ? number_format($w->resultW2, 1, '.') : '-',
+                $w->resultW3 != -1 ? number_format($w->resultW3, 1, '.') : '-',
+                $w->resultW4 != -1 ? number_format($w->resultW4, 1, '.') : '-',
+                $w->resultW5 != -1 ? number_format($w->resultW5, 1, '.') : '-',
+                $promedio ?? '-',
+                $ultima ?? '-',
+                $promedio === null ? 'Sin reportes' : (($promedio < 0.5 || $promedio > 5) ? 'Inadecuado' : 'Bueno'),
+            ];
+        }
+
+        $filename = match ($scope) {
+            'all'   => 'reporte_general_historico.xlsx',
+            'year'  => "reporte_general_{$year}.xlsx",
+            default => "reporte_general_{$monthName}_{$year}.xlsx",
+        };
+
+        return Excel::download(new DataExport($data), $filename);
+    }
+
+    public function exportDetailed(Request $request)
+    {
+        $trimestre = (string)$request->get('trimestre', (string)ceil((int)date('m') / 3));
+        $year      = (int)$request->get('year', date('Y'));
+
+        $trimestresMeses = [
+            '1' => ['Enero', 'Febrero', 'Marzo'],
+            '2' => ['Abril', 'Mayo', 'Junio'],
+            '3' => ['Julio', 'Agosto', 'Setiembre'],
+            '4' => ['Octubre', 'Noviembre', 'Diciembre'],
+        ];
+        $mesesTrimestre = $trimestresMeses[$trimestre] ?? $trimestresMeses['1'];
+
+        $qInst = TInstitution::with(['tdistrict.tprovince', 'tugel']);
+        $this->scopeByUser($qInst, $request->user());
+        $instituciones = $qInst->get();
+
+        // Si hay varios registros del mismo mes, nos quedamos con el más reciente
+        $porInstitucion = [];
+        $waters = TWater::whereIn('idInstitution', $instituciones->pluck('idInstitution')->all())
+            ->whereIn('month', $mesesTrimestre)
+            ->whereYear('created_at', $year)
+            ->orderBy('updated_at')
+            ->get();
+        foreach ($waters as $w) {
+            $porInstitucion[$w->idInstitution][$w->month] = $w;
+        }
+
+        $con = [];
+        $sin = [];
+        foreach ($instituciones as $inst) {
+            if (!empty($porInstitucion[$inst->idInstitution])) $con[] = $inst;
+            else $sin[] = $inst;
+        }
+
+        $headers = ['N°', 'UGEL', 'Institución', 'Prestador', 'Provincia', 'Distrito'];
+        $headers = array_merge($headers, array_fill(0, 15, ''), ['Observaciones', 'Situación Final']);
+        // WaterDetailedExport escribe la fila 2 con S.1..S.5; si no se reserva, pisa la primera institución
+        $data    = [$headers, array_fill(0, count($headers), '')];
+
+        $n = 1;
+        foreach (array_merge($con, $sin) as $inst) {
+            $fila = [
+                $n++, $inst->tugel->name ?? 'Sin UGEL', $inst->name, $inst->lender,
+                $inst->tdistrict->tprovince->name ?? '', $inst->tdistrict->name ?? '',
+            ];
+            $reportadas = 0;
+            $suma       = 0;
+            foreach ($mesesTrimestre as $mes) {
+                $w = $porInstitucion[$inst->idInstitution][$mes] ?? null;
+                for ($s = 1; $s <= 5; $s++) {
+                    $f = "resultW{$s}";
+                    if ($w && $w->$f != -1) {
+                        $fila[] = number_format($w->$f, 1, '.');
+                        $reportadas++;
+                        $suma += $w->$f;
+                    } else {
+                        $fila[] = '-';
+                    }
+                }
+            }
+            $porcentaje = $reportadas / 15 * 100;
+            $promedio   = $reportadas > 0 ? $suma / $reportadas : 0;
+            $fila[] = $this->observacionReporte($porcentaje, $reportadas);
+            $fila[] = $this->situacionFinal($promedio, $porcentaje);
+            $data[] = $fila;
+        }
+
+        return Excel::download(
+            new WaterDetailedExport($data, $mesesTrimestre),
+            "reporte_detallado_trimestre_{$trimestre}_{$year}.xlsx"
+        );
+    }
+
+    private function scopeByUser($query, $user, string $relPrefix = ''): void
+    {
+        $role = $user->role ?? null;
+        if ($role !== 'Supervisor') return;
+        $level = $user->level ?? null;
+        if ($level === 'levelProvince' && $user->idProvince) {
+            $query->whereHas($relPrefix . 'tdistrict', fn($q) => $q->where('idProvince', $user->idProvince));
+        } elseif (in_array($level, ['levelDistrict', 'levelDistrit']) && $user->idDistrict) {
+            $query->whereHas($relPrefix . 'tdistrict', fn($q) => $q->where('idDistrict', $user->idDistrict));
+        }
+    }
+
+    private function observacionReporte(float $porcentaje, int $reportadas): string
+    {
+        if ($reportadas === 0)  return 'Nunca subió sus reportes';
+        if ($porcentaje < 30)   return 'Muy pocas semanas reportó';
+        if ($porcentaje < 50)   return 'Pocas semanas reportó';
+        if ($porcentaje < 80)   return 'Algunas semanas no reportó';
+        if ($porcentaje < 100)  return 'Varias semanas no reportó';
+        return 'Reportó todas las semanas';
+    }
+
+    private function situacionFinal(float $promedio, float $porcentaje): string
+    {
+        if ($porcentaje == 0) return 'No se conoce la calidad del agua - Sin reportes';
+        if ($promedio == 0)   return 'Su reporte de cloro residual quedó en inadecuado';
+        if ($promedio < 0.5)  return 'Su reporte de cloro residual quedó en inadecuado - Insuficiente desinfección';
+        if ($promedio <= 5.0) return 'Su reporte muestra nivel adecuado de cloro residual';
+        return 'Su reporte de cloro residual excede niveles aceptables';
     }
 
     private function applyRoleFilters($query, $role, $level, $province, $district, $ugelFilter): void

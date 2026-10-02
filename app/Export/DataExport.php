@@ -45,6 +45,8 @@ class DataExport implements FromArray, WithStyles, WithColumnWidths
             'K' => 10,
             'L' => 20,
             'M' => 15,
+            'N' => 15,
+            'O' => 15,
         ];
     }
 	
