@@ -112,9 +112,22 @@ class UserController extends Controller
         $request->validate([
             'firstName' => 'required|string|max:100',
             'surName'   => 'required|string|max:100',
-            'email'     => 'required|email|unique:tuser,email,' . $id . ',idUser',
+            'email'     => 'required|email',
             'status'    => 'required|in:Activo,Pendiente,Bloqueado',
         ]);
+
+        // Hay emails duplicados heredados del sistema anterior: si el email no cambia,
+        // no se valida unicidad para que el usuario se pueda seguir editando
+        $newEmail = trim($request->email);
+        if (strcasecmp($newEmail, trim($tUser->email)) !== 0) {
+            $owner = TUser::where('email', $newEmail)->where('idUser', '!=', $id)->first();
+            if ($owner) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "El email ya lo usa {$owner->firstName} {$owner->surName} ({$owner->status}).",
+                ], 422);
+            }
+        }
 
         try {
             DB::beginTransaction();
