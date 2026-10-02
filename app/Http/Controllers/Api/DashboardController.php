@@ -7,10 +7,12 @@ use App\Models\TInstitution;
 use App\Models\TUgel;
 use App\Models\TUser;
 use App\Models\TWater;
-use App\Export\DataExport;
 use App\Export\NonReportingExport;
-use App\Export\WaterDetailedExport;
 use App\Export\WithReportingExport;
+use App\Export\GeneralReportSheet;
+use App\Export\InstitutionFullExport;
+use App\Export\DataExport;
+use App\Export\WaterDetailedExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -61,7 +63,7 @@ class DashboardController extends Controller
             ->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
             ->where('twater.month', $monthName)
             ->whereYear('twater.created_at', $year)
-            ->whereRaw('twater.updated_at = (SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = twater.idInstitution)');
+            ->whereRaw('twater.updated_at = (SELECT MAX(s.updated_at) FROM twater s WHERE s.idInstitution = twater.idInstitution AND s.month = twater.month AND YEAR(s.created_at) = YEAR(twater.created_at))');
 
         $this->applyRoleFilters($q, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
 
@@ -229,7 +231,82 @@ class DashboardController extends Controller
         return Excel::download(new WithReportingExport($rows, $title), $filename);
     }
 
+    /**
+     * Todas las instituciones (con y sin reporte). scope=month -> una hoja del mes elegido;
+     * scope=year -> una hoja por cada mes del año (hasta el mes actual si es el año en curso).
+     */
     public function exportGeneral(Request $request)
+    {
+        // El histórico completo no cabe en hojas por mes: va en una sola hoja con todos los registros
+        if ($request->get('scope') === 'all') return $this->exportGeneralHistorico($request);
+
+        $scope = $request->get('scope', 'month');
+        $month = (int)$request->get('month', date('m'));
+        $year  = (int)$request->get('year', date('Y'));
+        $week  = (int)$request->get('week', 0);
+
+        $tUser = $request->user();
+        $q = TInstitution::with(['tdistrict.tprovince', 'tugel']);
+        if (!empty($tUser->blockingReason)) {
+            $q->where('idUgel', $tUser->blockingReason);
+        } elseif (($tUser->role ?? null) === 'Supervisor' && $tUser->level === 'levelProvince' && $tUser->idProvince) {
+            $q->whereHas('tdistrict.tprovince', fn($sq) => $sq->where('idProvince', $tUser->idProvince));
+        } elseif (($tUser->role ?? null) === 'Supervisor' && in_array($tUser->level, ['levelDistrict', 'levelDistrit']) && $tUser->idDistrict) {
+            $q->whereHas('tdistrict', fn($sq) => $sq->where('idDistrict', $tUser->idDistrict));
+        }
+        $instituciones = $q->get()->sortBy(fn($i) => [($i->tugel->name ?? 'zzz'), $i->name])->values();
+
+        $monthNums = $scope === 'year'
+            ? range(1, $year === (int)date('Y') ? (int)date('m') : 12)
+            : [$month];
+        $monthNames = array_map(fn($m) => $this->months[$m - 1], $monthNums);
+
+        $waters = TWater::whereIn('idInstitution', $instituciones->pluck('idInstitution'))
+            ->whereIn('month', $monthNames)->whereYear('created_at', $year)
+            ->orderByDesc('updated_at')->get()
+            ->unique(fn($w) => $w->idInstitution . '|' . $w->month)
+            ->keyBy(fn($w) => $w->idInstitution . '|' . $w->month);
+
+        $sheets = [];
+        foreach ($monthNames as $monthName) {
+            // En el año completo no hay semana de referencia: el estado es el último reporte del mes
+            $refWeek = $scope === 'month' && $week >= 1 && $week <= 5 ? $week : null;
+            $rows = [];
+            foreach ($instituciones as $inst) {
+                $w = $waters->get($inst->idInstitution . '|' . $monthName);
+                $weeks = [];
+                for ($i = 1; $i <= 5; $i++) {
+                    $v = $w?->{"resultW{$i}"};
+                    $weeks[] = ($v === null || (float)$v < 0) ? null : (float)$v;
+                }
+                $reported = array_values(array_filter($weeks, fn($v) => $v !== null));
+                $rows[] = [
+                    'ugel'      => $inst->tugel->name ?? 'Sin UGEL',
+                    'nombre'    => $inst->name,
+                    'prestador' => $inst->lender,
+                    'provincia' => $inst->tdistrict->tprovince->name ?? '',
+                    'distrito'  => $inst->tdistrict->name ?? '',
+                    'mes'       => $monthName,
+                    'weeks'     => $weeks,
+                    'estado'    => $refWeek ? $weeks[$refWeek - 1] : (end($reported) === false ? null : end($reported)),
+                ];
+            }
+            $sheets[] = new GeneralReportSheet(
+                $rows,
+                "{$monthName} {$year}",
+                "Reporte general de cloro residual — {$monthName} {$year}",
+                $refWeek
+            );
+        }
+
+        $filename = $scope === 'year'
+            ? "reporte_general_{$year}.xlsx"
+            : "reporte_general_{$this->months[$month - 1]}_{$year}.xlsx";
+
+        return Excel::download(new InstitutionFullExport($sheets), $filename);
+    }
+
+    private function exportGeneralHistorico(Request $request)
     {
         $scope     = $request->get('scope', 'month');
         $monthName = $this->months[(int)$request->get('month', date('m')) - 1];
@@ -380,6 +457,7 @@ class DashboardController extends Controller
         if ($promedio <= 5.0) return 'Su reporte muestra nivel adecuado de cloro residual';
         return 'Su reporte de cloro residual excede niveles aceptables';
     }
+
 
     private function applyRoleFilters($query, $role, $level, $province, $district, $ugelFilter): void
     {

@@ -660,6 +660,42 @@ class InstitutionController extends Controller
         ]);
     }
 
+    public function publicInstitutionRecords($id)
+    {
+        $institution = TInstitution::find($id);
+        if (!$institution) {
+            return response()->json(['records' => []]);
+        }
+
+        $waters = TWater::where('idInstitution', $id)
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get(['idWater', 'created_at']);
+
+        $imagesByWater = TImage::whereIn('idWater', $waters->pluck('idWater'))
+            ->get()
+            ->groupBy('idWater');
+
+        $records = $waters->map(function ($water) use ($imagesByWater) {
+            $photos = [];
+            foreach ($imagesByWater->get($water->idWater, []) as $img) {
+                foreach (['urlImage1', 'urlImage2', 'urlImage3'] as $field) {
+                    $url = $this->resolveUrl($img->$field);
+                    if ($url) $photos[] = $url;
+                }
+            }
+            return [
+                'date'   => $water->created_at?->toDateString(),
+                'photos' => $photos,
+            ];
+        });
+
+        return response()->json([
+            'institution' => $institution->name,
+            'records'     => $records,
+        ]);
+    }
+
     public function publicGallery()
     {
         $grouped = TImage::with(['tWater.tInstitution'])

@@ -66,6 +66,7 @@ Route::middleware('license')->group(function () {
     Route::get('api/public/ugel-chart',       [InstitutionController::class, 'getPublicUgelChart'])->name('api.public.ugel-chart');
     Route::get('api/public/district-chart',   [InstitutionController::class, 'getPublicDistrictChart'])->name('api.public.district-chart');
     Route::get('api/public/institution-chart',[InstitutionController::class, 'getPublicInstitutionChart'])->name('api.public.institution-chart');
+    Route::get('api/public/institution-trend',[InstitutionController::class, 'getPublicInstitutionTrend'])->name('api.public.institution-trend');
     Route::get('api/public/trend',            [InstitutionController::class, 'getPublicTrend'])->name('api.public.trend');
 });
 

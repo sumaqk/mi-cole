@@ -850,6 +850,61 @@ class InstitutionController extends Controller
 		]);
 	}
 
+	public function getPublicInstitutionTrend(Request $request)
+	{
+		$months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
+		$id     = $request->get('id');
+
+		$institution = TInstitution::find($id);
+		if (!$institution) {
+			return response()->json(['institution' => null, 'months' => []]);
+		}
+
+		$now    = new \DateTime();
+		$result = [];
+		for ($i = 5; $i >= 0; $i--) {
+			$dt        = (clone $now)->modify("-{$i} months");
+			$year      = (int)$dt->format('Y');
+			$monthNum  = (int)$dt->format('m');
+			$monthName = $months[$monthNum - 1];
+
+			$rows = DB::table('twater')
+				->whereYear('created_at', $year)
+				->where('month', $monthName)
+				->where('idInstitution', $id)
+				->select('resultW1','resultW2','resultW3','resultW4','resultW5')
+				->get();
+
+			$weeks = [];
+			for ($w = 1; $w <= 5; $w++) {
+				$field = "resultW{$w}";
+				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
+				$weeks[] = [
+					'week'  => $w,
+					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
+					'count' => $vals->count(),
+				];
+			}
+
+			$result[] = [
+				'name'  => "{$monthName} {$year}",
+				'weeks' => $weeks,
+			];
+		}
+
+		return response()->json([
+			'institution' => [
+				'id'       => $institution->idInstitution,
+				'name'     => $institution->name,
+				'lender'   => $institution->lender,
+				'ugel'     => $institution->tugel->name ?? null,
+				'district' => $institution->tdistrict->name ?? null,
+				'province' => $institution->tdistrict->tprovince->name ?? null,
+			],
+			'months' => $result,
+		]);
+	}
+
 	public function getPublicTrend()
 	{
 		$months      = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre'];
