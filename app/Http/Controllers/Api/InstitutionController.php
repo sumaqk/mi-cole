@@ -127,6 +127,12 @@ class InstitutionController extends Controller
             return response()->json(['success' => false, 'message' => 'Tiene usuarios asociados, no se puede eliminar.'], 409);
         }
 
+        // La BD no tiene claves foráneas: borrar dejaría las mediciones huérfanas
+        $waterCount = DB::table('twater')->where('idInstitution', $id)->count();
+        if ($waterCount > 0) {
+            return response()->json(['success' => false, 'message' => "Tiene {$waterCount} registro(s) de cloro, no se puede eliminar. Desactívala en su lugar."], 409);
+        }
+
         try {
             DB::beginTransaction();
             $institution->delete();
@@ -348,45 +354,42 @@ class InstitutionController extends Controller
         if ($filteredIds) $recQ->whereIn('idInstitution', $filteredIds);
         $records = $recQ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
 
-        $institutionAvgs = [];
-        $criticalCount   = 0;
-        $deficientCount  = 0;
-        $optimalCount    = 0;
-        $highCount       = 0;
-        $excessiveCount  = 0;
+        $measuredCount  = 0;
+        $safeCount      = 0;
+        $criticalCount  = 0;
+        $deficientCount = 0;
+        $optimalCount   = 0;
+        $highCount      = 0;
+        $excessiveCount = 0;
 
+        // Sin promedios: una semana mala no se compensa con una buena. Con semana elegida se usa
+        // esa medición; en el mes completo el colegio se clasifica por su peor medición y solo
+        // cuenta como seguro si todas sus mediciones lo fueron. 0 mg/L es una medición real (-1 = sin reporte).
         foreach ($records as $r) {
             if ($weekParam > 0) {
-                // Semana específica — solo valores reales (> 0)
                 $field = "resultW{$weekParam}";
-                $val   = isset($r->$field) && (float)$r->$field > 0
-                    ? (float)$r->$field : null;
-                if ($val === null) continue;
-                $avg = $val;
+                $vals  = ($r->$field !== null && (float)$r->$field >= 0) ? [(float)$r->$field] : [];
             } else {
-                // Todo el mes — promedio de semanas con dato real (> 0)
                 $vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
-                    ->filter(fn($v) => $v !== null && (float)$v > 0)
-                    ->map(fn($v) => (float)$v);
-                if ($vals->count() === 0) continue;
-                $avg = $vals->average();
+                    ->filter(fn($v) => $v !== null && (float)$v >= 0)
+                    ->map(fn($v) => (float)$v)->values()->all();
             }
+            if (!$vals) continue;
 
-            $institutionAvgs[] = $avg;
-            if ($avg < 0.3)      $criticalCount++;
-            elseif ($avg < 0.5)  $deficientCount++;
-            elseif ($avg <= 2.0) $optimalCount++;
-            elseif ($avg <= 5.0) $highCount++;
-            else                  $excessiveCount++;
+            $measuredCount++;
+            $allSafe = collect($vals)->every(fn($v) => $v >= 0.5 && $v <= 5);
+            if ($allSafe) $safeCount++;
+
+            $min = min($vals);
+            $max = max($vals);
+            if ($min < 0.3)       $criticalCount++;
+            elseif ($min < 0.5)   $deficientCount++;
+            elseif ($max > 5.0)   $excessiveCount++;
+            elseif ($max > 2.0)   $highCount++;
+            else                  $optimalCount++;
         }
 
-        $totalWithData  = count($institutionAvgs);
-        $avgChlorine    = $totalWithData > 0
-            ? round(array_sum($institutionAvgs) / $totalWithData, 2)
-            : null;
-        $complianceRate = $totalWithData > 0
-            ? round(($optimalCount / $totalWithData) * 100)
-            : null;
+        $safePct = $measuredCount > 0 ? round(($safeCount / $measuredCount) * 100) : null;
 
         return response()->json([
             'total_institutions'      => $totalInstitutions,
@@ -394,13 +397,12 @@ class InstitutionController extends Controller
             'coverage_pct'            => $coveragePct,
             'total_provinces'         => $totalProvinces,
             'total_ugels'             => $totalUgels,
-            'avg_chlorine'            => $avgChlorine,
             'critical_count'          => $criticalCount,
             'deficient_count'         => $deficientCount,
             'optimal_count'           => $optimalCount,
             'high_count'              => $highCount,
             'excessive_count'         => $excessiveCount,
-            'compliance_rate'         => $complianceRate,
+            'safe_pct'                => $safePct,
             'never_reported_count'    => $neverReportedCount,
             'trend_coverage_pct'      => $trendCoveragePct,
             'top_ugel'                => $topUgel,

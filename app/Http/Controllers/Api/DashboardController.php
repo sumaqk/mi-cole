@@ -69,12 +69,24 @@ class DashboardController extends Controller
 
         $listTWater = $q->orderByDesc('twater.updated_at')->get();
 
+        // Denominador del "% que reportó": todos los colegios activos del alcance del usuario,
+        // no solo los que tienen fila en twater este mes
+        $instQ = DB::table('tinstitution')
+            ->select(['tinstitution.idInstitution as id', 'tugel.name as ugel', 'tdistrict.name as distrito', 'tprovince.name as provincia'])
+            ->leftJoin('tugel', 'tinstitution.idUgel', '=', 'tugel.idUgel')
+            ->join('tdistrict', 'tinstitution.idDistrict', '=', 'tdistrict.idDistrict')
+            ->join('tprovince', 'tdistrict.idProvince', '=', 'tprovince.idProvince')
+            ->where('tinstitution.status', 'Activo');
+        $this->applyRoleFilters($instQ, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
+        $activeInstitutions = $instQ->get();
+
         $mapData = $this->buildMapData($monthName, $year, $week, $userRole, $userLevel, $userProvince, $userDistrict, $tUser->blockingReason ?? null);
 
         return response()->json([
             'success' => true,
             'data'    => [
                 'waterRecords' => $listTWater,
+                'institutions' => $activeInstitutions,
                 'mapData'      => $mapData,
                 'meta'         => [
                     'month' => $monthName,

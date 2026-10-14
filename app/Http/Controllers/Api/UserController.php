@@ -49,10 +49,20 @@ class UserController extends Controller
         $request->validate([
             'firstName' => 'required|string|max:100',
             'surName'   => 'required|string|max:100',
-            'email'     => 'required|email|unique:tuser,email',
+            'email'     => 'required|email',
             'password'  => 'required|string|min:6',
             'role'      => 'required|array',
         ]);
+
+        $owner = TUser::with('tInstitutionTUser.tInstitution')->where('email', trim($request->email))->first();
+        if ($owner) {
+            $inst = $owner->tInstitutionTUser->first()?->tInstitution?->name;
+            return response()->json([
+                'success' => false,
+                'message' => "El email ya lo usa {$owner->firstName} {$owner->surName} ({$owner->status}"
+                    . ($inst ? ", colegio {$inst}" : ', sin colegio') . '). Edita esa cuenta en lugar de crear otra.',
+            ], 422);
+        }
 
         try {
             DB::beginTransaction();

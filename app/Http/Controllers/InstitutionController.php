@@ -632,33 +632,36 @@ class InstitutionController extends Controller
 		if ($ids) $recQ->whereIn('idInstitution', $ids);
 		$records = $recQ->get(['resultW1', 'resultW2', 'resultW3', 'resultW4', 'resultW5']);
 
-		$institutionAvgs = [];
+		$measuredCount = 0; $safeCount = 0;
 		$criticalCount = 0; $deficientCount = 0; $optimalCount = 0; $highCount = 0; $excessiveCount = 0;
 
+		// Sin promedios: una semana mala no se compensa con una buena. Con semana elegida se usa
+		// esa medición; en el mes completo el colegio se clasifica por su peor medición y solo
+		// cuenta como seguro si todas sus mediciones lo fueron. 0 mg/L es una medición real (-1 = sin reporte).
 		foreach ($records as $r) {
 			if ($weekParam > 0) {
 				$field = "resultW{$weekParam}";
-				$val   = isset($r->$field) && (float)$r->$field > 0 ? (float)$r->$field : null;
-				if ($val === null) continue;
-				$avg = $val;
+				$vals  = ($r->$field !== null && (float)$r->$field >= 0) ? [(float)$r->$field] : [];
 			} else {
 				$vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
-					->filter(fn($v) => $v !== null && (float)$v > 0)
-					->map(fn($v) => (float)$v);
-				if ($vals->count() === 0) continue;
-				$avg = $vals->average();
+					->filter(fn($v) => $v !== null && (float)$v >= 0)
+					->map(fn($v) => (float)$v)->values()->all();
 			}
-			$institutionAvgs[] = $avg;
-			if ($avg < 0.3)      $criticalCount++;
-			elseif ($avg < 0.5)  $deficientCount++;
-			elseif ($avg <= 2.0) $optimalCount++;
-			elseif ($avg <= 5.0) $highCount++;
-			else                 $excessiveCount++;
+			if (!$vals) continue;
+
+			$measuredCount++;
+			if (collect($vals)->every(fn($v) => $v >= 0.5 && $v <= 5)) $safeCount++;
+
+			$min = min($vals);
+			$max = max($vals);
+			if ($min < 0.3)      $criticalCount++;
+			elseif ($min < 0.5)  $deficientCount++;
+			elseif ($max > 5.0)  $excessiveCount++;
+			elseif ($max > 2.0)  $highCount++;
+			else                 $optimalCount++;
 		}
 
-		$totalWithData = count($institutionAvgs);
-		$avgChlorine   = $totalWithData > 0 ? round(array_sum($institutionAvgs) / $totalWithData, 2) : null;
-		$complianceRate = $totalWithData > 0 ? (int)round(($optimalCount / $totalWithData) * 100) : null;
+		$safePct = $measuredCount > 0 ? (int)round(($safeCount / $measuredCount) * 100) : null;
 
 		return response()->json([
 			'total_institutions'      => $totalInstitutions,
@@ -666,13 +669,12 @@ class InstitutionController extends Controller
 			'coverage_pct'            => $coveragePct,
 			'total_provinces'         => $totalProvinces,
 			'total_ugels'             => $totalUgels,
-			'avg_chlorine'            => $avgChlorine,
 			'critical_count'          => $criticalCount,
 			'deficient_count'         => $deficientCount,
 			'optimal_count'           => $optimalCount,
 			'high_count'              => $highCount,
 			'excessive_count'         => $excessiveCount,
-			'compliance_rate'         => $complianceRate,
+			'safe_pct'                => $safePct,
 			'never_reported_count'    => $neverReportedCount,
 			'trend_coverage_pct'      => $trendCoveragePct,
 			'top_ugel'                => $topUgel,
@@ -702,23 +704,12 @@ class InstitutionController extends Controller
 				->where('twater.month', $currentMonth)
 				->where('tinstitution.idUgel', $ugel->idUgel);
 			if ($ids) $rowQ->whereIn('twater.idInstitution', $ids);
-			$rows = $rowQ->select('twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
+			$rows = $rowQ->select('twater.idInstitution','twater.updated_at','twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
 				->get();
 
-			$weeks = [];
-			for ($w = 1; $w <= 5; $w++) {
-				$field = "resultW{$w}";
-				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
-				$weeks[] = [
-					'week'  => $w,
-					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
-					'count' => $vals->count(),
-				];
-			}
-
-			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
-			if ($hasData) {
-				$data[] = ['name' => $ugel->name, 'weeks' => $weeks];
+			$group = $this->weeklyBands($rows);
+			if ($group['measured'] > 0) {
+				$data[] = ['name' => $ugel->name] + $group;
 			}
 		}
 
@@ -759,23 +750,12 @@ class InstitutionController extends Controller
 				->where('twater.month', $currentMonth)
 				->where('tinstitution.idUgel', $ugel->idUgel)
 				->where('tinstitution.idDistrict', $district->idDistrict)
-				->select('twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
+				->select('twater.idInstitution','twater.updated_at','twater.resultW1','twater.resultW2','twater.resultW3','twater.resultW4','twater.resultW5')
 				->get();
 
-			$weeks = [];
-			for ($w = 1; $w <= 5; $w++) {
-				$field = "resultW{$w}";
-				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
-				$weeks[] = [
-					'week'  => $w,
-					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
-					'count' => $vals->count(),
-				];
-			}
-
-			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
-			if ($hasData) {
-				$data[] = ['name' => $district->name, 'weeks' => $weeks];
+			$group = $this->weeklyBands($rows);
+			if ($group['measured'] > 0) {
+				$data[] = ['name' => $district->name] + $group;
 			}
 		}
 
@@ -821,22 +801,11 @@ class InstitutionController extends Controller
 				->whereYear('created_at', $currentYear)
 				->where('month', $currentMonth)
 				->where('idInstitution', $inst->idInstitution)
-				->select('resultW1','resultW2','resultW3','resultW4','resultW5')
-				->get();
+				->orderByDesc('updated_at')
+				->first(['resultW1','resultW2','resultW3','resultW4','resultW5']);
 
-			$weeks = [];
-			for ($w = 1; $w <= 5; $w++) {
-				$field = "resultW{$w}";
-				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
-				$weeks[] = [
-					'week'  => $w,
-					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
-					'count' => $vals->count(),
-				];
-			}
-
-			$hasData = collect($weeks)->contains(fn($wk) => $wk['avg'] !== null);
-			if ($hasData) {
+			$weeks = $this->weeklyValues($rows);
+			if (collect($weeks)->contains(fn($wk) => $wk['value'] !== null)) {
 				$data[] = ['name' => $inst->name, 'weeks' => $weeks];
 			}
 		}
@@ -848,6 +817,61 @@ class InstitutionController extends Controller
 			'district'     => $districtName,
 			'institutions' => $data,
 		]);
+	}
+
+	// Por semana, cuántos colegios cayeron en cada rango de cloro (sin promediar: un colegio
+	// crítico no se compensa con otro óptimo). Si un colegio tiene varias filas en el mes se
+	// usa la más reciente. safe_pct del mes: colegios cuyas mediciones fueron TODAS 0.5–5 mg/L.
+	private function weeklyBands($rows): array
+	{
+		$rows  = collect($rows)->sortByDesc('updated_at')->unique('idInstitution');
+		$weeks = [];
+		for ($w = 1; $w <= 5; $w++) {
+			$bands = ['critical' => 0, 'deficient' => 0, 'optimal' => 0, 'high' => 0, 'excessive' => 0];
+			$count = 0;
+			foreach ($rows as $r) {
+				$v = $r->{"resultW{$w}"};
+				if ($v === null || (float)$v < 0) continue;
+				$bands[$this->chlorineBand((float)$v)]++;
+				$count++;
+			}
+			$weeks[] = ['week' => $w, 'count' => $count, 'bands' => $bands];
+		}
+
+		$measured = 0; $safe = 0;
+		foreach ($rows as $r) {
+			$vals = collect([$r->resultW1, $r->resultW2, $r->resultW3, $r->resultW4, $r->resultW5])
+				->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
+			if ($vals->isEmpty()) continue;
+			$measured++;
+			if ($vals->every(fn($v) => $v >= 0.5 && $v <= 5)) $safe++;
+		}
+
+		return [
+			'weeks'    => $weeks,
+			'measured' => $measured,
+			'safe_pct' => $measured > 0 ? (int)round($safe / $measured * 100) : null,
+		];
+	}
+
+	// Un solo colegio: la medición real de cada semana, no un promedio
+	private function weeklyValues($row): array
+	{
+		$weeks = [];
+		for ($w = 1; $w <= 5; $w++) {
+			$v = $row?->{"resultW{$w}"};
+			$weeks[] = ['week' => $w, 'value' => ($v === null || (float)$v < 0) ? null : (float)$v];
+		}
+		return $weeks;
+	}
+
+	private function chlorineBand(float $v): string
+	{
+		if ($v < 0.3)  return 'critical';
+		if ($v < 0.5)  return 'deficient';
+		if ($v <= 2.0) return 'optimal';
+		if ($v <= 5.0) return 'high';
+		return 'excessive';
 	}
 
 	public function getPublicInstitutionTrend(Request $request)
@@ -872,23 +896,12 @@ class InstitutionController extends Controller
 				->whereYear('created_at', $year)
 				->where('month', $monthName)
 				->where('idInstitution', $id)
-				->select('resultW1','resultW2','resultW3','resultW4','resultW5')
-				->get();
-
-			$weeks = [];
-			for ($w = 1; $w <= 5; $w++) {
-				$field = "resultW{$w}";
-				$vals  = $rows->pluck($field)->filter(fn($v) => $v !== null && (float)$v >= 0)->map(fn($v) => (float)$v);
-				$weeks[] = [
-					'week'  => $w,
-					'avg'   => $vals->count() > 0 ? round($vals->average(), 2) : null,
-					'count' => $vals->count(),
-				];
-			}
+				->orderByDesc('updated_at')
+				->first(['resultW1','resultW2','resultW3','resultW4','resultW5']);
 
 			$result[] = [
 				'name'  => "{$monthName} {$year}",
-				'weeks' => $weeks,
+				'weeks' => $this->weeklyValues($rows),
 			];
 		}
 
